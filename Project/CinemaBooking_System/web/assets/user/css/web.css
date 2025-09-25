@@ -11,8 +11,8 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    min-height: 14vh; /* change to 8vh */
-    background-color: #8a5d37;
+    min-height: 14vh;
+    background: rgba(0,0,0,0.7);
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
     margin-bottom: -15px;
 }
@@ -628,7 +628,7 @@ footer{
     flex-wrap: wrap;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     font-family: Arial;
-margin-bottom: -20px;
+    margin-bottom: -20px;
     height: 500px;
 }
 
@@ -1219,7 +1219,8 @@ a:hover {
     max-height: 75%;
     overflow: auto;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    margin-top: 150px;margin-left: 25%;
+    margin-top: 150px;
+    margin-left: 25%;
 }
 
 .modal-view.modal-show .modal-content-view {
@@ -1421,7 +1422,9 @@ a:hover {
     display: block;
 }
 
-.dropdown-content a:hover {background-color: #f1f1f1}
+.dropdown-content a:hover {
+    background-color: #f1f1f1
+}
 
 .dropdown:hover .dropdown-content {
     display: block;
@@ -1548,7 +1551,7 @@ a:hover {
     color: #000;
     text-align: center;
     margin-top: 40px;
-   font-size: 1.3em;
+    font-size: 1.3em;
 }
 .Modal-InText {
     text-align: center;
@@ -1613,10 +1616,11 @@ a:hover {
 }
 .red {
     background: #ff3c35;
-}.position:hover .badge {
-     background-color: #000;
-     transform: scale(1.08);
- }
+}
+.position:hover .badge {
+    background-color: #000;
+    transform: scale(1.08);
+}
 .position:active .badge {
     background-color: #555;
     transform: scale(1);
@@ -1642,4 +1646,15 @@ a:hover {
     .position:hover .badge {
         transform: scale(1);
     }
+}
+.day {
+    font-weight: bold;
+    color: orange; /* số màu cam */
+}
+
+.day::after {
+    content: "★";
+    color: gold;   /* sao màu vàng */
+    margin-left: 3px;
+    font-size: 16px;
 }

@@ -20,13 +20,13 @@
         <!-- Banner/Slider -->
         <div class="slide-container">
             <div class="slide fade">
-                <img src="${pageContext.request.contextPath}/assets/user/img/banner6.jpg" style="width:100%;" alt="Slide 1">
+                <img src="${pageContext.request.contextPath}/assets/user/img/bannerphim1.jpg" style="width:100%;" alt="Slide 1">
             </div>
             <div class="slide fade">
-                <img src="${pageContext.request.contextPath}/assets/user/img/banner7.jpg" style="width:100%;" alt="Slide 2">
+                <img src="${pageContext.request.contextPath}/assets/user/img/bannerphim2.jpg" style="width:100%;" alt="Slide 2">
             </div>
             <div class="slide fade">
-                <img src="${pageContext.request.contextPath}/assets/user/img/banner8.png" style="width:100%;" alt="Slide 3">
+                <img src="${pageContext.request.contextPath}/assets/user/img/bannerphim3.jpg" style="width:100%;" alt="Slide 3">
             </div>
             <a class="prev" onclick="plusSlide(-1)">&#10094;</a>
             <a class="next" onclick="plusSlide(1)">&#10095;</a>
@@ -57,7 +57,7 @@
                                 <img src="${pageContext.request.contextPath}/assets/admin/img/img/${movie.image}"
                                      style="width: 100%; height: 459px">
                                 <div class="date">
-                                    <span class="day">${movie.ratedId}</span>
+                                    <span class="day">${movie.ratedId} </span>
                                     <span class="month">Trailer</span>
                                 </div>
                                 <i class="myBtn" data-toggle="modal" data-target="#modal${movie.id}">Xem trailer</i>
@@ -109,7 +109,7 @@
                                 <img src="${pageContext.request.contextPath}/assets/admin/img/img/${movie1.image}"
                                      style="width: 100%; height: 459px">
                                 <div class="date">
-                                    <span class="day">${movie1.ratedId}</span>
+                                    <span class="day">${movie1.ratedId} </span>
                                     <span class="month">Trailer</span>
                                 </div>
                                 <i class="myBtnn" data-toggle="modal" data-target="#modalUpcoming${movie1.id}">Xem trailer</i>
