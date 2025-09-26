@@ -19,7 +19,7 @@ public class HomeController extends HttpServlet {
 
         List<Movie> listNowShowing = dao.getNowShowingMovies();
         List<Movie> listComingSoon = dao.getComingSoonMovies();
-
+        
         request.setAttribute("listmovie", listNowShowing);
         request.setAttribute("listmovie1", listComingSoon);
 

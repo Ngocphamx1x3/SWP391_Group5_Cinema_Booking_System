@@ -11,7 +11,7 @@
     </div>
 
     <ul class="nav-links">
-        <li><a href="${pageContext.request.contextPath}/homepage.jsp">TRANG CHỦ</a></li>
+        <li><a href="${pageContext.request.contextPath}/home">TRANG CHỦ</a></li>
         <li><a href="${pageContext.request.contextPath}/phim.jsp">PHIM CHIẾU</a></li>
         <li><a href="${pageContext.request.contextPath}/lichchieu.jsp">LỊCH CHIẾU</a></li>
         <li><a href="${pageContext.request.contextPath}/gia-ve.jsp">THÀNH VIÊN & GIÁ VÉ</a></li>

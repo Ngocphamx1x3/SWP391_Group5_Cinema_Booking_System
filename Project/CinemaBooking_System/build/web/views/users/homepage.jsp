@@ -63,23 +63,26 @@
                                 <i class="myBtn" data-toggle="modal" data-target="#modal${movie.id}">Xem trailer</i>
                                 <figcaption>
                                     <h3>
-                                        <a href="detail?id=${movie.id}">${movie.name}</a>
+                                        <a href="${pageContext.request.contextPath}/detail?id=${movie.id}">
+                                            ${movie.name}
+                                        </a>
                                     </h3>
-                                    <p>
-                                        - Thể loại:
-                                        <c:forEach var="type" items="${movie.movieTypes}" varStatus="loop">
-                                            ${type.name}<c:if test="${!loop.last}">, </c:if>
-                                        </c:forEach>
-                                        <br>
-                                        - Thời lượng: ${movie.movieDuration} phút <br>
-                                        - Ngày khởi chiếu: ${movie.premiereDate} <br>
-                                    </p>
-                                    <c:if test="${empty customer}">
-                                        <button data-toggle="modal" data-target="#myModalll">Đặt vé</button>
-                                    </c:if>
-                                    <c:if test="${not empty customer}">
-                                        <button><a href="show/cinema?movieId=${movie.id}">Mua Vé</a></button>
-                                    </c:if>
+                                </figcaption>
+                                <p>
+                                    - Thể loại:
+                                    <c:forEach var="type" items="${movie.movieTypes}" varStatus="loop">
+                                        ${type.name}<c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                    <br>
+                                    - Thời lượng: ${movie.movieDuration} phút <br>
+                                    - Ngày khởi chiếu: ${movie.premiereDate} <br>
+                                </p>
+                                <c:if test="${empty customer}">
+                                    <button data-toggle="modal" data-target="#myModalll">Đặt vé</button>
+                                </c:if>
+                                <c:if test="${not empty customer}">
+                                    <button><a href="show/cinema?movieId=${movie.id}">Mua Vé</a></button>
+                                </c:if>
                                 </figcaption>
                             </figure>
 

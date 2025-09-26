@@ -17,11 +17,14 @@ public class Movie {
     private String status;
     private int ratedId;
     private List<MovieType> movieTypes;
+    private List<Director> directors;
+    private List<Performer> performers;
+    private List<Language> languages;
 
     public Movie() {
     }
 
-    public Movie(int id, String code, String name, String description, String image, String trailer, int movieDuration, Date premiereDate, Date endDate, String status, int ratedId, List<MovieType> movieTypes) {
+    public Movie(int id, String code, String name, String description, String image, String trailer, int movieDuration, Date premiereDate, Date endDate, String status, int ratedId, List<MovieType> movieTypes, List<Director> directors, List<Performer> performers, List<Language> languages) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -34,7 +37,12 @@ public class Movie {
         this.status = status;
         this.ratedId = ratedId;
         this.movieTypes = movieTypes;
+        this.directors = directors;
+        this.performers = performers;
+        this.languages = languages;
     }
+
+
 
     public int getId() {
         return id;
@@ -132,5 +140,28 @@ public class Movie {
         this.movieTypes = movieTypes;
     }
 
+    public List<Director> getDirectors() {
+        return directors;
+    }
+
+    public void setDirectors(List<Director> directors) {
+        this.directors = directors;
+    }
+
+    public List<Performer> getPerformers() {
+        return performers;
+    }
+
+    public void setPerformers(List<Performer> performers) {
+        this.performers = performers;
+    }
+
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
+    }
 
 }

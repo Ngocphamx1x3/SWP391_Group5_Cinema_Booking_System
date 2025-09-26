@@ -64,3 +64,24 @@ section {
     margin-top: 20px;
     text-align: center;
 }
+
+.movie-meta{
+  display:grid;
+  grid-template-columns: 220px 1fr; /* chỉnh chiều rộng cột trái tại đây */
+  gap:8px 24px;
+  align-items:start;
+  margin:0;
+}
+.movie-meta dt{
+  font-weight:700;
+  text-transform:uppercase;
+  margin:0;
+}
+.movie-meta dd{
+  margin:0;   /* bỏ margin mặc định để hàng thẳng nhau */
+  line-height:1.6;
+}
+@media (max-width: 768px){
+  .movie-meta{ grid-template-columns: 1fr; }
+  .movie-meta dt{ margin-top:12px; }
+}
