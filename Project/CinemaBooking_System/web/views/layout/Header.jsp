@@ -19,7 +19,7 @@
         <!-- Nếu chưa đăng nhập -->
         <c:if test="${empty customer}">
             <li><a href="${pageContext.request.contextPath}/login.jsp">ĐĂNG NHẬP</a></li>
-            <li><a href="${pageContext.request.contextPath}/register.jsp">ĐĂNG KÝ</a></li>
+            <li><a href="${pageContext.request.contextPath}/register">ĐĂNG KÝ</a></li>
         </c:if>
 
         <!-- Nếu đã đăng nhập -->
