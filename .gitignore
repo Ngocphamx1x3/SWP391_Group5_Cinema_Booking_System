@@ -1,0 +1,20 @@
+﻿# Build outputs
+dist/
+build/
+bin/
+obj/
+*.dll
+*.exe
+
+# IDE files
+nbproject/
+.vs/
+.idea/
+*.suo
+*.user
+
+# Environment files
+appsettings.json
+appsettings.*.json
+.env
+*.env.local
