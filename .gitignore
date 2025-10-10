@@ -3,6 +3,9 @@ dist/
 build/
 bin/
 obj/
+lib/
+private/
+nbproject/private
 *.dll
 *.exe
 

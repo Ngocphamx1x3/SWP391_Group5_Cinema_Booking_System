@@ -10,7 +10,7 @@ public class EmailUtil {
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
     private static final String USERNAME = "ngocphamquang30@gmail.com";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "hiwc vvpm nivq spjg";
     
     public static boolean sendHtmlEmail(String toEmail, String subject, String htmlContent) {
         try {
