@@ -9,6 +9,7 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
+
 @WebServlet(name = "HomeController", urlPatterns = {"/home"})
 public class HomeController extends HttpServlet {
 
@@ -19,7 +20,7 @@ public class HomeController extends HttpServlet {
 
         List<Movie> listNowShowing = dao.getNowShowingMovies();
         List<Movie> listComingSoon = dao.getComingSoonMovies();
-        
+
         request.setAttribute("listmovie", listNowShowing);
         request.setAttribute("listmovie1", listComingSoon);
 

@@ -36,6 +36,26 @@
                 <span class="dot" onclick="currentSlide(3)"></span>
             </div>
         </div>
+<!-- ===== Movie Type + Search Bar Row ===== -->
+<div style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px auto;
+    max-width: 1400px;
+    flex-wrap: wrap;
+    padding: 0 40px; /* spacing from left and right edges */
+">
+    <!-- Left: Movie Type Dropdown -->
+    <div style="flex: 1; display: flex; justify-content: flex-start; padding-left: 10px;">
+        <jsp:include page="movieTypeList.jsp" />
+    </div>
+
+    <!-- Right: Search Bar -->
+    <div style="flex: 1; display: flex; justify-content: flex-end; padding-right: 10px;">
+        <jsp:include page="searchBar.jsp" />
+    </div>
+</div>
 
         <!-- Tabs phim -->
         <h2>FILMBOOKING</h2>
