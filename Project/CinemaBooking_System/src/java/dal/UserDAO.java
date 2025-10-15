@@ -173,4 +173,49 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    public boolean updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE Users SET Password = ?, UpdatedAt = GETDATE() WHERE Id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newPassword);
+            ps.setInt(2, userId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Users getUserById(int userId) {
+        String sql = "SELECT * FROM Users WHERE Id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Users user = new Users();
+                user.setId(rs.getInt("Id"));
+                user.setEmail(rs.getString("Email"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setPassword(rs.getString("Password"));
+                user.setPoint(rs.getInt("Point"));
+                user.setUsername(rs.getString("Username"));
+                user.setRole(rs.getString("Role"));
+                user.setStatus(rs.getString("Status"));
+                user.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                user.setUpdatedAt(rs.getTimestamp("UpdatedAt"));
+
+                return user;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

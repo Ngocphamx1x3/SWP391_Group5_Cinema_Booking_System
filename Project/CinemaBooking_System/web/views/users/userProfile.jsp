@@ -1,9 +1,3 @@
-<%-- 
-    Document   : userProfile
-    Created on : Oct 13, 2025, 8:56:48 PM
-    Author     : admin
---%>
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ page import="model.UserProfile, model.Users" %>
@@ -14,109 +8,174 @@
 
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hồ Sơ Người Dùng</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/user/css/profile.css">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ Sơ Người Dùng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/user/css/profile.css">
+    <style>
+        .alert {
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
 
-    </head>
-    <body>
-        <div class="container-xl px-4 mt-4">
-            <c:if test="${not empty message}">
-                <div class="alert alert-success text-center" role="alert" style="margin: 20px;">
-                    ${message}
-                </div>
-            </c:if>
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <a href="${pageContext.request.contextPath}/home" 
-                   class="btn btn-outline-primary" 
-                   style="font-weight: 500; text-decoration: none;">
-                    ← Quay lại Trang chủ
-                </a>
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
 
-            </div>
+        .btn {
+            font-weight: 500;
+        }
 
-            <hr class="mt-0 mb-4">
+        /* Style cho nút đổi mật khẩu */
+        .btn-change-password {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
 
-            <div class="row">
-                <div class="col-xl-4">
-                    <div class="card mb-4 mb-xl-0">
-                        <div class="card-header">Ảnh đại diện</div>
-                        <div class="card-body text-center">
-                            <img class="img-account-profile rounded-circle mb-2"
-                                 src="<c:out value='${profile.avatarUrl != null ? profile.avatarUrl : "https://via.placeholder.com/150"}'/>"
-                                 alt="Ảnh đại diện" id="avatarPreview">
-                            <div class="small font-italic text-muted mb-4">JPG hoặc PNG không lớn hơn 5 MB</div>
-                            <form action="${pageContext.request.contextPath}/uploadAvatar" method="post" enctype="multipart/form-data">
+        .btn-change-password:hover {
+            background-color: #5a6268;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
 
+        .btn-change-password::before {
+            content: "🔒";
+            font-size: 16px;
+        }
 
-                                <input type="file" name="avatarFile" accept="image/*" class="form-control mb-2">
-                                <button class="btn btn-primary" type="submit">Tải ảnh lên</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+        /* Tạo khoảng cách giữa các nút */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-                <div class="col-xl-8">
-                    <div class="card mb-4">
-                        <div class="card-header">Chi tiết tài khoản</div>
-                        <div class="card-body">
-                            <form action="${pageContext.request.contextPath}/editProfile" method="post" enctype="multipart/form-data">
+        @media (max-width: 576px) {
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn-change-password {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
 
-                                <input type="hidden" name="userId" value="<%= user.getId() %>">
+<div class="container-xl px-4 mt-4">
+    <!-- Hiển thị thông báo thành công nếu có -->
+    <c:if test="${not empty message}">
+        <div class="alert alert-success">${message}</div>
+    </c:if>
 
-                                <div class="mb-3">
-                                    <label class="small mb-1" for="inputUsername">Tên người dùng</label>
-                                    <input class="form-control" id="inputUsername" name="username" type="text"
-                                           value="<%= user.getUsername() %>" required>
-                                </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="${pageContext.request.contextPath}/home" class="btn btn-outline-primary">
+            ← Quay lại Trang chủ
+        </a>
+    </div>
 
-                                <div class="mb-3">
-                                    <label class="small mb-1" for="inputPhoneNumber">Số điện thoại</label>
-                                    <input class="form-control" id="inputPhoneNumber" name="phone" type="tel"
-                                           value="<%= user.getPhoneNumber() %>" required>
-                                </div>
+    <hr class="mt-0 mb-4">
 
-                                <div class="row gx-3 mb-3">
-                                    <div class="col-md-6">
-                                        <label class="small mb-1" for="inputFullName">Họ và tên</label>
-                                        <input class="form-control" id="inputFullName" name="fullName" type="text"
-                                               value="<%= profile != null ? profile.getFullName() : "" %>">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="small mb-1" for="inputGender">Giới tính</label>
-                                        <select class="form-control" id="inputGender" name="gender">
-                                            <option value="" <%= (profile == null || profile.getGender() == null) ? "selected" : "" %>>Chọn</option>
-                                            <option value="Nam" <%= (profile != null && "Nam".equals(profile.getGender())) ? "selected" : "" %>>Nam</option>
-                                            <option value="Nữ" <%= (profile != null && "Nữ".equals(profile.getGender())) ? "selected" : "" %>>Nữ</option>
-                                            <option value="Khác" <%= (profile != null && "Khác".equals(profile.getGender())) ? "selected" : "" %>>Khác</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="row gx-3 mb-3">
-                                    <div class="col-md-6">
-                                        <label class="small mb-1" for="inputBirthday">Ngày sinh</label>
-                                        <input class="form-control" id="inputBirthday" name="birthday" type="date"
-                                               value="<%= profile != null && profile.getBirthday() != null ? profile.getBirthday().toString() : "" %>">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="small mb-1" for="inputAddress">Địa chỉ</label>
-                                        <input class="form-control" id="inputAddress" name="address" type="text"
-                                               value="<%= profile != null ? profile.getAddress() : "" %>">
-                                    </div>
-                                </div>
-
-                                <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
-                            </form>
-                        </div>
-                    </div>
+    <div class="row">
+        <!-- Cột trái: Ảnh đại diện -->
+        <div class="col-xl-4">
+            <div class="card mb-4 mb-xl-0">
+                <div class="card-header">Ảnh đại diện</div>
+                <div class="card-body text-center">
+                    <img class="img-account-profile rounded-circle mb-2"
+                         src="<c:out value='${profile.avatarUrl != null ? profile.avatarUrl : "https://via.placeholder.com/150"}'/>"
+                         alt="Ảnh đại diện" id="avatarPreview">
+                    <div class="small font-italic text-muted mb-4">JPG hoặc PNG không lớn hơn 5 MB</div>
+                    <form action="${pageContext.request.contextPath}/uploadAvatar" method="post" enctype="multipart/form-data">
+                        <input type="file" name="avatarFile" accept="image/*" class="form-control mb-2">
+                        <button class="btn btn-primary" type="submit">Tải ảnh lên</button>
+                    </form>
                 </div>
             </div>
         </div>
-        <script src="${pageContext.request.contextPath}/assets/user/js/alert-handler.js"></script>
-    </body>
-</html>
 
+        <!-- Cột phải: Form thông tin -->
+        <div class="col-xl-8">
+            <div class="card mb-4">
+                <div class="card-header">Chi tiết tài khoản</div>
+                <div class="card-body">
+                    <form action="${pageContext.request.contextPath}/editProfile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="userId" value="<%= user.getId() %>">
+
+                        <div class="mb-3">
+                            <label>Tên người dùng</label>
+                            <input class="form-control" name="username" type="text" value="<%= user.getUsername() %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Số điện thoại</label>
+                            <input class="form-control" name="phone" type="tel" value="<%= user.getPhoneNumber() %>" required>
+                        </div>
+
+                        <div class="row gx-3 mb-3">
+                            <div class="col-md-6">
+                                <label>Họ và tên</label>
+                                <input class="form-control" name="fullName" type="text"
+                                       value="<%= profile != null ? profile.getFullName() : "" %>">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Giới tính</label>
+                                <select class="form-control" name="gender">
+                                    <option value="" <%= (profile == null || profile.getGender() == null) ? "selected" : "" %>>Chọn</option>
+                                    <option value="Nam" <%= (profile != null && "Nam".equals(profile.getGender())) ? "selected" : "" %>>Nam</option>
+                                    <option value="Nữ" <%= (profile != null && "Nữ".equals(profile.getGender())) ? "selected" : "" %>>Nữ</option>
+                                    <option value="Khác" <%= (profile != null && "Khác".equals(profile.getGender())) ? "selected" : "" %>>Khác</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row gx-3 mb-3">
+                            <div class="col-md-6">
+                                <label>Ngày sinh</label>
+                                <input class="form-control" name="birthday" type="date"
+                                       value="<%= profile != null && profile.getBirthday() != null ? profile.getBirthday().toString() : "" %>">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Địa chỉ</label>
+                                <input class="form-control" name="address" type="text"
+                                       value="<%= profile != null ? profile.getAddress() : "" %>">
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
+                            <a href="${pageContext.request.contextPath}/changePassword" class="btn-change-password">
+                                Đổi mật khẩu
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

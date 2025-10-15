@@ -7,13 +7,16 @@
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/views/users/userProfile.jsp</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/controller/LoginController.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/assets/user/css/lichchieu.css</file>
+            <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/controller/ChangePasswordController.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/views/users/homepage.jsp</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/views/users/login.jsp</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/views/layout/Header-admin.jsp</file>
+            <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/controller/RegisterController.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/util/EmailUtil.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/controller/UploadAvatarController.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/controller/HomeController.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/model/Users.java</file>
+            <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/views/users/changePassword.jsp</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/dal/UserDAO.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/src/java/controller/MovieDetailController.java</file>
             <file>file:/D:/swp/SWP391_Group5_Cinema_Booking_System/Project/CinemaBooking_System/web/assets/user/css/thongtincanhan.css</file>

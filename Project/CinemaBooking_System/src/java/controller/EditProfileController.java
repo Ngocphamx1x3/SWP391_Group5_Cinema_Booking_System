@@ -93,7 +93,7 @@ public class EditProfileController extends HttpServlet {
         // Load lại profile và forward
         request.setAttribute("message", "Cập nhật hồ sơ thành công!");
         request.setAttribute("profile", dao.getUserProfileByUserId(user.getId()));
-        request.getRequestDispatcher("/views/users/userProfile.jsp").forward(request, response);
+       response.sendRedirect("userProfile?success=true");
 
     }
 

@@ -27,12 +27,16 @@ public class UserProfileController extends HttpServlet {
             return;
         }
 
-        // Lấy dữ liệu từ DB
         UserDAO dao = new UserDAO();
         UserProfile profile = dao.getUserProfileByUserId(user.getId());
 
         request.setAttribute("profile", profile);
+
+        String success = request.getParameter("success");
+        if ("true".equals(success)) {
+            request.setAttribute("message", "Cập nhật hồ sơ thành công!");
+        }
+
         request.getRequestDispatcher("/views/users/userProfile.jsp").forward(request, response);
     }
 }
-
