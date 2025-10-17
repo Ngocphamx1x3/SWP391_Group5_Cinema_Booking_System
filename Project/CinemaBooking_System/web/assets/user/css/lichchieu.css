@@ -1124,6 +1124,12 @@ input[type="number"] {
     color: gray;
 }
 
+.wrapper:has(.input:focus).label,
+.wrapper:has(.input:not(:placeholder-shown)) .label {
+    top: 0;
+    left: 2ch;
+    transform: scale(0.7) translateY(1ch);
+}
 
 .input:focus {
     border-bottom-color: orange;
