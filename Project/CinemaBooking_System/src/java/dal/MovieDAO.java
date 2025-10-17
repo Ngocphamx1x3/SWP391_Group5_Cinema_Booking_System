@@ -186,4 +186,153 @@ public class MovieDAO extends DBContext {
         }
         return list;
     }
+    // ----------------- SEARCH MOVIES -----------------
+public List<Movie> searchMovies(String keyword) {
+    List<Movie> list = new ArrayList<>();
+    String sql = "SELECT * FROM Movie WHERE Name LIKE ?";
+
+    try (Connection con = getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setString(1, "%" + keyword + "%");
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Movie m = new Movie();
+            m.setId(rs.getInt("Id"));
+            m.setName(rs.getString("Name"));
+            m.setImage(rs.getString("Image")); // optional
+            list.add(m);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+// Thêm các method này vào class MovieDAO của bạn
+// Chỉ thêm những method chưa có, nếu đã có thì sửa lại
+
+// Method 1: Lấy phim theo status
+public List<Movie> getMovieListByStatus(String status) {
+    List<Movie> movies = new ArrayList<>();
+    String sql = "SELECT * FROM Movie WHERE Status = ? ORDER BY PremiereDate DESC";
+    
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, status);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Movie movie = extractMovieFromResultSet(rs);
+                // Load movie types for this movie
+                movie.setMovieTypes(getMovieTypesForMovie(movie.getId()));
+                movies.add(movie);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    return movies;
+}
+
+// Method 2: Lọc phim theo thể loại và status
+public List<Movie> filterMoviesByTypeAndStatus(int typeId, String status) {
+    List<Movie> movies = new ArrayList<>();
+    String sql = "SELECT DISTINCT m.* FROM Movie m " +
+                 "INNER JOIN Movie_MovieType mmt ON m.Id = mmt.MovieId " +
+                 "WHERE mmt.MovieTypeId = ? AND m.Status = ? " +
+                 "ORDER BY m.PremiereDate DESC";
+    
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, typeId);
+        ps.setString(2, status);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Movie movie = extractMovieFromResultSet(rs);
+                // Load movie types for this movie
+                movie.setMovieTypes(getMovieTypesForMovie(movie.getId()));
+                movies.add(movie);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    return movies;
+}
+
+// Method 3: Lấy danh sách thể loại của một phim cụ thể
+public List<MovieType> getMovieTypesForMovie(int movieId) {
+    List<MovieType> types = new ArrayList<>();
+    String sql = "SELECT mt.* FROM MovieType mt " +
+                 "INNER JOIN Movie_MovieType mmt ON mt.Id = mmt.MovieTypeId " +
+                 "WHERE mmt.MovieId = ?";
+    
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, movieId);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                MovieType type = new MovieType();
+                type.setId(rs.getInt("Id"));
+                type.setCode(rs.getString("Code"));
+                type.setName(rs.getString("Name"));
+                types.add(type);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    return types;
+}
+
+// Method 4: Lấy tất cả thể loại phim - KIỂM TRA xem đã có chưa
+// Nếu đã có method getAllMovieTypes() thì KHÔNG cần thêm method này
+public List<MovieType> getAllMovieTypes() {
+    List<MovieType> types = new ArrayList<>();
+    String sql = "SELECT * FROM MovieType ORDER BY Name";
+    
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        
+        while (rs.next()) {
+            MovieType type = new MovieType();
+            type.setId(rs.getInt("Id"));
+            type.setCode(rs.getString("Code"));
+            type.setName(rs.getString("Name"));
+            types.add(type);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    return types;
+}
+
+// Helper method: Extract Movie object from ResultSet
+// Tránh lặp code khi map ResultSet sang Movie object
+private Movie extractMovieFromResultSet(ResultSet rs) throws SQLException {
+    Movie movie = new Movie();
+    movie.setId(rs.getInt("Id"));
+    movie.setCode(rs.getString("Code"));
+    movie.setName(rs.getString("Name"));
+    movie.setDescription(rs.getString("Description"));
+    movie.setImage(rs.getString("Image"));
+    movie.setTrailer(rs.getString("Trailer"));
+    movie.setMovieDuration(rs.getInt("MovieDuration"));
+    movie.setPremiereDate(rs.getDate("PremiereDate"));
+    movie.setEndDate(rs.getDate("EndDate"));
+    movie.setStatus(rs.getString("Status"));
+    movie.setRatedId(rs.getInt("RatedId"));
+    return movie;
+}
 }

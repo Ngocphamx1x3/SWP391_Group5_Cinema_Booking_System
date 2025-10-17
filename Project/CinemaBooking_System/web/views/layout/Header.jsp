@@ -13,15 +13,15 @@
     <ul class="nav-links">
         <li><a href="${pageContext.request.contextPath}/home">TRANG CHỦ</a></li>
         <li><a href="${pageContext.request.contextPath}/phim.jsp">PHIM CHIẾU</a></li>
+        <li><a href="${pageContext.request.contextPath}/cinema.jsp">RẠP PHIM</a></li>
         <li><a href="${pageContext.request.contextPath}/lichchieu.jsp">LỊCH CHIẾU</a></li>
         <li><a href="${pageContext.request.contextPath}/gia-ve.jsp">THÀNH VIÊN & GIÁ VÉ</a></li>
 
         <!-- Nếu chưa đăng nhập -->
         <c:if test="${empty customer}">
-            <li><a href="${pageContext.request.contextPath}/login">ĐĂNG NHẬP</a></li>
-            <li><a href="${pageContext.request.contextPath}/register">ĐĂNG KÝ</a></li>
+            <li><a href="${pageContext.request.contextPath}/login.jsp">ĐĂNG NHẬP</a></li>
+            <li><a href="${pageContext.request.contextPath}/register.jsp">ĐĂNG KÝ</a></li>
         </c:if>
-
         <!-- Nếu đã đăng nhập -->
         <c:if test="${not empty customer}">
             <li class="dropdown">
