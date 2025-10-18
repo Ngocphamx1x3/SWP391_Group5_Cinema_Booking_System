@@ -17,17 +17,19 @@
         <li><a href="${pageContext.request.contextPath}/gia-ve.jsp">THÀNH VIÊN & GIÁ VÉ</a></li>
 
         <!-- Nếu chưa đăng nhập -->
-        <c:if test="${empty customer}">
+        <c:if test="${empty sessionScope.account}">
             <li><a href="${pageContext.request.contextPath}/login">ĐĂNG NHẬP</a></li>
             <li><a href="${pageContext.request.contextPath}/register">ĐĂNG KÝ</a></li>
         </c:if>
 
         <!-- Nếu đã đăng nhập -->
-        <c:if test="${not empty customer}">
+        <c:if test="${not empty sessionScope.account}">
             <li class="dropdown">
-                Xin chào, ${customer.name}
+                <a href="#" class="dropdown-toggle">
+                    Xin chào, ${sessionScope.account.username}
+                </a>
                 <div class="dropdown-content">
-                    <a href="${pageContext.request.contextPath}/thongtincanhan.jsp">👨 Thông tin</a>
+                    <a href="${pageContext.request.contextPath}/userProfile">👨 Thông tin</a>
                     <a href="${pageContext.request.contextPath}/logout">Đăng xuất</a>
                 </div>
             </li>
