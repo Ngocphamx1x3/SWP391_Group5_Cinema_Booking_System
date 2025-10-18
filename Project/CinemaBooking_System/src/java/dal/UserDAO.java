@@ -3,6 +3,8 @@ package dal;
 import util.DBContext;
 
 import java.sql.*;
+import model.UserProfile;
+import model.Users;
 
 public class UserDAO extends DBContext {
 
@@ -74,5 +76,142 @@ public class UserDAO extends DBContext {
         } catch (ClassNotFoundException ex) {
             throw new SQLException(ex);
         }
+    }
+    public void updateUser(Users user) {
+        String sql = "UPDATE Users SET Username = ?, PhoneNumber = ? WHERE Id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPhoneNumber());
+            ps.setLong(3, user.getId());
+            ps.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateOrInsertUserProfile(UserProfile profile) {
+        if (existsUserProfile(profile.getUserId())) {
+            updateUserProfile(profile);
+        } else {
+            insertUserProfile(profile);
+        }
+    }
+
+    private boolean existsUserProfile(long userId) {
+        String sql = "SELECT COUNT(*) FROM UserProfile WHERE UserId = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void insertUserProfile(UserProfile profile) {
+        String sql = "INSERT INTO UserProfile (UserId, FullName, Gender, Birthday, Address, AvatarUrl) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, profile.getUserId());
+            ps.setString(2, profile.getFullName());
+            ps.setString(3, profile.getGender());
+            if (profile.getBirthday() != null) {
+                ps.setDate(4, new java.sql.Date(profile.getBirthday().getTime()));
+            } else {
+                ps.setNull(4, Types.DATE);
+            }
+            ps.setString(5, profile.getAddress());
+            ps.setString(6, profile.getAvatarUrl());
+            ps.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateUserProfile(UserProfile profile) {
+        String sql = "UPDATE UserProfile SET FullName = ?, Gender = ?, Birthday = ?, Address = ?, AvatarUrl = ? WHERE UserId = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, profile.getFullName());
+            ps.setString(2, profile.getGender());
+            if (profile.getBirthday() != null) {
+                ps.setDate(3, new java.sql.Date(profile.getBirthday().getTime()));
+            } else {
+                ps.setNull(3, Types.DATE);
+            }
+            ps.setString(4, profile.getAddress());
+            ps.setString(5, profile.getAvatarUrl());
+            ps.setLong(6, profile.getUserId());
+            ps.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public UserProfile getUserProfileByUserId(long userId) {
+        String sql = "SELECT * FROM UserProfile WHERE UserId = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                UserProfile profile = new UserProfile();
+                profile.setUserId(rs.getInt("UserId"));
+                profile.setFullName(rs.getString("FullName"));
+                profile.setGender(rs.getString("Gender"));
+                profile.setBirthday(rs.getDate("Birthday"));
+                profile.setAddress(rs.getString("Address"));
+                profile.setAvatarUrl(rs.getString("AvatarUrl"));
+                return profile;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE Users SET Password = ?, UpdatedAt = GETDATE() WHERE Id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newPassword);
+            ps.setInt(2, userId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Users getUserById(int userId) {
+        String sql = "SELECT * FROM Users WHERE Id = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Users user = new Users();
+                user.setId(rs.getInt("Id"));
+                user.setEmail(rs.getString("Email"));
+                user.setPhoneNumber(rs.getString("PhoneNumber"));
+                user.setPassword(rs.getString("Password"));
+                user.setPoint(rs.getInt("Point"));
+                user.setUsername(rs.getString("Username"));
+                user.setRole(rs.getString("Role"));
+                user.setStatus(rs.getString("Status"));
+                user.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                user.setUpdatedAt(rs.getTimestamp("UpdatedAt"));
+
+                return user;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
