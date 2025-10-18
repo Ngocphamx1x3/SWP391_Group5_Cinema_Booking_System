@@ -36,7 +36,6 @@
             font-weight: 500;
         }
 
-        /* Style cho nút đổi mật khẩu */
         .btn-change-password {
             background-color: #6c757d;
             color: white;
@@ -63,11 +62,15 @@
             font-size: 16px;
         }
 
-        /* Tạo khoảng cách giữa các nút */
         .button-group {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .upload-status {
+            margin-top: 10px;
+            font-size: 14px;
         }
 
         @media (max-width: 576px) {
@@ -106,12 +109,15 @@
                 <div class="card-body text-center">
                     <img class="img-account-profile rounded-circle mb-2"
                          src="<c:out value='${profile.avatarUrl != null ? profile.avatarUrl : "https://via.placeholder.com/150"}'/>"
-                         alt="Ảnh đại diện" id="avatarPreview">
+                         alt="Ảnh đại diện" id="avatarPreview" style="width: 150px; height: 150px; object-fit: cover;">
                     <div class="small font-italic text-muted mb-4">JPG hoặc PNG không lớn hơn 5 MB</div>
-                    <form action="${pageContext.request.contextPath}/uploadAvatar" method="post" enctype="multipart/form-data">
-                        <input type="file" name="avatarFile" accept="image/*" class="form-control mb-2">
+                    
+                    <!-- Form upload avatar với AJAX -->
+                    <form id="avatarUploadForm" enctype="multipart/form-data">
+                        <input type="file" name="avatarFile" id="avatarFile" accept="image/*" class="form-control mb-2" required>
                         <button class="btn btn-primary" type="submit">Tải ảnh lên</button>
                     </form>
+                    <div id="uploadStatus" class="upload-status"></div>
                 </div>
             </div>
         </div>
@@ -176,6 +182,83 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('avatarUploadForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('avatarFile');
+    const statusDiv = document.getElementById('uploadStatus');
+    const avatarPreview = document.getElementById('avatarPreview');
+    
+    if (!fileInput.files[0]) {
+        showStatus('Vui lòng chọn ảnh để tải lên', 'error');
+        return;
+    }
+    
+    // Kiểm tra kích thước file (5MB)
+    if (fileInput.files[0].size > 5 * 1024 * 1024) {
+        showStatus('Kích thước ảnh không được vượt quá 5MB', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('avatarFile', fileInput.files[0]);
+    
+    showStatus('Đang tải ảnh lên...', 'loading');
+    
+    // Gửi request AJAX
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '${pageContext.request.contextPath}/uploadAvatar', true);
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    showStatus('Tải ảnh lên thành công!', 'success');
+                    // Cập nhật ảnh preview
+                    avatarPreview.src = response.avatarUrl + '?t=' + new Date().getTime();
+                    // Reset form
+                    document.getElementById('avatarUploadForm').reset();
+                } else {
+                    showStatus(response.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (e) {
+                showStatus('Lỗi xử lý phản hồi từ server', 'error');
+            }
+        } else {
+            showStatus('Lỗi kết nối server', 'error');
+        }
+    };
+    
+    xhr.onerror = function() {
+        showStatus('Lỗi kết nối', 'error');
+    };
+    
+    xhr.send(formData);
+});
+
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.textContent = message;
+    statusDiv.className = 'upload-status';
+    
+    switch(type) {
+        case 'success':
+            statusDiv.style.color = 'green';
+            break;
+        case 'error':
+            statusDiv.style.color = 'red';
+            break;
+        case 'loading':
+            statusDiv.style.color = 'blue';
+            break;
+        default:
+            statusDiv.style.color = 'black';
+    }
+}
+</script>
 
 </body>
 </html>

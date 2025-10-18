@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package controller;
 
 import dal.UserDAO;
@@ -16,7 +12,10 @@ import java.io.IOException;
 import java.sql.Date;
 
 @WebServlet("/editProfile")
-@MultipartConfig
+@MultipartConfig(
+    maxFileSize = 1024 * 1024 * 5, // 5MB
+    maxRequestSize = 1024 * 1024 * 10 // 10MB
+)
 public class EditProfileController extends HttpServlet {
 
     @Override
@@ -27,74 +26,93 @@ public class EditProfileController extends HttpServlet {
         Users user = (Users) session.getAttribute("account");
 
         if (user == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // Lấy dữ liệu từ form
-        String username = request.getParameter("username");
-        String phone = request.getParameter("phone");
-        String fullName = request.getParameter("fullName");
-        String gender = request.getParameter("gender");
-        String birthdayStr = request.getParameter("birthday");
-        String address = request.getParameter("address");
+        try {
+            // Lấy dữ liệu từ form
+            String username = request.getParameter("username");
+            String phone = request.getParameter("phone");
+            String fullName = request.getParameter("fullName");
+            String gender = request.getParameter("gender");
+            String birthdayStr = request.getParameter("birthday");
+            String address = request.getParameter("address");
 
-        // Cập nhật Users
-        user.setUsername(username);
-        user.setPhoneNumber(phone);
+            // Cập nhật thông tin Users
+            user.setUsername(username);
+            user.setPhoneNumber(phone);
 
-        // Parse ngày sinh
-        Date birthday = null;
-        if (birthdayStr != null && !birthdayStr.isEmpty()) {
-            birthday = Date.valueOf(birthdayStr);
-        }
-
-        //Xử lý avatar
-        Part avatarFile = request.getPart("avatarFile");
-        String avatarUrl = null;
-        if (avatarFile != null && avatarFile.getSize() > 0) {
-            String uploadPath = getServletContext().getRealPath("/uploads");
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            // Parse ngày sinh
+            Date birthday = null;
+            if (birthdayStr != null && !birthdayStr.isEmpty()) {
+                try {
+                    birthday = Date.valueOf(birthdayStr);
+                } catch (IllegalArgumentException e) {
+                    // Xử lý lỗi định dạng ngày
+                }
             }
 
-            String fileName = System.currentTimeMillis() + "_" + avatarFile.getSubmittedFileName();
-            avatarFile.write(uploadPath + File.separator + fileName);
-            avatarUrl = request.getContextPath() + "/uploads/" + fileName;
-        } else {
-            // Giữ nguyên avatar cũ nếu không có file mới
+            // Xử lý avatar upload (nếu có)
+            String avatarUrl = null;
+            Part avatarFile = request.getPart("avatarFile");
+            
+            if (avatarFile != null && avatarFile.getSize() > 0) {
+                String uploadPath = getServletContext().getRealPath("/uploads");
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdirs();
+                }
+
+                String fileName = "avatar_" + user.getId() + "_" + System.currentTimeMillis() + 
+                                 getFileExtension(avatarFile.getSubmittedFileName());
+                avatarFile.write(uploadPath + File.separator + fileName);
+                avatarUrl = "/uploads/" + fileName;
+            }
+
+            // Lấy thông tin profile hiện tại
             UserDAO dao = new UserDAO();
             UserProfile existingProfile = dao.getUserProfileByUserId(user.getId());
+            
+            // Tạo hoặc cập nhật UserProfile
+            UserProfile profile;
             if (existingProfile != null) {
-                avatarUrl = existingProfile.getAvatarUrl();
+                profile = existingProfile;
+            } else {
+                profile = new UserProfile();
+                profile.setUserId(user.getId());
             }
+            
+            profile.setFullName(fullName);
+            profile.setGender(gender);
+            profile.setBirthday(birthday);
+            profile.setAddress(address);
+            
+            // Chỉ cập nhật avatar nếu có file mới
+            if (avatarUrl != null) {
+                profile.setAvatarUrl(avatarUrl);
+            }
+
+            // Cập nhật database
+            dao.updateUser(user);
+            dao.updateOrInsertUserProfile(profile);
+
+            // Cập nhật session
+            session.setAttribute("account", user);
+
+            // Chuyển hướng về trang profile với thông báo thành công
+            response.sendRedirect(request.getContextPath() + "/userProfile?success=true");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/userProfile?error=Có lỗi xảy ra khi cập nhật hồ sơ");
         }
-
-        // Tạo UserProfile
-        UserProfile profile = new UserProfile();
-        profile.setUserId(user.getId());
-        profile.setFullName(fullName);
-        profile.setGender(gender);
-        profile.setBirthday(birthday);
-        profile.setAddress(address);
-        if (avatarUrl != null) {
-            profile.setAvatarUrl(avatarUrl);
-        }
-
-        // Gọi DAO
-        UserDAO dao = new UserDAO();
-        dao.updateUser(user);
-        dao.updateOrInsertUserProfile(profile);
-
-        // Cập nhật session
-        session.setAttribute("account", user);
-
-        // Load lại profile và forward
-        request.setAttribute("message", "Cập nhật hồ sơ thành công!");
-        request.setAttribute("profile", dao.getUserProfileByUserId(user.getId()));
-       response.sendRedirect("userProfile?success=true");
-
     }
 
+    private String getFileExtension(String fileName) {
+        if (fileName == null || fileName.lastIndexOf(".") == -1) {
+            return "";
+        }
+        return fileName.substring(fileName.lastIndexOf("."));
+    }
 }
