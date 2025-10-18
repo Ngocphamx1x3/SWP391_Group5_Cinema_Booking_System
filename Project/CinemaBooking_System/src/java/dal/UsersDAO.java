@@ -4,13 +4,14 @@ import java.sql.*;
 import util.DBContext;
 
 public class UsersDAO extends DBContext {
-    // login
-    public Users login(String email, String password) {
-        String sql = "SELECT * FROM Users WHERE Email = ? AND Password = ?";
+    // login - allow both email and username
+    public Users login(String usernameOrEmail, String password) {
+        String sql = "SELECT * FROM Users WHERE (Email = ? OR Username = ?) AND Password = ?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
-            ps.setString(2, password);
+            ps.setString(1, usernameOrEmail);
+            ps.setString(2, usernameOrEmail);
+            ps.setString(3, password);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Users user = new Users();
@@ -24,6 +25,7 @@ public class UsersDAO extends DBContext {
                 user.setStatus(rs.getString("Status"));
                 user.setCreatedAt(rs.getTimestamp("CreatedAt"));
                 user.setUpdatedAt(rs.getTimestamp("UpdatedAt"));
+                user.setEmailConfirmed(rs.getInt("EmailConfirmed")); 
                 return user;
             }
         } catch (SQLException e) {
@@ -34,26 +36,28 @@ public class UsersDAO extends DBContext {
         return null;
     }
 
-    // find by email
-    public Users findByEmail(String email) {
-        String sql = "SELECT * FROM Users WHERE Email = ?";
+    // find by email or username
+    public Users findByEmailOrUsername(String usernameOrEmail) {
+        String sql = "SELECT * FROM Users WHERE Email = ? OR Username = ?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
+            ps.setString(1, usernameOrEmail);
+            ps.setString(2, usernameOrEmail);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Users user = new Users();
                 user.setId(rs.getInt("Id"));
                 user.setEmail(rs.getString("Email"));
                 user.setPassword(rs.getString("Password"));
+                user.setEmailConfirmed(rs.getInt("EmailConfirmed")); 
                 return user;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-    }
-    return null;
+        return null;
     }
 
     // update password

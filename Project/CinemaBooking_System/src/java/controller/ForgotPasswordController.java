@@ -37,7 +37,7 @@ public class ForgotPasswordController extends HttpServlet {
 
         String email = request.getParameter("email");
         UsersDAO dao = new UsersDAO();
-        Users user = dao.findByEmail(email);
+        Users user = dao.findByEmailOrUsername(email);
 
         if (user == null) {
             request.setAttribute("message", "Email not found in the system!");

@@ -158,7 +158,7 @@
                     Khách hàng cần đăng nhập khi đặt vé !!
                 </h2>
                 <button class="Modal-InBtn Btn-Right">
-                    <a style="text-decoration: none; color: #000000" href="login.jsp">OK</a>
+                    <a style="text-decoration: none; color: #000000" href="login">OK</a>
                 </button>
                 <button class="Modal-InBtn Btn-Left" data-dismiss="modal">HỦY</button>
             </div>
