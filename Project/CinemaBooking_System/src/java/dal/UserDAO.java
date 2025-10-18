@@ -3,6 +3,7 @@ package dal;
 import util.DBContext;
 
 import java.sql.*;
+import model.User;
 import model.UserProfile;
 import model.Users;
 
