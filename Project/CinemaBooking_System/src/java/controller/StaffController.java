@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Users;
 
-@WebServlet(name = "AdminController", urlPatterns = {"/admindashboard"})
-public class AdminController extends HttpServlet {
+@WebServlet(name = "StaffController", urlPatterns = {"/staffdashboard"}) 
+public class StaffController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -19,28 +19,24 @@ public class AdminController extends HttpServlet {
         HttpSession session = request.getSession();
         Users user = (Users) session.getAttribute("account");
         
-        // Kiểm tra đăng nhập và quyền admin
         if (user == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
-        // Kiểm tra role
-        if (!"admin".equalsIgnoreCase(user.getRole())) {
+        if (!"staff".equalsIgnoreCase(user.getRole()) && !"admin".equalsIgnoreCase(user.getRole())) {
             response.sendRedirect(request.getContextPath() + "/home");
             return;
         }
         
-        // Kiểm tra email confirmed
         if (user.getEmailConfirmed() != 1) {
-            session.setAttribute("error", "Please verify your email to access admin dashboard");
+            session.setAttribute("error", "Please verify your email to access staff dashboard");
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
-        request.setAttribute("adminUser", user);
-        
-        request.getRequestDispatcher("/views/admin/dashboard.jsp").forward(request, response);
+        request.setAttribute("staffUser", user);
+        request.getRequestDispatcher("/views/staff/dashboard.jsp").forward(request, response);
     }
 
     @Override

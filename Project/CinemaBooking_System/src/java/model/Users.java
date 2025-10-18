@@ -14,6 +14,7 @@ import java.util.Date;
     private String status;
     private Date createdAt;
     private Date updatedAt;
+    private int emailConfirmed;
 
     // Constructor
     public Users() {
@@ -112,4 +113,11 @@ import java.util.Date;
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public int getEmailConfirmed() {
+    return emailConfirmed;
+}
+
+public void setEmailConfirmed(int emailConfirmed) {
+    this.emailConfirmed = emailConfirmed;
+}
 }
