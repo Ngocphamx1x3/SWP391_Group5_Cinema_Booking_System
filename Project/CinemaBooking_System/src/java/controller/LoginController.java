@@ -1,7 +1,9 @@
 package controller;
 
 import dal.UsersDAO;
+import dal.UserDAO;
 import model.Users;
+import model.UserProfile;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -51,6 +53,17 @@ public class LoginController extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("account", user);
             
+            // Lấy thông tin avatar từ UserProfile
+            UserDAO userDAO = new UserDAO();
+            UserProfile profile = userDAO.getUserProfileByUserId(user.getId());
+            
+            if (profile != null && profile.getAvatarUrl() != null) {
+                session.setAttribute("avatarUrl", profile.getAvatarUrl());
+            } else {
+                // Avatar mặc định
+                session.setAttribute("avatarUrl", request.getContextPath() + "/assets/user/img/default-avatar.png");
+            }
+
             // Redirect based on role
             String role = user.getRole();
             switch (role.toLowerCase()) {

@@ -74,6 +74,9 @@ public class UploadAvatarController extends HttpServlet {
                 profile.setAvatarUrl(avatarUrl);
                 dao.updateOrInsertUserProfile(profile);
 
+                // QUAN TRỌNG: Cập nhật avatarUrl trong session
+                session.setAttribute("avatarUrl", avatarUrl);
+
                 // Gửi response JSON thành công
                 sendSuccessResponse(out, "Ảnh đại diện đã được cập nhật", avatarUrl);
             } else {
