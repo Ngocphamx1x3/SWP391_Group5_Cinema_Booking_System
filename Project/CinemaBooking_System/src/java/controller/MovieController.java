@@ -35,6 +35,9 @@ public class MovieController extends HttpServlet {
             }
 
             switch (action) {
+                case "addForm":
+                    showAddForm(request, response);
+                    break;
                 case "delete":
                     deleteMovie(request, response);
                     break;
@@ -47,8 +50,21 @@ public class MovieController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi xử lý yêu cầu: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Lỗi khi xử lý yêu cầu: " + e.getMessage());
         }
+    }
+
+    // =============== HIỂN THỊ FORM THÊM PHIM ===============
+    private void showAddForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setAttribute("directorList", movieDAO.getAllDirectors());
+        request.setAttribute("languageList", movieDAO.getAllLanguages());
+        request.setAttribute("movieTypeList", movieDAO.getAllMovieTypes());
+
+        RequestDispatcher rd = request.getRequestDispatcher("/views/admin/addMovieForm.jsp");
+        rd.forward(request, response);
     }
 
     @Override
@@ -78,7 +94,8 @@ public class MovieController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi khi xử lý yêu cầu POST: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Lỗi khi xử lý yêu cầu POST: " + e.getMessage());
         }
     }
 
@@ -86,7 +103,7 @@ public class MovieController extends HttpServlet {
     private void listMovies(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Movie> list = movieDAO.getAllMovies();
+        List<Movie> list = movieDAO.getAllMovies(); // chỉ lấy phim chưa ngưng hoạt động
         request.setAttribute("movieList", list);
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
         rd.forward(request, response);
@@ -99,7 +116,6 @@ public class MovieController extends HttpServlet {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Movie m = new Movie();
 
-        // Tự sinh code phim (dạng mv12345)
         m.setCode("mv" + (int) (Math.random() * 100000));
         m.setName(request.getParameter("movieTitle"));
         m.setDescription(request.getParameter("movieDescription"));
@@ -111,7 +127,6 @@ public class MovieController extends HttpServlet {
         m.setRatedId(1);
 
         movieDAO.addMovie(m);
-
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
@@ -134,12 +149,12 @@ public class MovieController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
-    // ======================= XÓA PHIM =======================
+    // ======================= XÓA PHIM (chuyển sang “Ngưng hoạt động”) =======================
     private void deleteMovie(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         int id = Integer.parseInt(request.getParameter("id"));
-        movieDAO.deleteMovie(id);
+        movieDAO.deleteMovie(id); // đổi tên hàm cho dễ hiểu
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
@@ -151,7 +166,8 @@ public class MovieController extends HttpServlet {
         Movie movie = movieDAO.getMovieById(id);
 
         if (movie == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy phim có ID = " + id);
+            response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                    "Không tìm thấy phim có ID = " + id);
             return;
         }
 

@@ -105,10 +105,14 @@
 
     <!-- Main content -->
     <div class="content">
-        <div class="section-header">
-            <h2 class="section-title">🎞️ Danh sách phim</h2>
-            <button class="btn btn-primary" id="addMovieBtn">➕ Thêm phim mới</button>
-        </div>
+<div class="section-header">
+    <h2 class="section-title">🎞️ Danh sách phim</h2>
+    <button class="btn btn-primary" id="addMovieBtn"
+            onclick="window.location.href='${pageContext.request.contextPath}/admin/movies?action=addForm'">
+        ➕ Thêm phim mới
+    </button>
+</div>
+
 
         <div class="table-container">
             <table>
@@ -170,12 +174,5 @@
     <footer>
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
-
-    <script>
-        // Modal thêm phim (demo)
-        document.getElementById('addMovieBtn').addEventListener('click', function() {
-            alert('Chức năng thêm phim sẽ được mở ở đây!');
-        });
-    </script>
 </body>
 </html>
