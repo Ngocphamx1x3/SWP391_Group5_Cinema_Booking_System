@@ -390,8 +390,8 @@
         <nav>
             <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/views/admin/staffManager.jsp">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/views/admin/cinemaManager.jsp">🏢 Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
             <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
             <%-- Đánh dấu trang hiện tại là active --%>
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp" class="active">💳 Quản lý thanh toán</a>

@@ -3,6 +3,8 @@ package dal;
 import util.DBContext;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import model.User;
 import model.UserProfile;
 import model.Users;
@@ -12,8 +14,7 @@ public class UserDAO extends DBContext {
     // kiểm tra username hoặc email đã tồn tại
     public boolean existsByUsernameOrEmail(String username, String email) throws SQLException {
         String sql = "SELECT COUNT(*) FROM dbo.Users WHERE Username = ? OR Email = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             ps.setString(2, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -27,11 +28,10 @@ public class UserDAO extends DBContext {
 
     // tạo user, trả về generated Id (assume Users.Id is IDENTITY)
     public long createUser(String email, String phoneNumber, String password, String username,
-                           String role, int status, String verificationCode, Timestamp verificationExpiresAt) throws SQLException {
-        String sql = "INSERT INTO dbo.Users (Email, PhoneNumber, Password, Point, Username, Role, Status, CreatedAt, UpdatedAt, EmailConfirmed, VerificationCode, VerificationExpiresAt) " +
-                     "VALUES (?, ?, ?, 0, ?, ?, ?, SYSUTCDATETIME(), SYSUTCDATETIME(), 0, ?, ?)";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            String role, int status, String verificationCode, Timestamp verificationExpiresAt) throws SQLException {
+        String sql = "INSERT INTO dbo.Users (Email, PhoneNumber, Password, Point, Username, Role, Status, CreatedAt, UpdatedAt, EmailConfirmed, VerificationCode, VerificationExpiresAt) "
+                + "VALUES (?, ?, ?, 0, ?, ?, ?, SYSUTCDATETIME(), SYSUTCDATETIME(), 0, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, email);
             ps.setString(2, phoneNumber);
             ps.setString(3, password);
@@ -41,10 +41,15 @@ public class UserDAO extends DBContext {
             ps.setString(7, verificationCode);
             ps.setTimestamp(8, verificationExpiresAt);
             int rows = ps.executeUpdate();
-            if (rows == 0) throw new SQLException("Creating user failed, no rows affected.");
+            if (rows == 0) {
+                throw new SQLException("Creating user failed, no rows affected.");
+            }
             try (ResultSet keys = ps.getGeneratedKeys()) {
-                if (keys.next()) return keys.getLong(1);
-                else throw new SQLException("Creating user failed, no ID obtained.");
+                if (keys.next()) {
+                    return keys.getLong(1);
+                } else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
             }
         } catch (ClassNotFoundException ex) {
             throw new SQLException(ex);
@@ -54,8 +59,7 @@ public class UserDAO extends DBContext {
     // tạo userprofile (FullName)
     public boolean createUserProfile(long userId, String fullName) throws SQLException {
         String sql = "INSERT INTO dbo.UserProfile (UserId, FullName) VALUES (?, ?)";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, userId);
             ps.setString(2, fullName);
             return ps.executeUpdate() == 1;
@@ -66,10 +70,9 @@ public class UserDAO extends DBContext {
 
     // verify code: nếu đúng và chưa hết hạn -> set EmailConfirmed = 1 và clear code
     public boolean verifyCode(String email, String code) throws SQLException {
-        String sql = "UPDATE dbo.Users SET EmailConfirmed = 1, VerificationCode = NULL, VerificationExpiresAt = NULL, UpdatedAt = SYSUTCDATETIME() " +
-                     "WHERE Email = ? AND VerificationCode = ? AND VerificationExpiresAt > SYSUTCDATETIME()";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "UPDATE dbo.Users SET EmailConfirmed = 1, VerificationCode = NULL, VerificationExpiresAt = NULL, UpdatedAt = SYSUTCDATETIME() "
+                + "WHERE Email = ? AND VerificationCode = ? AND VerificationExpiresAt > SYSUTCDATETIME()";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, code);
             int rows = ps.executeUpdate();
@@ -78,6 +81,7 @@ public class UserDAO extends DBContext {
             throw new SQLException(ex);
         }
     }
+
     public void updateUser(Users user) {
         String sql = "UPDATE Users SET Username = ?, PhoneNumber = ? WHERE Id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -215,4 +219,74 @@ public class UserDAO extends DBContext {
         }
         return null;
     }
+
+    public List<User> getActiveStaff() {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM Users WHERE role = 'staff' AND status = 1 ORDER BY username";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapResultSetToUser(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+// GET STAFF BY ID
+    public User getStaffById(int id) {
+        String sql = "SELECT * FROM Users WHERE id = ? AND role = 'staff'";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToUser(rs);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+// GET STAFF ASSIGNED TO SPECIFIC CINEMA
+    public List<User> getStaffByCinemaId(int cinemaId) {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT u.* FROM Users u "
+                + "INNER JOIN Cinema_Staff cs ON u.id = cs.staff_id "
+                + "WHERE cs.cinema_id = ? AND u.role = 'staff' AND u.status = 1 "
+                + "ORDER BY u.username";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, cinemaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToUser(rs));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+// ===== HELPER METHOD =====
+    private User mapResultSetToUser(ResultSet rs) throws SQLException {
+        User user = new User();
+        user.setId(rs.getLong("id"));
+        user.setEmail(rs.getString("email"));
+        user.setPhoneNumber(rs.getString("phoneNumber"));
+        user.setUsername(rs.getString("username"));
+        user.setRole(rs.getString("role"));
+        user.setStatus(rs.getInt("status"));
+        user.setCreatedAt(rs.getTimestamp("createdAt"));
+        user.setUpdatedAt(rs.getTimestamp("updatedAt"));
+        return user;
+    }
+
 }

@@ -1,15 +1,15 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="model.SeatType"%>
+<%@page import="model.Cinema, model.User, java.util.List"%>
 <%
-    SeatType seatType = (SeatType) request.getAttribute("seatType");
-    boolean isEdit = seatType != null;
+    Cinema cinema = (Cinema) request.getAttribute("cinema");
+    List<User> availableStaff = (List<User>) request.getAttribute("availableStaff");
     String error = (String) request.getAttribute("error");
 %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title><%= isEdit ? "Chỉnh sửa" : "Thêm mới" %> Loại Ghế | Cinema Booking</title>
+    <title>Phân công Nhân viên - <%= cinema.getName() %> | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Kế thừa toàn bộ CSS từ các trang trước */
@@ -181,7 +181,7 @@
             border: 1px solid rgba(0, 255, 255, 0.15);
             border-radius: 20px;
             padding: 40px;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
         }
 
@@ -204,6 +204,47 @@
             font-size: 14px;
         }
 
+        /* ===== Cinema Info ===== */
+        .cinema-card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cinema-card h3 {
+            color: #00d4ff;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .cinema-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            color: #e4e9f0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
         /* ===== Form Styles ===== */
         .form-group {
             margin-bottom: 25px;
@@ -219,9 +260,8 @@
             letter-spacing: 1px;
         }
 
-        .form-group input,
         .form-group select,
-        .form-group textarea {
+        .form-group input {
             width: 100%;
             background: rgba(0, 212, 255, 0.05);
             border: 1px solid rgba(0, 255, 255, 0.2);
@@ -234,30 +274,38 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .form-group input:focus,
         .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group input:focus {
             border-color: #00d4ff;
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
+        .staff-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .staff-option:hover {
+            background: rgba(0, 212, 255, 0.1);
         }
 
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            margin-left: 10px;
+        .staff-info {
+            flex: 1;
+        }
+
+        .staff-name {
+            font-weight: 600;
+            color: #e4e9f0;
+            margin-bottom: 2px;
+        }
+
+        .staff-email {
+            font-size: 12px;
+            color: #6b7280;
         }
 
         .checkbox-group {
@@ -342,6 +390,30 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
         /* ===== Footer ===== */
         footer {
             background: rgba(15, 20, 25, 0.9);
@@ -374,7 +446,7 @@
             <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
             <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas" class="active">🏢 Quản lý rạp</a>
             <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
         </nav>
@@ -383,7 +455,7 @@
 
     <!-- Header -->
     <header>
-        <h1><%= isEdit ? "✏️ Chỉnh sửa Loại Ghế" : "➕ Thêm Loại Ghế Mới" %></h1>
+        <h1>👥 Phân công Nhân viên</h1>
         <div class="header-right">
             <span>👤 Admin: Nguyễn Văn A</span>
             <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
@@ -395,8 +467,8 @@
         <div class="form-container">
             <!-- Form Header -->
             <div class="form-header">
-                <h2><%= isEdit ? "Chỉnh sửa Thông Tin Loại Ghế" : "Thêm Loại Ghế Mới" %></h2>
-                <p><%= isEdit ? "Cập nhật thông tin loại ghế hiện có" : "Điền đầy đủ thông tin để thêm loại ghế mới" %></p>
+                <h2>Phân công Nhân viên cho Rạp Chiếu</h2>
+                <p>Chọn nhân viên và vai trò để phân công cho rạp chiếu</p>
             </div>
 
             <!-- Error Message -->
@@ -406,81 +478,83 @@
                 </div>
             <% } %>
 
+            <!-- Cinema Info -->
+            <div class="cinema-card">
+                <h3>🏢 Thông tin rạp chiếu</h3>
+                <div class="cinema-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Tên rạp</span>
+                        <span class="detail-value"><%= cinema.getName() %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Mã rạp</span>
+                        <span class="detail-value"><%= cinema.getCode() %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Địa chỉ</span>
+                        <span class="detail-value"><%= cinema.getAddress() %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Số phòng</span>
+                        <span class="detail-value"><%= cinema.getTotalRooms() %> phòng</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form -->
-            <form action="${pageContext.request.contextPath}/admin/seat-types" method="post">
-                <% if (isEdit) { %>
-                    <input type="hidden" name="id" value="<%= seatType.getId() %>">
-                <% } %>
-                <input type="hidden" name="action" value="<%= isEdit ? "update" : "create" %>">
+            <form action="${pageContext.request.contextPath}/admin/cinemas" method="post" id="assignForm">
+                <input type="hidden" name="action" value="assign-staff">
+                <input type="hidden" name="cinemaId" value="<%= cinema.getId() %>">
 
-                <div class="form-row">
-                    <!-- Mã loại ghế -->
-                    <div class="form-group">
-                        <label for="code" class="required">Mã loại ghế</label>
-                        <input type="text" id="code" name="code" 
-                               value="<%= isEdit ? seatType.getCode() : "" %>" 
-                               placeholder="VD: STANDARD, VIP, COUPLE"
-                               required>
-                    </div>
-
-                    <!-- Tên loại ghế -->
-                    <div class="form-group">
-                        <label for="name" class="required">Tên loại ghế</label>
-                        <input type="text" id="name" name="name" 
-                               value="<%= isEdit ? seatType.getName() : "" %>" 
-                               placeholder="VD: Ghế Thường, Ghế VIP"
-                               required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <!-- Phụ phí -->
-                    <div class="form-group">
-                        <label for="surcharge" class="required">Phụ phí (VND)</label>
-                        <input type="number" id="surcharge" name="surcharge" 
-                               value="<%= isEdit ? (int)seatType.getSurcharge() : "0" %>" 
-                               min="0" step="1000"
-                               placeholder="0"
-                               required>
-                    </div>
-
-                    <!-- Màu sắc -->
-                    <div class="form-group">
-                        <label for="color" class="required">Màu sắc</label>
-                        <div style="display: flex; align-items: center;">
-                            <input type="color" id="color" name="color" 
-                                   value="<%= isEdit ? seatType.getColor() : "#1E90FF" %>"
-                                   style="flex: 1; height: 45px; padding: 5px;"
-                                   required>
-                            <div class="color-preview" id="colorPreview" 
-                                 style="background-color: <%= isEdit ? seatType.getColor() : "#1E90FF" %>"></div>
+                <!-- Staff Selection -->
+                <div class="form-group">
+                    <label for="staffId" class="required">Chọn nhân viên</label>
+                    <% if (availableStaff != null && !availableStaff.isEmpty()) { %>
+                        <select id="staffId" name="staffId" required>
+                            <option value="">-- Chọn nhân viên --</option>
+                            <% for (User staff : availableStaff) { %>
+                                <option value="<%= staff.getId() %>">
+                                    <%= staff.getUsername() %> - <%= staff.getEmail() %>
+                                </option>
+                            <% } %>
+                        </select>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i>👥</i>
+                            <h3>Không có nhân viên nào khả dụng</h3>
+                            <p>Tất cả nhân viên đã được phân công hoặc không có nhân viên nào trong hệ thống</p>
                         </div>
-                    </div>
+                    <% } %>
                 </div>
 
-                <!-- Mô tả -->
+                <!-- Role Selection -->
                 <div class="form-group">
-                    <label for="description">Mô tả</label>
-                    <textarea id="description" name="description" 
-                              placeholder="Mô tả chi tiết về loại ghế..."><%= isEdit ? seatType.getDescription() : "" %></textarea>
+                    <label for="roleInCinema" class="required">Vai trò tại rạp</label>
+                    <select id="roleInCinema" name="roleInCinema" required>
+                        <option value="">-- Chọn vai trò --</option>
+                        <option value="manager">Quản lý rạp</option>
+                        <option value="supervisor">Giám sát</option>
+                        <option value="staff">Nhân viên</option>
+                        <option value="cashier">Thu ngân</option>
+                        <option value="technician">Kỹ thuật viên</option>
+                    </select>
                 </div>
 
-                <!-- Trạng thái -->
+                <!-- Status -->
                 <div class="form-group">
-                    <label>Trạng thái</label>
+                    <label>Trạng thái phân công</label>
                     <div class="checkbox-group">
-                        <input type="checkbox" id="status" name="status" 
-                               <%= isEdit ? (seatType.isStatus() ? "checked" : "") : "checked" %>>
-                        <label for="status">Đang hoạt động</label>
+                        <input type="checkbox" id="status" name="status" checked>
+                        <label for="status">Đang làm việc</label>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <%= isEdit ? "💾 Cập nhật" : "➕ Thêm mới" %>
+                    <button type="submit" class="btn btn-primary" <%= (availableStaff == null || availableStaff.isEmpty()) ? "disabled" : "" %>>
+                        💼 Phân công
                     </button>
-                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">
+                    <a href="${pageContext.request.contextPath}/admin/cinemas?action=manage-staff&id=<%= cinema.getId() %>" class="btn btn-secondary">
                         ↩️ Quay lại
                     </a>
                 </div>
@@ -493,35 +567,32 @@
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
 
-    <!-- JavaScript for Color Preview -->
+    <!-- JavaScript -->
     <script>
-        // Update color preview in real-time
-        document.getElementById('color').addEventListener('input', function() {
-            document.getElementById('colorPreview').style.backgroundColor = this.value;
+        // Form validation
+        document.getElementById('assignForm').addEventListener('submit', function(e) {
+            const staffId = document.getElementById('staffId').value;
+            const roleInCinema = document.getElementById('roleInCinema').value;
+            
+            if (!staffId) {
+                alert('Vui lòng chọn nhân viên');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!roleInCinema) {
+                alert('Vui lòng chọn vai trò');
+                e.preventDefault();
+                return;
+            }
         });
 
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const code = document.getElementById('code').value.trim();
-            const name = document.getElementById('name').value.trim();
-            const surcharge = document.getElementById('surcharge').value;
-
-            if (!code) {
-                alert('Vui lòng nhập mã loại ghế');
-                e.preventDefault();
-                return;
-            }
-
-            if (!name) {
-                alert('Vui lòng nhập tên loại ghế');
-                e.preventDefault();
-                return;
-            }
-
-            if (surcharge < 0) {
-                alert('Phụ phí không được âm');
-                e.preventDefault();
-                return;
+        // Real-time staff info display
+        document.getElementById('staffId').addEventListener('change', function(e) {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            if (selectedOption.value) {
+                // Có thể thêm hiển thị thông tin chi tiết về nhân viên ở đây
+                console.log('Selected staff:', selectedOption.text);
             }
         });
     </script>
