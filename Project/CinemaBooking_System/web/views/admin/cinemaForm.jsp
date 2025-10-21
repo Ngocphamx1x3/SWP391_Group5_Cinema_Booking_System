@@ -1,15 +1,15 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="model.SeatType"%>
+<%@page import="model.Cinema"%>
 <%
-    SeatType seatType = (SeatType) request.getAttribute("seatType");
-    boolean isEdit = seatType != null;
+    Cinema cinema = (Cinema) request.getAttribute("cinema");
+    boolean isEdit = cinema != null;
     String error = (String) request.getAttribute("error");
 %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title><%= isEdit ? "Chỉnh sửa" : "Thêm mới" %> Loại Ghế | Cinema Booking</title>
+    <title><%= isEdit ? "Chỉnh sửa" : "Thêm mới" %> Rạp Chiếu | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Kế thừa toàn bộ CSS từ các trang trước */
@@ -181,7 +181,7 @@
             border: 1px solid rgba(0, 255, 255, 0.15);
             border-radius: 20px;
             padding: 40px;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -252,12 +252,10 @@
             gap: 20px;
         }
 
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            margin-left: 10px;
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
         }
 
         .checkbox-group {
@@ -360,6 +358,21 @@
             content: " *";
             color: #ef4444;
         }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            header, .content, footer {
+                margin-left: 0;
+            }
+            .form-row, .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -374,9 +387,8 @@
             <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
             <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">💺 Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas" class="active">🏢 Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
         </nav>
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
@@ -384,7 +396,7 @@
 
     <!-- Header -->
     <header>
-        <h1><%= isEdit ? "✏️ Chỉnh sửa Loại Ghế" : "➕ Thêm Loại Ghế Mới" %></h1>
+        <h1><%= isEdit ? "✏️ Chỉnh sửa Rạp Chiếu" : "➕ Thêm Rạp Chiếu Mới" %></h1>
         <div class="header-right">
             <span>👤 Admin: Nguyễn Văn A</span>
             <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
@@ -396,8 +408,8 @@
         <div class="form-container">
             <!-- Form Header -->
             <div class="form-header">
-                <h2><%= isEdit ? "Chỉnh sửa Thông Tin Loại Ghế" : "Thêm Loại Ghế Mới" %></h2>
-                <p><%= isEdit ? "Cập nhật thông tin loại ghế hiện có" : "Điền đầy đủ thông tin để thêm loại ghế mới" %></p>
+                <h2><%= isEdit ? "Chỉnh sửa Thông Tin Rạp Chiếu" : "Thêm Rạp Chiếu Mới" %></h2>
+                <p><%= isEdit ? "Cập nhật thông tin rạp chiếu hiện có" : "Điền đầy đủ thông tin để thêm rạp chiếu mới" %></p>
             </div>
 
             <!-- Error Message -->
@@ -408,62 +420,86 @@
             <% } %>
 
             <!-- Form -->
-            <form action="${pageContext.request.contextPath}/admin/seat-types" method="post">
+            <form action="${pageContext.request.contextPath}/admin/cinemas" method="post" id="cinemaForm">
                 <% if (isEdit) { %>
-                    <input type="hidden" name="id" value="<%= seatType.getId() %>">
+                    <input type="hidden" name="id" value="<%= cinema.getId() %>">
                 <% } %>
                 <input type="hidden" name="action" value="<%= isEdit ? "update" : "create" %>">
 
                 <div class="form-row">
-                    <!-- Mã loại ghế -->
+                    <!-- Mã rạp -->
                     <div class="form-group">
-                        <label for="code" class="required">Mã loại ghế</label>
+                        <label for="code" class="required">Mã rạp</label>
                         <input type="text" id="code" name="code" 
-                               value="<%= isEdit ? seatType.getCode() : "" %>" 
-                               placeholder="VD: STANDARD, VIP, COUPLE"
+                               value="<%= isEdit ? cinema.getCode() : "" %>" 
+                               placeholder="VD: LOTTE_HL, CGV_LB, GALAXY_TH"
                                required>
                     </div>
 
-                    <!-- Tên loại ghế -->
+                    <!-- Tên rạp -->
                     <div class="form-group">
-                        <label for="name" class="required">Tên loại ghế</label>
+                        <label for="name" class="required">Tên rạp</label>
                         <input type="text" id="name" name="name" 
-                               value="<%= isEdit ? seatType.getName() : "" %>" 
-                               placeholder="VD: Ghế Thường, Ghế VIP"
+                               value="<%= isEdit ? cinema.getName() : "" %>" 
+                               placeholder="VD: Lotte Hòa Lạc, CGV Long Biên"
                                required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <!-- Phụ phí -->
-                    <div class="form-group">
-                        <label for="surcharge" class="required">Phụ phí (VND)</label>
-                        <input type="number" id="surcharge" name="surcharge" 
-                               value="<%= isEdit ? (int)seatType.getSurcharge() : "0" %>" 
-                               min="0" step="1000"
-                               placeholder="0"
-                               required>
-                    </div>
-
-                    <!-- Màu sắc -->
-                    <div class="form-group">
-                        <label for="color" class="required">Màu sắc</label>
-                        <div style="display: flex; align-items: center;">
-                            <input type="color" id="color" name="color" 
-                                   value="<%= isEdit ? seatType.getColor() : "#1E90FF" %>"
-                                   style="flex: 1; height: 45px; padding: 5px;"
-                                   required>
-                            <div class="color-preview" id="colorPreview" 
-                                 style="background-color: <%= isEdit ? seatType.getColor() : "#1E90FF" %>"></div>
-                        </div>
-                    </div>
+                <!-- Địa chỉ -->
+                <div class="form-group">
+                    <label for="address" class="required">Địa chỉ</label>
+                    <input type="text" id="address" name="address" 
+                           value="<%= isEdit ? cinema.getAddress() : "" %>" 
+                           placeholder="VD: Tầng 4, Vincom Long Biên, Quận Long Biên, Hà Nội"
+                           required>
                 </div>
 
                 <!-- Mô tả -->
                 <div class="form-group">
                     <label for="description">Mô tả</label>
                     <textarea id="description" name="description" 
-                              placeholder="Mô tả chi tiết về loại ghế..."><%= isEdit ? seatType.getDescription() : "" %></textarea>
+                              placeholder="Mô tả chi tiết về rạp chiếu, tiện ích, đặc điểm..."><%= isEdit ? cinema.getDescription() : "" %></textarea>
+                </div>
+
+                <div class="form-row-3">
+                    <!-- Sức chứa -->
+                    <div class="form-group">
+                        <label for="capacity" class="required">Sức chứa</label>
+                        <input type="number" id="capacity" name="capacity" 
+                               value="<%= isEdit ? cinema.getCapacity() : "500" %>" 
+                               min="1" max="5000" 
+                               placeholder="500"
+                               required>
+                    </div>
+
+                    <!-- Số phòng -->
+                    <div class="form-group">
+                        <label for="totalRooms" class="required">Số phòng</label>
+                        <input type="number" id="totalRooms" name="totalRooms" 
+                               value="<%= isEdit ? cinema.getTotalRooms() : "3" %>" 
+                               min="1" max="20"
+                               placeholder="3"
+                               required>
+                    </div>
+
+                    <!-- Điện thoại -->
+                    <div class="form-group">
+                        <label for="phone" class="required">Điện thoại</label>
+                        <input type="text" id="phone" name="phone" 
+                               value="<%= isEdit ? cinema.getPhone() : "" %>" 
+                               placeholder="VD: 024 1234 5678"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Giờ hoạt động -->
+                <div class="form-group">
+                    <label for="operatingHours" class="required">Giờ hoạt động</label>
+                    <input type="text" id="operatingHours" name="operatingHours" 
+                           value="<%= isEdit ? cinema.getOperatingHours() : "8:00 - 23:00 hàng ngày" %>" 
+                           placeholder="VD: 8:00 - 23:00 hàng ngày"
+                           required>
                 </div>
 
                 <!-- Trạng thái -->
@@ -471,7 +507,7 @@
                     <label>Trạng thái</label>
                     <div class="checkbox-group">
                         <input type="checkbox" id="status" name="status" 
-                               <%= isEdit ? (seatType.isStatus() ? "checked" : "") : "checked" %>>
+                               <%= isEdit ? (cinema.isStatus() ? "checked" : "") : "checked" %>>
                         <label for="status">Đang hoạt động</label>
                     </div>
                 </div>
@@ -481,7 +517,7 @@
                     <button type="submit" class="btn btn-primary">
                         <%= isEdit ? "💾 Cập nhật" : "➕ Thêm mới" %>
                     </button>
-                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">
+                    <a href="${pageContext.request.contextPath}/admin/cinemas" class="btn btn-secondary">
                         ↩️ Quay lại
                     </a>
                 </div>
@@ -494,36 +530,68 @@
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
 
-    <!-- JavaScript for Color Preview -->
+    <!-- JavaScript -->
     <script>
-        // Update color preview in real-time
-        document.getElementById('color').addEventListener('input', function() {
-            document.getElementById('colorPreview').style.backgroundColor = this.value;
-        });
-
         // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.getElementById('cinemaForm').addEventListener('submit', function(e) {
             const code = document.getElementById('code').value.trim();
             const name = document.getElementById('name').value.trim();
-            const surcharge = document.getElementById('surcharge').value;
-
+            const address = document.getElementById('address').value.trim();
+            const capacity = document.getElementById('capacity').value;
+            const totalRooms = document.getElementById('totalRooms').value;
+            const phone = document.getElementById('phone').value.trim();
+            const operatingHours = document.getElementById('operatingHours').value.trim();
+            
             if (!code) {
-                alert('Vui lòng nhập mã loại ghế');
+                alert('Vui lòng nhập mã rạp');
                 e.preventDefault();
                 return;
             }
-
+            
             if (!name) {
-                alert('Vui lòng nhập tên loại ghế');
+                alert('Vui lòng nhập tên rạp');
                 e.preventDefault();
                 return;
             }
+            
+            if (!address) {
+                alert('Vui lòng nhập địa chỉ');
+                e.preventDefault();
+                return;
+            }
+            
+            if (capacity < 1) {
+                alert('Sức chứa phải lớn hơn 0');
+                e.preventDefault();
+                return;
+            }
+            
+            if (totalRooms < 1) {
+                alert('Số phòng phải lớn hơn 0');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!phone) {
+                alert('Vui lòng nhập số điện thoại');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!operatingHours) {
+                alert('Vui lòng nhập giờ hoạt động');
+                e.preventDefault();
+                return;
+            }
+        });
 
-            if (surcharge < 0) {
-                alert('Phụ phí không được âm');
-                e.preventDefault();
-                return;
+        // Format phone number
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                value = value.match(/.{1,4}/g).join(' ');
             }
+            e.target.value = value;
         });
     </script>
 

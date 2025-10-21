@@ -389,10 +389,10 @@
             <nav>
                 <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
                 <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-                <a href="${pageContext.request.contextPath}/views/admin/staffManager.jsp">🧑‍💼 Quản lý nhân viên</a>
-                <a href="${pageContext.request.contextPath}/views/admin/cinemaManager.jsp">🏢 Quản lý rạp</a>
+                <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
+                <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
+                <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
                 <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-                <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">💺 Quản lý loại ghế</a>
                 <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>

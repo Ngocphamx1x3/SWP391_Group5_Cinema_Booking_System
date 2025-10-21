@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -417,16 +418,20 @@
         .action-buttons {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .btn-small {
-            padding: 8px 16px;
-            font-size: 12px;
+            padding: 8px 12px;
+            font-size: 11px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
         }
 
         .btn-edit {
@@ -462,6 +467,59 @@
             transform: translateY(-2px);
         }
 
+        .btn-warning {
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
+            border: 1px solid rgba(251, 146, 60, 0.3);
+        }
+
+        .btn-warning:hover {
+            background: rgba(251, 146, 60, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            background: rgba(16, 185, 129, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* ===== Success/Error Messages ===== */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
         /* ===== Pagination ===== */
         .pagination {
             display: flex;
@@ -493,123 +551,6 @@
             border-color: transparent;
         }
 
-        /* ===== Modal ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.95) 0%, rgba(26, 31, 46, 0.95) 100%);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 550px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .modal-header h2 {
-            font-size: 24px;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .close-modal {
-            background: rgba(239, 68, 68, 0.2);
-            border: none;
-            color: #ef4444;
-            font-size: 24px;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .close-modal:hover {
-            background: rgba(239, 68, 68, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 12px 16px;
-            color: #e4e9f0;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .form-actions button {
-            flex: 1;
-        }
-
-        .btn-cancel {
-            background: rgba(107, 114, 128, 0.2);
-            color: #9ca3af;
-            border: 1px solid rgba(107, 114, 128, 0.3);
-        }
-
-        .btn-cancel:hover {
-            background: rgba(107, 114, 128, 0.3);
-        }
-
         /* ===== Footer ===== */
         footer {
             background: rgba(15, 20, 25, 0.9);
@@ -635,8 +576,8 @@
         <nav>
             <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/views/admin/staffManager.jsp" class="active">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/views/admin/cinemaManager.jsp">🏢 Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/staff" class="active">🧑‍💼 Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
             <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
             <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
@@ -660,41 +601,95 @@
         <div class="stats-container">
             <div class="stat-box">
                 <h3>👥 Tổng nhân viên</h3>
-                <div class="stat-value">87</div>
+                <div class="stat-value">${staffList.size()}</div>
             </div>
             <div class="stat-box">
                 <h3>✅ Đang làm việc</h3>
-                <div class="stat-value">74</div>
+                <div class="stat-value">
+                    <c:set var="activeCount" value="0" />
+                    <c:forEach var="staff" items="${staffList}">
+                        <c:if test="${staff.status}">
+                            <c:set var="activeCount" value="${activeCount + 1}" />
+                        </c:if>
+                    </c:forEach>
+                    ${activeCount}
+                </div>
             </div>
             <div class="stat-box">
-                <h3>🏖️ Đang nghỉ phép</h3>
-                <div class="stat-value">8</div>
+                <h3>🏢 Có phân công</h3>
+                <div class="stat-value">
+                    <c:set var="assignedCount" value="0" />
+                    <c:forEach var="staff" items="${staffList}">
+                        <c:if test="${staff.hasCinemaAssignment()}">
+                            <c:set var="assignedCount" value="${assignedCount + 1}" />
+                        </c:if>
+                    </c:forEach>
+                    ${assignedCount}
+                </div>
             </div>
             <div class="stat-box">
                 <h3>🆕 Mới tháng này</h3>
-                <div class="stat-value">5</div>
+                <div class="stat-value">
+                    <c:set var="newThisMonth" value="0" />
+                    <c:forEach var="staff" items="${staffList}">
+                        <c:if test="${staff.createdAt != null}">
+                            <c:set var="createdMonth" value="${staff.createdAt.month + 1}" />
+                            <c:set var="currentMonth" value="<%= java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) + 1 %>" />
+                            <c:if test="${createdMonth == currentMonth}">
+                                <c:set var="newThisMonth" value="${newThisMonth + 1}" />
+                            </c:if>
+                        </c:if>
+                    </c:forEach>
+                    ${newThisMonth}
+                </div>
             </div>
         </div>
 
+        <!-- Success/Error Messages -->
+        <c:if test="${not empty param.success}">
+            <div class="alert alert-success">
+                <c:choose>
+                    <c:when test="${param.success == 'create'}">✅ Thêm nhân viên thành công!</c:when>
+                    <c:when test="${param.success == 'update'}">✅ Cập nhật nhân viên thành công!</c:when>
+                    <c:when test="${param.success == 'delete'}">✅ Xóa nhân viên thành công!</c:when>
+                    <c:when test="${param.success == 'status'}">✅ Cập nhật trạng thái thành công!</c:when>
+                    <c:when test="${param.success == 'assign'}">✅ Phân công rạp thành công!</c:when>
+                    <c:when test="${param.success == 'update-assignment'}">✅ Cập nhật phân công thành công!</c:when>
+                </c:choose>
+            </div>
+        </c:if>
+
+        <c:if test="${not empty param.error}">
+            <div class="alert alert-error">
+                <c:choose>
+                    <c:when test="${param.error == 'create'}">❌ Lỗi khi thêm nhân viên!</c:when>
+                    <c:when test="${param.error == 'update'}">❌ Lỗi khi cập nhật nhân viên!</c:when>
+                    <c:when test="${param.error == 'delete'}">❌ Lỗi khi xóa nhân viên!</c:when>
+                    <c:when test="${param.error == 'status'}">❌ Lỗi khi cập nhật trạng thái!</c:when>
+                </c:choose>
+            </div>
+        </c:if>
+
         <!-- Toolbar -->
         <div class="toolbar">
-            <div class="search-box">
-                <input type="text" placeholder="🔍 Tìm kiếm theo tên, email, mã nhân viên...">
-                <select>
+            <form method="get" action="${pageContext.request.contextPath}/admin/staff" class="search-box">
+                <input type="text" name="search" placeholder="🔍 Tìm kiếm theo tên, email, mã nhân viên..." 
+                       value="${param.search}">
+                <select name="roleFilter">
                     <option value="">Tất cả vị trí</option>
-                    <option value="admin">Quản trị viên</option>
-                    <option value="manager">Quản lý rạp</option>
-                    <option value="staff">Nhân viên</option>
-                    <option value="support">Hỗ trợ KH</option>
+                    <option value="admin" ${param.roleFilter == 'admin' ? 'selected' : ''}>Quản trị viên</option>
+                    <option value="manager" ${param.roleFilter == 'manager' ? 'selected' : ''}>Quản lý rạp</option>
+                    <option value="staff" ${param.roleFilter == 'staff' ? 'selected' : ''}>Nhân viên</option>
+                    <option value="support" ${param.roleFilter == 'support' ? 'selected' : ''}>Hỗ trợ KH</option>
                 </select>
-                <select>
+                <select name="statusFilter">
                     <option value="">Tất cả trạng thái</option>
-                    <option value="active">Đang làm việc</option>
-                    <option value="leave">Nghỉ phép</option>
-                    <option value="inactive">Đã nghỉ việc</option>
+                    <option value="active" ${param.statusFilter == 'active' ? 'selected' : ''}>Đang làm việc</option>
+                    <option value="inactive" ${param.statusFilter == 'inactive' ? 'selected' : ''}>Đã nghỉ việc</option>
                 </select>
-            </div>
-            <button class="btn" onclick="openAddStaffModal()">➕ Thêm nhân viên</button>
+                <button type="submit" class="btn">🔍 Tìm kiếm</button>
+            </form>
+            <a href="${pageContext.request.contextPath}/admin/staff?action=add" class="btn">➕ Thêm nhân viên</a>
         </div>
 
         <!-- Staff Table -->
@@ -702,98 +697,112 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Mã NV</th>
+                        <th>ID</th>
                         <th>Nhân viên</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
                         <th>Vị trí</th>
                         <th>Rạp phụ trách</th>
-                        <th>Ngày vào làm</th>
+                        <th>Ngày tạo</th>
                         <th>Trạng thái</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>#NV001</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="staff-avatar">PT</div>
-                                <span>Phạm Văn Tuấn</span>
-                            </div>
-                        </td>
-                        <td>phamvantuan@cinema.vn</td>
-                        <td>0912345001</td>
-                        <td><span class="role-badge role-admin">Quản trị viên</span></td>
-                        <td>Tất cả</td>
-                        <td>01/01/2023</td>
-                        <td><span class="status-badge status-active">Đang làm việc</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-small btn-view" onclick="viewStaff(1)">👁️ Xem</button>
-                                <button class="btn-small btn-edit" onclick="editStaff(1)">✏️ Sửa</button>
-                                <button class="btn-small btn-delete">🗑️ Xóa</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#NV002</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="staff-avatar">NTH</div>
-                                <span>Nguyễn Thị Hương</span>
-                            </div>
-                        </td>
-                        <td>nguyenthihuong@cinema.vn</td>
-                        <td>0987654002</td>
-                        <td><span class="role-badge role-manager">Quản lý rạp</span></td>
-                        <td>CGV Times City</td>
-                        <td>15/02/2023</td>
-                        <td><span class="status-badge status-active">Đang làm việc</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-small btn-view" onclick="viewStaff(2)">👁️ Xem</button>
-                                <button class="btn-small btn-edit" onclick="editStaff(2)">✏️ Sửa</button>
-                                <button class="btn-small btn-delete">🗑️ Xóa</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#NV003</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="staff-avatar">LVD</div>
-                                <span>Lê Văn Đạt</span>
-                            </div>
-                        </td>
-                        <td>levandat@cinema.vn</td>
-                        <td>0901234003</td>
-                        <td><span class="role-badge role-manager">Quản lý rạp</span></td>
-                        <td>Lotte Hà Đông</td>
-                        <td>10/03/2023</td>
-                        <td><span class="status-badge status-leave">Nghỉ phép</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-small btn-view" onclick="viewStaff(3)">👁️ Xem</button>
-                                <button class="btn-small btn-edit" onclick="editStaff(3)">✏️ Sửa</button>
-                                <button class="btn-small btn-delete">🗑️ Xóa</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#NV004</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="staff-avatar">TTL</div>
-                                <span>Trần Thị Lan</span>
-                            </div>
-                        </td>
-                        <td>tranthilan@cinema.vn</td>
-                        <td>0923456004</td>
-                        <td><span class="role-badge role-staff">Nhân viên</span></td>
-                        <td>CGV Tràng Tiền</td>
-                        <td>20/04/2023</td>
-                        <td><span class="status-badge status-active">Đang làm việc</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-small btn-view" onclick="viewStaff(4)">👁️ Xem
+                    <c:forEach var="staff" items="${staffList}">
+                        <tr>
+                            <td>#${staff.id}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="staff-avatar">
+                                        ${staff.username.substring(0, 1).toUpperCase()}
+                                    </div>
+                                    <span>${staff.username}</span>
+                                </div>
+                            </td>
+                            <td>${staff.email}</td>
+                            <td>${staff.phoneNumber}</td>
+                            <td>
+                                <span class="role-badge 
+                                    <c:choose>
+                                        <c:when test="${staff.role == 'admin'}">role-admin</c:when>
+                                        <c:when test="${staff.role == 'manager'}">role-manager</c:when>
+                                        <c:when test="${staff.role == 'staff'}">role-staff</c:when>
+                                        <c:otherwise>role-support</c:otherwise>
+                                    </c:choose>">
+                                    <c:choose>
+                                        <c:when test="${staff.role == 'admin'}">Quản trị viên</c:when>
+                                        <c:when test="${staff.role == 'manager'}">Quản lý rạp</c:when>
+                                        <c:when test="${staff.role == 'staff'}">Nhân viên</c:when>
+                                        <c:otherwise>Hỗ trợ KH</c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </td>
+                            <td>${staff.cinemaInfo}</td>
+                            <td>${staff.formattedCreatedAt}</td>
+                            <td>
+                                <span class="status-badge ${staff.status ? 'status-active' : 'status-inactive'}">
+                                    ${staff.statusText}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <!-- View -->
+                                    <a href="${pageContext.request.contextPath}/admin/staff?action=view&id=${staff.id}" 
+                                       class="btn-small btn-view">👁️ Xem</a>
+                                    
+                                    <!-- Edit -->
+                                    <a href="${pageContext.request.contextPath}/admin/staff?action=edit&id=${staff.id}" 
+                                       class="btn-small btn-edit">✏️ Sửa</a>
+                                    
+                                    <!-- Toggle Status -->
+                                    <c:choose>
+                                        <c:when test="${staff.status}">
+                                            <a href="${pageContext.request.contextPath}/admin/staff?action=toggle-status&id=${staff.id}&status=false" 
+                                               class="btn-small btn-warning">🚫 Vô hiệu</a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${pageContext.request.contextPath}/admin/staff?action=toggle-status&id=${staff.id}&status=true" 
+                                               class="btn-small btn-success">✅ Kích hoạt</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                    
+                                    <!-- Delete -->
+                                    <a href="${pageContext.request.contextPath}/admin/staff?action=delete&id=${staff.id}" 
+                                       class="btn-small btn-delete" 
+                                       onclick="return confirm('Bạn có chắc muốn xóa nhân viên ${staff.username}?')">🗑️ Xóa</a>
+                                    
+                                    <!-- Assign Cinema -->
+                                    <a href="${pageContext.request.contextPath}/admin/staff?action=assign-cinema&staffId=${staff.id}" 
+                                       class="btn-small btn-primary">🏢 Phân công</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+
+            <c:if test="${empty staffList}">
+                <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <p>📭 Không có nhân viên nào được tìm thấy.</p>
+                </div>
+            </c:if>
+        </div>
+
+        <!-- Pagination (có thể thêm sau) -->
+        <!-- <div class="pagination">
+            <button>‹</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>›</button>
+        </div> -->
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Cinema Booking System. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

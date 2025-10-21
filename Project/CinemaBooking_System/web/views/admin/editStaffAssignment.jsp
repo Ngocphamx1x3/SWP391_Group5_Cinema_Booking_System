@@ -1,15 +1,14 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="model.SeatType"%>
+<%@page import="model.CinemaStaff"%>
 <%
-    SeatType seatType = (SeatType) request.getAttribute("seatType");
-    boolean isEdit = seatType != null;
+    CinemaStaff assignment = (CinemaStaff) request.getAttribute("assignment");
     String error = (String) request.getAttribute("error");
 %>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title><%= isEdit ? "Chỉnh sửa" : "Thêm mới" %> Loại Ghế | Cinema Booking</title>
+    <title>Chỉnh sửa Phân công | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Kế thừa toàn bộ CSS từ các trang trước */
@@ -204,6 +203,41 @@
             font-size: 14px;
         }
 
+        /* ===== Assignment Info ===== */
+        .assignment-info {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            color: #e4e9f0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
         /* ===== Form Styles ===== */
         .form-group {
             margin-bottom: 25px;
@@ -219,9 +253,7 @@
             letter-spacing: 1px;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group select {
             width: 100%;
             background: rgba(0, 212, 255, 0.05);
             border: 1px solid rgba(0, 255, 255, 0.2);
@@ -234,30 +266,9 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .form-group select:focus {
             border-color: #00d4ff;
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            margin-left: 10px;
         }
 
         .checkbox-group {
@@ -354,12 +365,6 @@
             margin-top: 40px;
             font-size: 14px;
         }
-
-        /* ===== Required Field ===== */
-        .required::after {
-            content: " *";
-            color: #ef4444;
-        }
     </style>
 </head>
 <body>
@@ -374,9 +379,8 @@
             <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
             <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">💺 Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas" class="active">🏢 Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
         </nav>
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
@@ -384,7 +388,7 @@
 
     <!-- Header -->
     <header>
-        <h1><%= isEdit ? "✏️ Chỉnh sửa Loại Ghế" : "➕ Thêm Loại Ghế Mới" %></h1>
+        <h1>✏️ Chỉnh sửa Phân công</h1>
         <div class="header-right">
             <span>👤 Admin: Nguyễn Văn A</span>
             <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
@@ -396,8 +400,8 @@
         <div class="form-container">
             <!-- Form Header -->
             <div class="form-header">
-                <h2><%= isEdit ? "Chỉnh sửa Thông Tin Loại Ghế" : "Thêm Loại Ghế Mới" %></h2>
-                <p><%= isEdit ? "Cập nhật thông tin loại ghế hiện có" : "Điền đầy đủ thông tin để thêm loại ghế mới" %></p>
+                <h2>Chỉnh sửa Phân công Nhân viên</h2>
+                <p>Cập nhật vai trò và trạng thái phân công</p>
             </div>
 
             <!-- Error Message -->
@@ -407,81 +411,60 @@
                 </div>
             <% } %>
 
+            <!-- Assignment Info -->
+            <div class="assignment-info">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Nhân viên</span>
+                        <span class="info-value"><%= assignment.getStaffName() %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value"><%= assignment.getStaffEmail() %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Rạp chiếu</span>
+                        <span class="info-value"><%= assignment.getCinemaName() %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày phân công</span>
+                        <span class="info-value"><%= assignment.getFormattedAssignedAt() %></span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Form -->
-            <form action="${pageContext.request.contextPath}/admin/seat-types" method="post">
-                <% if (isEdit) { %>
-                    <input type="hidden" name="id" value="<%= seatType.getId() %>">
-                <% } %>
-                <input type="hidden" name="action" value="<%= isEdit ? "update" : "create" %>">
+            <form action="${pageContext.request.contextPath}/admin/cinemas" method="post" id="editForm">
+                <input type="hidden" name="action" value="update-assignment">
+                <input type="hidden" name="assignmentId" value="<%= assignment.getId() %>">
 
-                <div class="form-row">
-                    <!-- Mã loại ghế -->
-                    <div class="form-group">
-                        <label for="code" class="required">Mã loại ghế</label>
-                        <input type="text" id="code" name="code" 
-                               value="<%= isEdit ? seatType.getCode() : "" %>" 
-                               placeholder="VD: STANDARD, VIP, COUPLE"
-                               required>
-                    </div>
-
-                    <!-- Tên loại ghế -->
-                    <div class="form-group">
-                        <label for="name" class="required">Tên loại ghế</label>
-                        <input type="text" id="name" name="name" 
-                               value="<%= isEdit ? seatType.getName() : "" %>" 
-                               placeholder="VD: Ghế Thường, Ghế VIP"
-                               required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <!-- Phụ phí -->
-                    <div class="form-group">
-                        <label for="surcharge" class="required">Phụ phí (VND)</label>
-                        <input type="number" id="surcharge" name="surcharge" 
-                               value="<%= isEdit ? (int)seatType.getSurcharge() : "0" %>" 
-                               min="0" step="1000"
-                               placeholder="0"
-                               required>
-                    </div>
-
-                    <!-- Màu sắc -->
-                    <div class="form-group">
-                        <label for="color" class="required">Màu sắc</label>
-                        <div style="display: flex; align-items: center;">
-                            <input type="color" id="color" name="color" 
-                                   value="<%= isEdit ? seatType.getColor() : "#1E90FF" %>"
-                                   style="flex: 1; height: 45px; padding: 5px;"
-                                   required>
-                            <div class="color-preview" id="colorPreview" 
-                                 style="background-color: <%= isEdit ? seatType.getColor() : "#1E90FF" %>"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mô tả -->
+                <!-- Role Selection -->
                 <div class="form-group">
-                    <label for="description">Mô tả</label>
-                    <textarea id="description" name="description" 
-                              placeholder="Mô tả chi tiết về loại ghế..."><%= isEdit ? seatType.getDescription() : "" %></textarea>
+                    <label for="roleInCinema" class="required">Vai trò tại rạp</label>
+                    <select id="roleInCinema" name="roleInCinema" required>
+                        <option value="manager" <%= "manager".equals(assignment.getRoleInCinema()) ? "selected" : "" %>>Quản lý rạp</option>
+                        <option value="supervisor" <%= "supervisor".equals(assignment.getRoleInCinema()) ? "selected" : "" %>>Giám sát</option>
+                        <option value="staff" <%= "staff".equals(assignment.getRoleInCinema()) ? "selected" : "" %>>Nhân viên</option>
+                        <option value="cashier" <%= "cashier".equals(assignment.getRoleInCinema()) ? "selected" : "" %>>Thu ngân</option>
+                        <option value="technician" <%= "technician".equals(assignment.getRoleInCinema()) ? "selected" : "" %>>Kỹ thuật viên</option>
+                    </select>
                 </div>
 
-                <!-- Trạng thái -->
+                <!-- Status -->
                 <div class="form-group">
-                    <label>Trạng thái</label>
+                    <label>Trạng thái phân công</label>
                     <div class="checkbox-group">
-                        <input type="checkbox" id="status" name="status" 
-                               <%= isEdit ? (seatType.isStatus() ? "checked" : "") : "checked" %>>
-                        <label for="status">Đang hoạt động</label>
+                        <input type="checkbox" id="status" name="status" <%= assignment.isStatus() ? "checked" : "" %>>
+                        <label for="status">Đang làm việc</label>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
-                        <%= isEdit ? "💾 Cập nhật" : "➕ Thêm mới" %>
+                        💾 Cập nhật
                     </button>
-                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">
+                    <a href="${pageContext.request.contextPath}/admin/cinemas?action=manage-staff&id=<%= assignment.getCinemaId() %>" class="btn btn-secondary">
                         ↩️ Quay lại
                     </a>
                 </div>
@@ -494,33 +477,14 @@
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
 
-    <!-- JavaScript for Color Preview -->
+    <!-- JavaScript -->
     <script>
-        // Update color preview in real-time
-        document.getElementById('color').addEventListener('input', function() {
-            document.getElementById('colorPreview').style.backgroundColor = this.value;
-        });
-
         // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const code = document.getElementById('code').value.trim();
-            const name = document.getElementById('name').value.trim();
-            const surcharge = document.getElementById('surcharge').value;
-
-            if (!code) {
-                alert('Vui lòng nhập mã loại ghế');
-                e.preventDefault();
-                return;
-            }
-
-            if (!name) {
-                alert('Vui lòng nhập tên loại ghế');
-                e.preventDefault();
-                return;
-            }
-
-            if (surcharge < 0) {
-                alert('Phụ phí không được âm');
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            const roleInCinema = document.getElementById('roleInCinema').value;
+            
+            if (!roleInCinema) {
+                alert('Vui lòng chọn vai trò');
                 e.preventDefault();
                 return;
             }
