@@ -5,9 +5,9 @@ import util.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.User;
+import model.User; // Cần thiết cho các phương thức từ HEAD
 import model.UserProfile;
-import model.Users;
+import model.Users; // Cần thiết cho các phương thức từ main
 
 public class UserDAO extends DBContext {
 
@@ -86,7 +86,14 @@ public class UserDAO extends DBContext {
         String sql = "UPDATE Users SET Username = ?, PhoneNumber = ? WHERE Id = ?";
         try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getUsername());
-            ps.setString(2, user.getPhoneNumber());
+
+            // Xử lý số điện thoại có thể null
+            if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+                ps.setString(2, user.getPhoneNumber());
+            } else {
+                ps.setNull(2, Types.VARCHAR);
+            }
+
             ps.setLong(3, user.getId());
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
@@ -220,6 +227,10 @@ public class UserDAO extends DBContext {
         return null;
     }
 
+    // ================================================
+    // ===== BẮT ĐẦU PHẦN CODE BỊ MERGE (HEAD) =====
+    // ================================================
+
     public List<User> getActiveStaff() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM Users WHERE role = 'staff' AND status = 1 ORDER BY username";
@@ -235,7 +246,7 @@ public class UserDAO extends DBContext {
         return list;
     }
 
-// GET STAFF BY ID
+    // GET STAFF BY ID
     public User getStaffById(int id) {
         String sql = "SELECT * FROM Users WHERE id = ? AND role = 'staff'";
 
@@ -253,7 +264,7 @@ public class UserDAO extends DBContext {
         return null;
     }
 
-// GET STAFF ASSIGNED TO SPECIFIC CINEMA
+    // GET STAFF ASSIGNED TO SPECIFIC CINEMA
     public List<User> getStaffByCinemaId(int cinemaId) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT u.* FROM Users u "
@@ -275,7 +286,7 @@ public class UserDAO extends DBContext {
         return list;
     }
 
-// ===== HELPER METHOD =====
+    // ===== HELPER METHOD (của HEAD) =====
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setId(rs.getLong("id"));
@@ -289,4 +300,65 @@ public class UserDAO extends DBContext {
         return user;
     }
 
+    // ================================================
+    // ===== BẮT ĐẦU PHẦN CODE BỊ MERGE (main) =====
+    // ================================================
+
+    public boolean existsByEmail(String email) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM dbo.Users WHERE Email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1) > 0;
+            }
+        } catch (ClassNotFoundException ex) {
+            throw new SQLException(ex);
+        }
+    }
+
+    // Thêm các phương thức này vào UserDAO class
+    public Users getUserByUsername(String username) {
+        String sql = "SELECT * FROM Users WHERE Username = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return extractUserFromResultSet(rs);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Users getUserByPhone(String phone) {
+        String sql = "SELECT * FROM Users WHERE PhoneNumber = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return extractUserFromResultSet(rs);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // ===== HELPER METHOD (của main) =====
+    private Users extractUserFromResultSet(ResultSet rs) throws SQLException {
+        Users user = new Users();
+        user.setId(rs.getInt("Id"));
+        user.setEmail(rs.getString("Email"));
+        user.setPhoneNumber(rs.getString("PhoneNumber"));
+        user.setPassword(rs.getString("Password"));
+        user.setPoint(rs.getInt("Point"));
+        user.setUsername(rs.getString("Username"));
+        user.setRole(rs.getString("Role"));
+        user.setStatus(rs.getString("Status"));
+        user.setCreatedAt(rs.getTimestamp("CreatedAt"));
+        user.setUpdatedAt(rs.getTimestamp("UpdatedAt"));
+        return user;
+    }
 }

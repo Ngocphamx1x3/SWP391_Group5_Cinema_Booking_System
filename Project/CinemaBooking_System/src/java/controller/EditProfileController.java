@@ -10,6 +10,7 @@ import jakarta.servlet.http.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.regex.Pattern;
 
 @WebServlet("/editProfile")
 @MultipartConfig(
@@ -17,6 +18,11 @@ import java.sql.Date;
     maxRequestSize = 1024 * 1024 * 10 // 10MB
 )
 public class EditProfileController extends HttpServlet {
+
+    // Regex patterns
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{4,15}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^$|^0[0-9]{9}$"); // Cho phép chuỗi rỗng hoặc số điện thoại hợp lệ
+    private static final Pattern FULLNAME_PATTERN = Pattern.compile("^[\\p{L} ]{2,50}$");
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -39,9 +45,60 @@ public class EditProfileController extends HttpServlet {
             String birthdayStr = request.getParameter("birthday");
             String address = request.getParameter("address");
 
+            // Validate dữ liệu
+            StringBuilder errorMessage = new StringBuilder();
+            
+            // Validate username
+            if (username == null || username.trim().isEmpty()) {
+                errorMessage.append("Username không được để trống.\\n");
+            } else if (!USERNAME_PATTERN.matcher(username).matches()) {
+                errorMessage.append("Username phải từ 4-15 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới (_), không chứa khoảng trắng.\\n");
+            } else {
+                // Kiểm tra username trùng (trừ chính user hiện tại)
+                UserDAO dao = new UserDAO();
+                Users existingUser = dao.getUserByUsername(username);
+                if (existingUser != null && existingUser.getId() != user.getId()) {
+                    errorMessage.append("Username đã tồn tại. Vui lòng chọn username khác.\\n");
+                }
+            }
+
+            // Validate phone - cho phép để trống
+            if (phone != null && !phone.trim().isEmpty()) {
+                if (!PHONE_PATTERN.matcher(phone).matches()) {
+                    errorMessage.append("Số điện thoại phải có 10 số và bắt đầu bằng số 0, hoặc để trống.\\n");
+                } else {
+                    // Kiểm tra phone trùng (trừ chính user hiện tại) - chỉ kiểm tra nếu có số điện thoại
+                    UserDAO dao = new UserDAO();
+                    Users existingUser = dao.getUserByPhone(phone);
+                    if (existingUser != null && existingUser.getId() != user.getId()) {
+                        errorMessage.append("Số điện thoại đã tồn tại. Vui lòng sử dụng số điện thoại khác.\\n");
+                    }
+                }
+            }
+
+            // Validate fullName
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                if (!FULLNAME_PATTERN.matcher(fullName.trim()).matches()) {
+                    errorMessage.append("Họ và tên phải từ 2-50 ký tự.\\n");
+                }
+            }
+
+            // Nếu có lỗi validation, quay lại trang với thông báo lỗi
+            if (errorMessage.length() > 0) {
+                session.setAttribute("errorMessage", errorMessage.toString());
+                response.sendRedirect(request.getContextPath() + "/userProfile");
+                return;
+            }
+
             // Cập nhật thông tin Users
             user.setUsername(username);
-            user.setPhoneNumber(phone);
+            
+            // Xử lý số điện thoại: nếu là chuỗi rỗng thì set thành null
+            if (phone != null && phone.trim().isEmpty()) {
+                user.setPhoneNumber(null);
+            } else {
+                user.setPhoneNumber(phone);
+            }
 
             // Parse ngày sinh
             Date birthday = null;
@@ -67,7 +124,7 @@ public class EditProfileController extends HttpServlet {
                 String fileName = "avatar_" + user.getId() + "_" + System.currentTimeMillis() + 
                                  getFileExtension(avatarFile.getSubmittedFileName());
                 avatarFile.write(uploadPath + File.separator + fileName);
-                avatarUrl = "/uploads/" + fileName;
+                avatarUrl = request.getContextPath() + "/uploads/" + fileName;
             }
 
             // Lấy thông tin profile hiện tại
@@ -91,6 +148,7 @@ public class EditProfileController extends HttpServlet {
             // Chỉ cập nhật avatar nếu có file mới
             if (avatarUrl != null) {
                 profile.setAvatarUrl(avatarUrl);
+                session.setAttribute("avatarUrl", avatarUrl);
             }
 
             // Cập nhật database
@@ -101,11 +159,13 @@ public class EditProfileController extends HttpServlet {
             session.setAttribute("account", user);
 
             // Chuyển hướng về trang profile với thông báo thành công
-            response.sendRedirect(request.getContextPath() + "/userProfile?success=true");
+            session.setAttribute("successMessage", "Cập nhật hồ sơ thành công!");
+            response.sendRedirect(request.getContextPath() + "/userProfile");
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/userProfile?error=Có lỗi xảy ra khi cập nhật hồ sơ");
+            session.setAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật hồ sơ: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/userProfile");
         }
     }
 

@@ -392,6 +392,7 @@
                 <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
                 <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
                 <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
+                <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
                 <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
