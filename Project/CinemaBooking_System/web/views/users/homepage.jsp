@@ -158,7 +158,7 @@
                     Khách hàng cần đăng nhập khi đặt vé !!
                 </h2>
                 <button class="Modal-InBtn Btn-Right">
-                    <a style="text-decoration: none; color: #000000" href="login.jsp">OK</a>
+                    <a style="text-decoration: none; color: #000000" href="login">OK</a>
                 </button>
                 <button class="Modal-InBtn Btn-Left" data-dismiss="modal">HỦY</button>
             </div>
@@ -198,5 +198,24 @@
         <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/js/all.min.js"></script>
         <script src="${pageContext.request.contextPath}/assets/user/js/web.js"></script>
+        <script>
+            // Kiểm tra nếu có avatar mới được cập nhật
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarUpdated = sessionStorage.getItem('avatarUpdated');
+    const newAvatarUrl = sessionStorage.getItem('newAvatarUrl');
+    
+    if (avatarUpdated === 'true' && newAvatarUrl) {
+        // Cập nhật avatar trong navigation
+        const avatarImg = document.querySelector('.user-avatar');
+        if (avatarImg) {
+            avatarImg.src = newAvatarUrl + '?t=' + new Date().getTime();
+        }
+        
+        // Xóa thông tin từ session storage
+        sessionStorage.removeItem('avatarUpdated');
+        sessionStorage.removeItem('newAvatarUrl');
+    }
+});
+        </script>
     </body>
 </html>
