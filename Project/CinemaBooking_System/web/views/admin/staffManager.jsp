@@ -637,6 +637,11 @@
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
             <a href="${pageContext.request.contextPath}/views/admin/staffManager.jsp" class="active">🧑‍💼 Quản lý nhân viên</a>
             <a href="${pageContext.request.contextPath}/views/admin/cinemaManager.jsp">🏢 Quản lý rạp</a>
+<<<<<<< Updated upstream
+=======
+            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
+>>>>>>> Stashed changes
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
         </nav>
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
