@@ -1,4 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -15,25 +19,24 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e4e9f0;
+            background: #f4f7fa; /* Light background */
+            color: #2d3748; /* Dark text */
             min-height: 100vh;
         }
 
-        /* ===== Sidebar (Giữ nguyên) ===== */
+        /* ===== Sidebar (Light Theme) ===== */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* White background */
+            border-right: 1px solid #e2e8f0; /* Light gray border */
             display: flex;
             flex-direction: column;
             padding: 30px 0;
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05); /* Subtle shadow */
             z-index: 1000;
         }
 
@@ -46,9 +49,10 @@
         .sidebar-logo h2 {
             font-size: 26px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Dark text for logo */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             letter-spacing: 1px;
         }
 
@@ -66,7 +70,7 @@
         }
 
         .sidebar a {
-            color: #94a3b8;
+            color: #4a5568; /* Dark gray text for links */
             text-decoration: none;
             padding: 16px 30px;
             display: flex;
@@ -91,8 +95,8 @@
         }
 
         .sidebar a:hover {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #e6f7ff; /* Light blue background */
+            color: #007bff; /* Darker blue text */
             padding-left: 35px;
         }
 
@@ -101,8 +105,8 @@
         }
 
         .sidebar a.active {
-            background: rgba(0, 212, 255, 0.12);
-            color: #00d4ff;
+            background: #e6f7ff; /* Light blue background */
+            color: #007bff; /* Darker blue text */
             padding-left: 35px;
         }
 
@@ -121,15 +125,15 @@
 
         .sidebar a.logout:hover {
             background: rgba(239, 68, 68, 0.2);
-            padding-left: 30px;
+            padding-left: 30px; /* Keep consistent hover effect */
         }
 
-        /* ===== Header (Giữ nguyên) ===== */
+        /* ===== Header (Light Theme) ===== */
         header {
             margin-left: 280px;
-            background: rgba(15, 20, 25, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8); /* Light transparent background */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0; /* Light gray border */
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -142,11 +146,12 @@
         header h1 {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Dark heading */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
         }
-        
+
         .header-right {
             display: flex;
             align-items: center;
@@ -155,7 +160,7 @@
 
         .header-right span {
             font-weight: 500;
-            color: #94a3b8;
+            color: #4a5568; /* Dark gray text */
             font-size: 14px;
             display: flex;
             align-items: center;
@@ -165,6 +170,7 @@
         .notification-badge {
             position: relative;
             cursor: pointer;
+            color: #4a5568; /* Icon color */
         }
 
         .notification-badge .badge {
@@ -181,7 +187,7 @@
         }
 
 
-        /* ===== Content (Giữ nguyên) ===== */
+        /* ===== Content (Light Theme) ===== */
         .content {
             margin-left: 280px;
             padding: 40px;
@@ -190,16 +196,16 @@
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 25px;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Dark title */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
         }
 
-        /* ===== Filter Bar (CSS MỚI) ===== */
+        /* ===== Filter Bar (Light Theme) ===== */
         .filter-container {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* White background */
+            border: 1px solid #e2e8f0; /* Light gray border */
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 40px;
@@ -207,32 +213,45 @@
             flex-wrap: wrap;
             gap: 20px;
             align-items: flex-end;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
         .filter-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
             flex-grow: 1;
+            min-width: 150px; /* Prevent shrinking too much */
         }
         .filter-group label {
             font-size: 13px;
             font-weight: 500;
-            color: #94a3b8;
+            color: #4a5568; /* Dark gray label */
         }
         .filter-group input, .filter-group select {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid #334155;
+            background: #ffffff; /* White input background */
+            border: 1px solid #ced4da; /* Gray border */
             border-radius: 8px;
             padding: 10px 12px;
-            color: #e4e9f0;
+            color: #2d3748; /* Dark text */
             font-family: 'Inter', sans-serif;
             font-size: 14px;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
+         .filter-group select option { /* Style options for light theme */
+            color: #333;
+            background-color: #fff;
+         }
         .filter-group input:focus, .filter-group select:focus {
             outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+            border-color: #007bff; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus ring */
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px; /* Add gap between buttons */
+            align-items: flex-end; /* Align with input bottom */
+            padding-bottom: 0; /* Align button bottom with input bottom */
+            height: 40px; /* Match approximate input height */
         }
         .filter-buttons button {
             padding: 10px 20px;
@@ -242,33 +261,34 @@
             font-weight: 600;
             transition: all 0.3s ease;
             font-size: 14px;
+            height: 100%; /* Make buttons fill the height */
         }
         .btn-filter {
             background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            color: #0a0e27;
+            color: #ffffff; /* White text */
         }
         .btn-filter:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
         .btn-clear {
-            background: rgba(107, 114, 128, 0.3);
-            color: #e4e9f0;
-            margin-left: 10px;
+            background: #6c757d; /* Gray background */
+            color: #ffffff; /* White text */
         }
         .btn-clear:hover {
-             background: rgba(107, 114, 128, 0.5);
+             background: #5a6268; /* Darker gray */
+             transform: translateY(-2px);
         }
 
-        /* ===== Table Section (Tái sử dụng & tinh chỉnh) ===== */
+        /* ===== Table Section (Light Theme) ===== */
         .table-container {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* White background */
+            border: 1px solid #e2e8f0; /* Light gray border */
             border-radius: 20px;
-            padding: 0;
+            padding: 0; /* Remove padding, apply to inner elements if needed */
             margin-bottom: 40px;
-            overflow: hidden; /* Để bo tròn góc cho table */
+            overflow: hidden; /* Keep for border radius */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         table {
@@ -277,28 +297,33 @@
         }
 
         th {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #f8f9fa; /* Lighter gray background */
+            color: #4a5568; /* Dark gray text */
             font-weight: 600;
             text-transform: uppercase;
             font-size: 12px;
             letter-spacing: 1px;
             padding: 18px 20px;
             text-align: left;
+            border-bottom: 2px solid #dee2e6; /* Slightly darker border */
         }
 
         td {
             padding: 18px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            color: #94a3b8;
+            border-top: 1px solid #e2e8f0; /* Light gray border instead of dark */
+            color: #2d3748; /* Dark text */
             font-size: 14px;
+            vertical-align: middle;
         }
+         tbody tr:first-child td {
+             border-top: none; /* Remove top border for the first row */
+         }
 
         tr:hover td {
-            background: rgba(0, 212, 255, 0.05);
-            color: #e4e9f0;
+            background: #f8f9fa; /* Lighter hover */
+            color: #1a202c; /* Darker text on hover */
         }
-        
+
         .status {
             padding: 5px 10px;
             border-radius: 12px;
@@ -307,6 +332,7 @@
             display: inline-block;
         }
 
+        /* Status colors remain the same as they use light backgrounds */
         .status-success {
             background-color: rgba(16, 185, 129, 0.1);
             color: #10b981;
@@ -323,24 +349,33 @@
             background-color: rgba(107, 114, 128, 0.1);
             color: #6b7280;
         }
-        
+
         .action-buttons button {
-            background: none;
-            border: 1px solid #334155;
-            color: #94a3b8;
+            background: #ffffff; /* White background */
+            border: 1px solid #ced4da; /* Gray border */
+            color: #4a5568; /* Dark gray text */
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
             margin-right: 8px;
             transition: all 0.3s ease;
+            font-size: 13px; /* Slightly smaller */
+            font-weight: 500;
         }
         .action-buttons button:hover {
-            border-color: #00d4ff;
-            color: #00d4ff;
-            background: rgba(0, 212, 255, 0.1);
+            border-color: #007bff; /* Blue border */
+            color: #007bff; /* Blue text */
+            background: #e6f7ff; /* Light blue background */
         }
+         /* Specific styling for refund button perhaps */
+         .action-buttons button:last-child:hover {
+            border-color: #dc3545; /* Red border */
+            color: #dc3545; /* Red text */
+            background: rgba(220, 53, 69, 0.1); /* Light red background */
+         }
 
-        /* ===== Pagination (CSS MỚI) ===== */
+
+        /* ===== Pagination (Light Theme) ===== */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -348,36 +383,57 @@
             padding: 25px 0;
         }
         .pagination a {
-            color: #94a3b8;
+            color: #007bff; /* Blue text */
             padding: 8px 14px;
             text-decoration: none;
-            transition: background-color .3s;
-            border: 1px solid #334155;
+            transition: background-color .3s, border-color .3s, color .3s;
+            border: 1px solid #dee2e6; /* Light gray border */
             margin: 0 4px;
             border-radius: 6px;
+            background-color: #ffffff; /* White background */
         }
         .pagination a.active {
             background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            color: #0a0e27;
+            color: #ffffff; /* White text */
             font-weight: 700;
-            border-color: #00d4ff;
+            border-color: #007bff; /* Blue border */
         }
         .pagination a:hover:not(.active) {
-            background-color: rgba(0, 212, 255, 0.1);
-            border-color: #00d4ff;
+            background-color: #e6f7ff; /* Light blue background */
+            border-color: #007bff; /* Blue border */
+            color: #0056b3; /* Darker blue text */
         }
 
-        /* ===== Footer (Giữ nguyên) ===== */
+        /* ===== Footer (Light Theme) ===== */
         footer {
-            background: rgba(15, 20, 25, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* White background */
+            border-top: 1px solid #e2e8f0; /* Light gray border */
             color: #6b7280;
             text-align: center;
             padding: 25px;
             margin-left: 280px;
             font-size: 14px;
         }
+          /* Responsive */
+         @media (max-width: 992px) { /* Adjust breakpoint if needed */
+              .sidebar { width: 100%; height: auto; position: relative; box-shadow: none; border-right: none; border-bottom: 1px solid #e2e8f0;}
+              header, .content, footer { margin-left: 0; }
+         }
+          @media (max-width: 768px) {
+              .filter-container { padding: 15px; }
+              .filter-group { min-width: calc(50% - 10px);} /* Two columns on smaller screens */
+              th, td { padding: 12px 10px; font-size: 13px;}
+              .action-buttons button { padding: 5px 10px; font-size: 12px;}
+              header h1, .section-title { font-size: 22px;}
+              .content { padding: 25px;}
+              .pagination a { padding: 6px 10px; font-size: 13px;}
+         }
+          @media (max-width: 576px) {
+               .filter-group { min-width: 100%;} /* Full width on extra small screens */
+               .filter-buttons { width: 100%; justify-content: space-between;}
+               .filter-buttons button { flex-grow: 1;}
+               .filter-buttons .btn-clear { margin-left: 10px;}
+          }
     </style>
 </head>
 <body>
@@ -390,7 +446,6 @@
         <nav>
             <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-<<<<<<< HEAD
             <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
             <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
             <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
@@ -525,10 +580,11 @@
                             <button>Hủy</button>
                         </td>
                     </tr>
+                     <%-- Thêm các dòng khác nếu cần --%>
                 </tbody>
             </table>
         </div>
-        
+
         <div class="pagination-container">
             <div class="pagination">
               <a href="#">&laquo;</a>

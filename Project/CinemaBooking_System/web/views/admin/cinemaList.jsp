@@ -13,7 +13,6 @@
     <title>Quản lý Rạp Chiếu | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Kế thừa toàn bộ CSS từ các trang trước */
         * {
             margin: 0;
             padding: 0;
@@ -22,8 +21,8 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e4e9f0;
+            background: #f4f7fa; 
+            color: #2d3748; 
             min-height: 100vh;
         }
 
@@ -34,13 +33,12 @@
             left: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; 
+            border-right: 1px solid #e2e8f0; 
             display: flex;
             flex-direction: column;
             padding: 30px 0;
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05); 
             z-index: 1000;
         }
 
@@ -53,9 +51,10 @@
         .sidebar-logo h2 {
             font-size: 26px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c;
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             letter-spacing: 1px;
         }
 
@@ -73,7 +72,7 @@
         }
 
         .sidebar a {
-            color: #94a3b8;
+            color: #4a5568; 
             text-decoration: none;
             padding: 16px 30px;
             display: flex;
@@ -98,8 +97,8 @@
         }
 
         .sidebar a:hover {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #e6f7ff; 
+            color: #007bff; 
             padding-left: 35px;
         }
 
@@ -108,8 +107,8 @@
         }
 
         .sidebar a.active {
-            background: rgba(0, 212, 255, 0.12);
-            color: #00d4ff;
+            background: #e6f7ff; 
+            color: #007bff; 
             padding-left: 35px;
         }
 
@@ -134,9 +133,9 @@
         /* ===== Header ===== */
         header {
             margin-left: 280px;
-            background: rgba(15, 20, 25, 0.8);
+            background: rgba(255, 255, 255, 0.8); 
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0; 
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -149,9 +148,10 @@
         header h1 {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; 
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
         }
 
         .header-right {
@@ -162,7 +162,7 @@
 
         .header-right span {
             font-weight: 500;
-            color: #94a3b8;
+            color: #4a5568; 
             font-size: 14px;
             display: flex;
             align-items: center;
@@ -177,9 +177,8 @@
 
         /* ===== Toolbar ===== */
         .toolbar {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
             border-radius: 20px;
             padding: 25px 30px;
             margin-bottom: 30px;
@@ -188,6 +187,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         .search-box {
@@ -199,19 +199,19 @@
 
         .search-box input {
             flex: 1;
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            background: #ffffff; 
+            border: 1px solid #ced4da; 
             border-radius: 12px;
             padding: 12px 20px;
-            color: #e4e9f0;
+            color: #2d3748; 
             font-size: 14px;
             outline: none;
             transition: all 0.3s ease;
         }
 
         .search-box input:focus {
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            border-color: #007bff; 
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); 
         }
 
         .search-box input::placeholder {
@@ -236,17 +236,17 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3); 
         }
 
         /* ===== Table Container ===== */
         .table-container {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
             border-radius: 20px;
             padding: 30px;
             overflow-x: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         table {
@@ -255,27 +255,27 @@
         }
 
         th {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #f8f9fa; 
+            color: #4a5568; 
             font-weight: 600;
             text-transform: uppercase;
             font-size: 12px;
             letter-spacing: 1px;
             padding: 15px;
             text-align: left;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+            border-bottom: 2px solid #dee2e6; 
         }
 
         td {
             padding: 18px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #94a3b8;
+            border-bottom: 1px solid #e2e8f0; 
+            color: #2d3748; 
             font-size: 14px;
         }
 
         tr:hover td {
-            background: rgba(0, 212, 255, 0.05);
-            color: #e4e9f0;
+            background: #f8f9fa; 
+            color: #1a202c; 
         }
 
         .status-badge {
@@ -317,13 +317,13 @@
         }
 
         .btn-edit {
-            background: rgba(0, 212, 255, 0.2);
-            color: #00d4ff;
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 123, 255, 0.2); 
+            color: #007bff;
+            border: 1px solid rgba(0, 123, 255, 0.3);
         }
 
         .btn-edit:hover {
-            background: rgba(0, 212, 255, 0.3);
+            background: rgba(0, 123, 255, 0.3);
             transform: translateY(-2px);
         }
 
@@ -371,9 +371,8 @@
 
         /* ===== Footer ===== */
         footer {
-            background: rgba(15, 20, 25, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; 
+            border-top: 1px solid #e2e8f0; 
             color: #6b7280;
             text-align: center;
             padding: 25px;
@@ -400,7 +399,6 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-logo">
             <h2>🎬 CINEMA PRO</h2>
@@ -411,13 +409,13 @@
             <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
             <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
             <a href="${pageContext.request.contextPath}/admin/cinemas" class="active">🏢 Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
             <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
             <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
         </nav>
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
     </div>
 
-    <!-- Header -->
     <header>
         <h1>🏢 Quản lý Rạp Chiếu</h1>
         <div class="header-right">
@@ -426,10 +424,8 @@
         </div>
     </header>
 
-    <!-- Main content -->
     <div class="content">
 
-        <!-- Alert Messages -->
         <% if (success != null) { %>
         <div class="alert alert-success">
             <% 
@@ -463,7 +459,6 @@
         </div>
         <% } %>
 
-        <!-- Toolbar -->
         <div class="toolbar">
             <form method="GET" action="${pageContext.request.contextPath}/admin/cinemas" class="search-box">
                 <input type="text" name="search" 
@@ -471,15 +466,14 @@
                        value="<%= searchKeyword != null ? searchKeyword : "" %>">
                 <button type="submit" class="btn">Tìm kiếm</button>
                 <a href="${pageContext.request.contextPath}/admin/cinemas" class="btn" style="
-                   background: rgba(107, 114, 128, 0.3);
-                   color: #e4e9f0;
-                   border: 1px solid rgba(107, 114, 128, 0.5);
+                   background: #6c757d; /* Nền xám */
+                   color: #ffffff; /* Chữ trắng */
+                   border: 1px solid #6c757d;
                    ">🔄 Reset</a>
             </form>
             <a href="${pageContext.request.contextPath}/admin/cinemas?action=add" class="btn">➕ Thêm rạp chiếu</a>
         </div>
 
-        <!-- Cinemas Table -->
         <div class="table-container">
             <table>
                 <thead>
@@ -545,7 +539,7 @@
                         </td>
                     </tr>
                     <% } 
-                     } else { %>
+                       } else { %>
                     <tr>
                         <td colspan="12" style="text-align: center; color: #6b7280; padding: 40px;">
                             📝 Chưa có rạp chiếu nào. Hãy thêm rạp chiếu đầu tiên!
@@ -557,7 +551,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>

@@ -32,7 +32,6 @@ public class Cinema {
         this.totalRooms = totalRooms;
         this.operatingHours = operatingHours;
     }
-    
     // ===== GETTERS & SETTERS =====
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

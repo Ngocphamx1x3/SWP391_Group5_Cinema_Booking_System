@@ -13,7 +13,6 @@
     <title>Quản lý Nhân viên - <%= cinema.getName() %> | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Kế thừa toàn bộ CSS từ các trang trước */
         * {
             margin: 0;
             padding: 0;
@@ -22,8 +21,8 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e4e9f0;
+            background: #f4f7fa; /* Nền sáng */
+            color: #2d3748; /* Chữ tối */
             min-height: 100vh;
         }
 
@@ -34,13 +33,12 @@
             left: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* Nền trắng */
+            border-right: 1px solid #e2e8f0; /* Viền xám nhạt */
             display: flex;
             flex-direction: column;
             padding: 30px 0;
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05); /* Bóng đổ nhẹ */
             z-index: 1000;
         }
 
@@ -53,9 +51,10 @@
         .sidebar-logo h2 {
             font-size: 26px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Chữ đen/tối */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             letter-spacing: 1px;
         }
 
@@ -73,7 +72,7 @@
         }
 
         .sidebar a {
-            color: #94a3b8;
+            color: #4a5568; /* Chữ xám tối */
             text-decoration: none;
             padding: 16px 30px;
             display: flex;
@@ -98,8 +97,8 @@
         }
 
         .sidebar a:hover {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #e6f7ff; /* Nền xanh nhạt khi hover */
+            color: #007bff; /* Chữ xanh đậm khi hover */
             padding-left: 35px;
         }
 
@@ -108,8 +107,8 @@
         }
 
         .sidebar a.active {
-            background: rgba(0, 212, 255, 0.12);
-            color: #00d4ff;
+            background: #e6f7ff; /* Nền xanh nhạt */
+            color: #007bff; /* Chữ xanh đậm */
             padding-left: 35px;
         }
 
@@ -134,9 +133,9 @@
         /* ===== Header ===== */
         header {
             margin-left: 280px;
-            background: rgba(15, 20, 25, 0.8);
+            background: rgba(255, 255, 255, 0.8); /* Nền trắng mờ */
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0; /* Viền xám nhạt */
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -149,9 +148,10 @@
         header h1 {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Chữ đen/tối */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
         }
 
         .header-right {
@@ -162,7 +162,7 @@
 
         .header-right span {
             font-weight: 500;
-            color: #94a3b8;
+            color: #4a5568; /* Chữ xám tối */
             font-size: 14px;
             display: flex;
             align-items: center;
@@ -177,19 +177,21 @@
 
         /* ===== Cinema Info Card ===== */
         .cinema-info {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* Nền trắng */
+            border: 1px solid #e2e8f0; /* Viền xám nhạt */
             border-radius: 20px;
             padding: 30px;
             margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         .cinema-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .cinema-title {
@@ -199,9 +201,10 @@
         .cinema-title h2 {
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Chữ đen/tối */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             margin-bottom: 5px;
         }
 
@@ -224,7 +227,7 @@
         }
 
         .detail-label {
-            color: #94a3b8;
+            color: #6b7280; /* Chữ xám trung bình */
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
@@ -232,16 +235,15 @@
         }
 
         .detail-value {
-            color: #e4e9f0;
+            color: #2d3748; /* Chữ tối */
             font-size: 14px;
             font-weight: 500;
         }
 
         /* ===== Toolbar ===== */
         .toolbar {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* Nền trắng */
+            border: 1px solid #e2e8f0; /* Viền xám nhạt */
             border-radius: 20px;
             padding: 25px 30px;
             margin-bottom: 30px;
@@ -250,6 +252,11 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .toolbar h3 {
+            color: #1a202c; /* Chữ đen/tối */
         }
 
         .btn {
@@ -270,27 +277,27 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3); /* Bóng đổ xanh */
         }
 
         .btn-secondary {
-            background: rgba(107, 114, 128, 0.3);
-            color: #e4e9f0;
-            border: 1px solid rgba(107, 114, 128, 0.5);
+            background: #6c757d; /* Nền xám */
+            color: #ffffff; /* Chữ trắng */
+            border: 1px solid #6c757d;
         }
 
         .btn-secondary:hover {
-            background: rgba(107, 114, 128, 0.5);
+            background: #5a6268; /* Nền xám đậm hơn */
         }
 
         /* ===== Table Container ===== */
         .table-container {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* Nền trắng */
+            border: 1px solid #e2e8f0; /* Viền xám nhạt */
             border-radius: 20px;
             padding: 30px;
             overflow-x: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         table {
@@ -299,27 +306,27 @@
         }
 
         th {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #f8f9fa; /* Nền xám nhạt */
+            color: #4a5568; /* Chữ xám tối */
             font-weight: 600;
             text-transform: uppercase;
             font-size: 12px;
             letter-spacing: 1px;
             padding: 15px;
             text-align: left;
-            border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+            border-bottom: 2px solid #dee2e6; /* Viền xám đậm hơn */
         }
 
         td {
             padding: 18px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            color: #94a3b8;
+            border-bottom: 1px solid #e2e8f0; /* Viền xám nhạt */
+            color: #2d3748; /* Chữ tối */
             font-size: 14px;
         }
 
         tr:hover td {
-            background: rgba(0, 212, 255, 0.05);
-            color: #e4e9f0;
+            background: #f8f9fa; /* Nền xám nhạt khi hover */
+            color: #1a202c; /* Chữ đen/tối */
         }
 
         .status-badge {
@@ -361,13 +368,13 @@
         }
 
         .btn-edit {
-            background: rgba(0, 212, 255, 0.2);
-            color: #00d4ff;
-            border: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 123, 255, 0.2); /* Đổi sang xanh dương nhạt */
+            color: #007bff;
+            border: 1px solid rgba(0, 123, 255, 0.3);
         }
 
         .btn-edit:hover {
-            background: rgba(0, 212, 255, 0.3);
+            background: rgba(0, 123, 255, 0.3);
             transform: translateY(-2px);
         }
 
@@ -418,19 +425,22 @@
         .empty-state h3 {
             font-size: 18px;
             margin-bottom: 10px;
-            color: #94a3b8;
+            color: #4a5568; /* Chữ xám tối */
         }
 
         .empty-state p {
             font-size: 14px;
             margin-bottom: 20px;
         }
+        .toolbar select option {
+            color: #333;
+            background-color: #fff;
+        }
 
         /* ===== Footer ===== */
         footer {
-            background: rgba(15, 20, 25, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* Nền trắng */
+            border-top: 1px solid #e2e8f0; /* Viền xám nhạt */
             color: #6b7280;
             text-align: center;
             padding: 25px;
@@ -442,7 +452,6 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-logo">
             <h2>🎬 CINEMA PRO</h2>
@@ -459,7 +468,6 @@
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
     </div>
 
-    <!-- Header -->
     <header>
         <h1>👥 Quản lý Nhân viên - <%= cinema.getName() %></h1>
         <div class="header-right">
@@ -468,10 +476,8 @@
         </div>
     </header>
 
-    <!-- Main content -->
     <div class="content">
 
-        <!-- Alert Messages -->
         <% if (success != null) { %>
         <div class="alert alert-success">
             <% 
@@ -496,7 +502,6 @@
         </div>
         <% } %>
 
-        <!-- Cinema Info -->
         <div class="cinema-info">
             <div class="cinema-header">
                 <div class="cinema-title">
@@ -525,16 +530,14 @@
             </div>
         </div>
 
-        <!-- Toolbar -->
         <div class="toolbar">
             <div>
-                <h3 style="color: #e4e9f0; margin-bottom: 5px;">Danh sách nhân viên</h3>
+                <h3 style="margin-bottom: 5px;">Danh sách nhân viên</h3>
                 <p style="color: #6b7280; font-size: 14px;">Quản lý phân công nhân viên cho rạp chiếu</p>
             </div>
             <a href="${pageContext.request.contextPath}/admin/cinemas?action=assign-staff&cinemaId=<%= cinema.getId() %>" class="btn">➕ Phân công nhân viên</a>
         </div>
 
-        <!-- Staff Assignments Table -->
         <div class="table-container">
             <% if (staffAssignments != null && !staffAssignments.isEmpty()) { %>
             <table>
@@ -597,7 +600,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>

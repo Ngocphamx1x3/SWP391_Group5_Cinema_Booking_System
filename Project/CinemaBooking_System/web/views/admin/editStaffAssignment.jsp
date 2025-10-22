@@ -11,7 +11,6 @@
     <title>Chỉnh sửa Phân công | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Kế thừa toàn bộ CSS từ các trang trước */
         * {
             margin: 0;
             padding: 0;
@@ -20,8 +19,8 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e4e9f0;
+            background: #f4f7fa; /* Nền sáng */
+            color: #2d3748; /* Chữ tối */
             min-height: 100vh;
         }
 
@@ -32,13 +31,12 @@
             left: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* Nền trắng */
+            border-right: 1px solid #e2e8f0; /* Viền xám nhạt */
             display: flex;
             flex-direction: column;
             padding: 30px 0;
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05); /* Bóng đổ nhẹ */
             z-index: 1000;
         }
 
@@ -51,9 +49,10 @@
         .sidebar-logo h2 {
             font-size: 26px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Chữ đen/tối */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             letter-spacing: 1px;
         }
 
@@ -71,7 +70,7 @@
         }
 
         .sidebar a {
-            color: #94a3b8;
+            color: #4a5568; /* Chữ xám tối */
             text-decoration: none;
             padding: 16px 30px;
             display: flex;
@@ -96,8 +95,8 @@
         }
 
         .sidebar a:hover {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #e6f7ff; /* Nền xanh nhạt khi hover */
+            color: #007bff; /* Chữ xanh đậm khi hover */
             padding-left: 35px;
         }
 
@@ -106,8 +105,8 @@
         }
 
         .sidebar a.active {
-            background: rgba(0, 212, 255, 0.12);
-            color: #00d4ff;
+            background: #e6f7ff; /* Nền xanh nhạt */
+            color: #007bff; /* Chữ xanh đậm */
             padding-left: 35px;
         }
 
@@ -132,9 +131,9 @@
         /* ===== Header ===== */
         header {
             margin-left: 280px;
-            background: rgba(15, 20, 25, 0.8);
+            background: rgba(255, 255, 255, 0.8); /* Nền trắng mờ */
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            border-bottom: 1px solid #e2e8f0; /* Viền xám nhạt */
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -147,9 +146,10 @@
         header h1 {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Chữ đen/tối */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
         }
 
         .header-right {
@@ -160,7 +160,7 @@
 
         .header-right span {
             font-weight: 500;
-            color: #94a3b8;
+            color: #4a5568; /* Chữ xám tối */
             font-size: 14px;
             display: flex;
             align-items: center;
@@ -175,13 +175,13 @@
 
         /* ===== Form Container ===== */
         .form-container {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* Nền trắng */
+            border: 1px solid #e2e8f0; /* Viền xám nhạt */
             border-radius: 20px;
             padding: 40px;
             max-width: 600px;
             margin: 0 auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Bóng đổ nhẹ */
         }
 
         .form-header {
@@ -192,9 +192,10 @@
         .form-header h2 {
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Chữ đen/tối */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             margin-bottom: 10px;
         }
 
@@ -205,8 +206,8 @@
 
         /* ===== Assignment Info ===== */
         .assignment-info {
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: #f8f9fa; /* Nền xám rất nhạt */
+            border: 1px solid #e2e8f0; /* Viền xám nhạt */
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 30px;
@@ -225,7 +226,7 @@
         }
 
         .info-label {
-            color: #94a3b8;
+            color: #6b7280; /* Chữ xám trung bình */
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
@@ -233,7 +234,7 @@
         }
 
         .info-value {
-            color: #e4e9f0;
+            color: #2d3748; /* Chữ tối */
             font-size: 14px;
             font-weight: 500;
         }
@@ -245,7 +246,7 @@
 
         .form-group label {
             display: block;
-            color: #94a3b8;
+            color: #4a5568; /* Chữ xám tối */
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 8px;
@@ -255,20 +256,25 @@
 
         .form-group select {
             width: 100%;
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            background: #ffffff; /* Nền trắng */
+            border: 1px solid #ced4da; /* Viền xám */
             border-radius: 12px;
             padding: 14px 16px;
-            color: #e4e9f0;
+            color: #2d3748; /* Chữ tối */
             font-size: 14px;
             outline: none;
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
         }
+        
+        .form-group select option {
+            color: #333;
+            background-color: #fff;
+        }
 
         .form-group select:focus {
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            border-color: #007bff; /* Viền xanh khi focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus ring */
         }
 
         .checkbox-group {
@@ -281,7 +287,7 @@
         .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #00d4ff;
+            accent-color: #007bff; /* Màu nhấn xanh */
         }
 
         .checkbox-group label {
@@ -289,7 +295,7 @@
             text-transform: none;
             letter-spacing: normal;
             font-size: 14px;
-            color: #e4e9f0;
+            color: #2d3748; /* Chữ tối */
         }
 
         /* ===== Form Actions ===== */
@@ -298,7 +304,7 @@
             gap: 15px;
             margin-top: 40px;
             padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid #e2e8f0; /* Viền xám nhạt */
         }
 
         .btn {
@@ -325,17 +331,17 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3); /* Bóng đổ xanh */
         }
 
         .btn-secondary {
-            background: rgba(107, 114, 128, 0.3);
-            color: #e4e9f0;
-            border: 1px solid rgba(107, 114, 128, 0.5);
+            background: #6c757d; /* Nền xám */
+            color: #ffffff; /* Chữ trắng */
+            border: 1px solid #6c757d;
         }
 
         .btn-secondary:hover {
-            background: rgba(107, 114, 128, 0.5);
+            background: #5a6268; /* Nền xám đậm hơn */
             transform: translateY(-2px);
         }
 
@@ -352,12 +358,15 @@
             color: #ef4444;
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
+        .toolbar select option {
+            color: #333;
+            background-color: #fff;
+        }
 
         /* ===== Footer ===== */
         footer {
-            background: rgba(15, 20, 25, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* Nền trắng */
+            border-top: 1px solid #e2e8f0; /* Viền xám nhạt */
             color: #6b7280;
             text-align: center;
             padding: 25px;
@@ -369,7 +378,6 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-logo">
             <h2>🎬 CINEMA PRO</h2>
@@ -386,7 +394,6 @@
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
     </div>
 
-    <!-- Header -->
     <header>
         <h1>✏️ Chỉnh sửa Phân công</h1>
         <div class="header-right">
@@ -395,23 +402,19 @@
         </div>
     </header>
 
-    <!-- Main content -->
     <div class="content">
         <div class="form-container">
-            <!-- Form Header -->
             <div class="form-header">
                 <h2>Chỉnh sửa Phân công Nhân viên</h2>
                 <p>Cập nhật vai trò và trạng thái phân công</p>
             </div>
 
-            <!-- Error Message -->
             <% if (error != null) { %>
                 <div class="alert alert-error">
                     ❌ <%= error %>
                 </div>
             <% } %>
 
-            <!-- Assignment Info -->
             <div class="assignment-info">
                 <div class="info-grid">
                     <div class="info-item">
@@ -433,12 +436,10 @@
                 </div>
             </div>
 
-            <!-- Form -->
             <form action="${pageContext.request.contextPath}/admin/cinemas" method="post" id="editForm">
                 <input type="hidden" name="action" value="update-assignment">
                 <input type="hidden" name="assignmentId" value="<%= assignment.getId() %>">
 
-                <!-- Role Selection -->
                 <div class="form-group">
                     <label for="roleInCinema" class="required">Vai trò tại rạp</label>
                     <select id="roleInCinema" name="roleInCinema" required>
@@ -450,7 +451,6 @@
                     </select>
                 </div>
 
-                <!-- Status -->
                 <div class="form-group">
                     <label>Trạng thái phân công</label>
                     <div class="checkbox-group">
@@ -459,7 +459,6 @@
                     </div>
                 </div>
 
-                <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         💾 Cập nhật
@@ -472,12 +471,10 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
 
-    <!-- JavaScript -->
     <script>
         // Form validation
         document.getElementById('editForm').addEventListener('submit', function(e) {
