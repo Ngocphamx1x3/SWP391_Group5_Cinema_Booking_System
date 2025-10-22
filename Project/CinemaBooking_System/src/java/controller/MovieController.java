@@ -46,6 +46,9 @@ public class MovieController extends HttpServlet {
                 case "edit":
                     showEditForm(request, response);
                     break;
+                case "search":
+                    searchMovies(request, response);
+                    break;
                 default:
                     listMovies(request, response);
                     break;
@@ -113,6 +116,26 @@ public class MovieController extends HttpServlet {
 
         List<Movie> list = movieDAO.getAllMovies(); // chỉ lấy phim chưa ngưng hoạt động
         request.setAttribute("movieList", list);
+        RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
+        rd.forward(request, response);
+    }
+
+    // ======================= TÌM KIẾM PHIM =======================
+    private void searchMovies(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String movieName = request.getParameter("searchName");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+
+        List<Movie> list = movieDAO.searchMovies(movieName, startDate, endDate);
+        request.setAttribute("movieList", list);
+        
+        // Truyền lại các tham số tìm kiếm để hiển thị trong form
+        request.setAttribute("searchName", movieName);
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
+        
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
         rd.forward(request, response);
     }

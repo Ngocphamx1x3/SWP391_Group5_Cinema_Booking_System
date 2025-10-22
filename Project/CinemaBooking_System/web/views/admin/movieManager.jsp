@@ -157,17 +157,111 @@
             text-align: center; padding: 25px; margin-left: 280px; color: #6b7280;
             margin-top: 40px; font-size: 14px;
         }
+         /* Search Form Styles */
+         .search-form-container {
+             display: flex;
+             gap: 15px;
+             align-items: center;
+             flex-wrap: wrap;
+         }
+         
+         #searchForm {
+             display: flex;
+             gap: 10px;
+             align-items: center;
+             background: #ffffff;
+             padding: 15px 20px;
+             border-radius: 12px;
+             border: 1px solid #e2e8f0;
+             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+             flex-wrap: wrap;
+         }
+         
+         #searchForm input[type="text"] {
+             padding: 10px 15px;
+             border: 1px solid #e2e8f0;
+             border-radius: 8px;
+             width: 250px;
+             font-size: 14px;
+             outline: none;
+             transition: border-color 0.3s;
+         }
+         
+         #searchForm input[type="text"]:focus {
+             border-color: #00d4ff;
+         }
+         
+         #datePickerDropdown {
+             display: none;
+             position: absolute;
+             top: 100%;
+             left: 0;
+             z-index: 1000;
+             background: #ffffff;
+             border: 1px solid #e2e8f0;
+             border-radius: 12px;
+             padding: 20px;
+             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+             min-width: 300px;
+             margin-top: 5px;
+         }
+         
          /* Responsive */
+         @media (max-width: 1200px) {
+             #searchForm {
+                 flex-direction: column;
+                 align-items: stretch;
+                 width: 100%;
+                 max-width: 500px;
+             }
+             
+             #searchForm input[type="text"] {
+                 width: 100%;
+             }
+             
+             .search-form-container {
+                 flex-direction: column;
+                 align-items: stretch;
+                 gap: 20px;
+             }
+         }
+         
          @media (max-width: 992px) { /* Adjust breakpoint if needed */
               .sidebar { width: 100%; height: auto; position: relative; box-shadow: none; border-right: none; border-bottom: 1px solid #e2e8f0;}
               header, .content, footer { margin-left: 0; }
+              
+              .search-form-container {
+                  flex-direction: column;
+                  align-items: stretch;
+              }
+              
+              #searchForm {
+                  width: 100%;
+                  max-width: none;
+              }
          }
+         
          @media (max-width: 768px) {
               th, td { padding: 12px 10px; font-size: 13px;}
               .poster-img { width: 40px; height: 60px;}
               .btn { padding: 10px 20px; font-size: 13px; }
               header h1, .section-title { font-size: 22px;}
               .content { padding: 25px;}
+              
+              #searchForm {
+                  padding: 12px 15px;
+                  gap: 8px;
+              }
+              
+              #searchForm input[type="text"] {
+                  padding: 8px 12px;
+                  font-size: 13px;
+              }
+              
+              #datePickerDropdown {
+                  min-width: 280px;
+                  padding: 15px;
+              }
          }
     </style>
 </head>
@@ -201,10 +295,68 @@
     <div class="content">
         <div class="section-header">
             <h2 class="section-title">🎞️ Danh sách phim</h2>
-            <button class="btn btn-primary" id="addMovieBtn"
-                    onclick="window.location.href='${pageContext.request.contextPath}/admin/movies?action=addForm'">
-                ➕ Thêm phim mới
-            </button>
+            <div class="search-form-container">
+                <!-- Search Form -->
+                <form id="searchForm">
+                    <!-- Movie Name Search -->
+                    <div style="position: relative;">
+                        <input type="text" id="movieNameSearch" name="movieName" placeholder="Tìm kiếm theo tên phim..." 
+                               value="${searchName != null ? searchName : ''}">
+                    </div>
+                    
+                    <!-- Date Range Search -->
+                    <div style="position: relative;">
+                        <button type="button" id="dateRangeBtn" onclick="toggleDatePicker()" 
+                                style="padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff; cursor: pointer; font-size: 14px; color: #4a5568; display: flex; align-items: center; gap: 8px; transition: all 0.3s;"
+                                onmouseover="this.style.borderColor='#00d4ff'; this.style.color='#00d4ff'" 
+                                onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#4a5568'">
+                            📅 Chọn khoảng thời gian
+                        </button>
+                        
+                        <!-- Date Picker Dropdown -->
+                        <div id="datePickerDropdown">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Từ ngày:</label>
+                                <input type="date" id="startDate" name="startDate" 
+                                       value="${startDate != null ? startDate : ''}"
+                                       style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none;">
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; color: #4a5568; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Đến ngày:</label>
+                                <input type="date" id="endDate" name="endDate" 
+                                       value="${endDate != null ? endDate : ''}"
+                                       style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none;">
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" onclick="clearDateRange()" 
+                                        style="flex: 1; padding: 8px 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8f9fa; color: #6b7280; cursor: pointer; font-size: 13px; transition: all 0.3s;"
+                                        onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                                    Xóa
+                                </button>
+                                <button type="button" onclick="applyDateRange()" 
+                                        style="flex: 1; padding: 8px 15px; border: none; border-radius: 8px; background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%); color: #ffffff; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s;"
+                                        onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                                    Áp dụng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <button type="submit" id="searchBtn" 
+                            style="padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s;"
+                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(16, 185, 129, 0.3)'" 
+                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        🔍 Tìm kiếm
+                    </button>
+                </form>
+                
+                <!-- Add Movie Button -->
+                <button class="btn btn-primary" id="addMovieBtn"
+                        onclick="window.location.href='${pageContext.request.contextPath}/admin/movies?action=addForm'">
+                    ➕ Thêm phim mới
+                </button>
+            </div>
         </div>
 
         <%-- Display messages --%>
@@ -278,5 +430,155 @@
     <footer>
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
+
+    <script>
+        // Date picker functionality
+        function toggleDatePicker() {
+            const dropdown = document.getElementById('datePickerDropdown');
+            const isVisible = dropdown.style.display === 'block';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+            
+            // Close dropdown when clicking outside
+            if (!isVisible) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeDatePickerOnOutsideClick);
+                }, 100);
+            }
+        }
+        
+        function closeDatePickerOnOutsideClick(event) {
+            const dropdown = document.getElementById('datePickerDropdown');
+            const dateRangeBtn = document.getElementById('dateRangeBtn');
+            
+            if (!dropdown.contains(event.target) && !dateRangeBtn.contains(event.target)) {
+                dropdown.style.display = 'none';
+                document.removeEventListener('click', closeDatePickerOnOutsideClick);
+            }
+        }
+        
+        function clearDateRange() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            updateDateRangeButton();
+        }
+        
+        function applyDateRange() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                alert('Ngày bắt đầu không thể lớn hơn ngày kết thúc!');
+                return;
+            }
+            
+            updateDateRangeButton();
+            document.getElementById('datePickerDropdown').style.display = 'none';
+            document.removeEventListener('click', closeDatePickerOnOutsideClick);
+        }
+        
+        function updateDateRangeButton() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const dateRangeBtn = document.getElementById('dateRangeBtn');
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate).toLocaleDateString('vi-VN');
+                const end = new Date(endDate).toLocaleDateString('vi-VN');
+                dateRangeBtn.innerHTML = `📅 ${start} - ${end}`;
+                dateRangeBtn.style.borderColor = '#10b981';
+                dateRangeBtn.style.color = '#10b981';
+            } else if (startDate) {
+                const start = new Date(startDate).toLocaleDateString('vi-VN');
+                dateRangeBtn.innerHTML = `📅 Từ ${start}`;
+                dateRangeBtn.style.borderColor = '#f59e0b';
+                dateRangeBtn.style.color = '#f59e0b';
+            } else if (endDate) {
+                const end = new Date(endDate).toLocaleDateString('vi-VN');
+                dateRangeBtn.innerHTML = `📅 Đến ${end}`;
+                dateRangeBtn.style.borderColor = '#f59e0b';
+                dateRangeBtn.style.color = '#f59e0b';
+            } else {
+                dateRangeBtn.innerHTML = '📅 Chọn khoảng thời gian';
+                dateRangeBtn.style.borderColor = '#e2e8f0';
+                dateRangeBtn.style.color = '#4a5568';
+            }
+        }
+        
+        // Search form functionality
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const movieName = document.getElementById('movieNameSearch').value.trim();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Build search parameters
+            const params = new URLSearchParams();
+            
+            if (movieName) {
+                params.append('searchName', movieName);
+            }
+            
+            if (startDate) {
+                params.append('startDate', startDate);
+            }
+            
+            if (endDate) {
+                params.append('endDate', endDate);
+            }
+            
+            // Add search action
+            params.append('action', 'search');
+            
+            // Redirect to search results
+            const currentUrl = window.location.pathname;
+            const searchUrl = currentUrl + '?' + params.toString();
+            window.location.href = searchUrl;
+        });
+        
+        // Clear search functionality
+        function clearSearch() {
+            document.getElementById('movieNameSearch').value = '';
+            clearDateRange();
+            // Reload page to show all movies
+            window.location.href = window.location.pathname;
+        }
+        
+        // Add clear search button if there are search parameters
+        window.addEventListener('load', function() {
+            // Check if there are any search values (from server-side attributes or URL parameters)
+            const movieNameValue = document.getElementById('movieNameSearch').value;
+            const startDateValue = document.getElementById('startDate').value;
+            const endDateValue = document.getElementById('endDate').value;
+            
+            const hasSearchParams = (movieNameValue && movieNameValue.trim() !== '') || 
+                                   (startDateValue && startDateValue.trim() !== '') || 
+                                   (endDateValue && endDateValue.trim() !== '');
+            
+            if (hasSearchParams) {
+                // Update date range button display
+                updateDateRangeButton();
+                
+                // Add clear search button
+                const searchForm = document.getElementById('searchForm');
+                const clearBtn = document.createElement('button');
+                clearBtn.type = 'button';
+                clearBtn.innerHTML = '❌ Xóa tìm kiếm';
+                clearBtn.style.cssText = 'padding: 10px 15px; border: 1px solid #ef4444; border-radius: 8px; background: #ffffff; color: #ef4444; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;';
+                clearBtn.onclick = clearSearch;
+                clearBtn.onmouseover = function() {
+                    this.style.background = '#fef2f2';
+                    this.style.borderColor = '#dc2626';
+                    this.style.color = '#dc2626';
+                };
+                clearBtn.onmouseout = function() {
+                    this.style.background = '#ffffff';
+                    this.style.borderColor = '#ef4444';
+                    this.style.color = '#ef4444';
+                };
+                searchForm.appendChild(clearBtn);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -316,4 +316,56 @@ public class MovieDAO extends DBContext {
         }
         return false;
     }
+
+    // ✅ Tìm kiếm phim theo tên và khoảng thời gian
+    public List<Movie> searchMovies(String movieName, String startDate, String endDate) {
+        List<Movie> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM Movie WHERE (Status IS NULL OR Status != N'Ngưng hoạt động')");
+        List<Object> parameters = new ArrayList<>();
+        
+        // Thêm điều kiện tìm kiếm theo tên phim
+        if (movieName != null && !movieName.trim().isEmpty()) {
+            sql.append(" AND Name LIKE ?");
+            parameters.add("%" + movieName.trim() + "%");
+        }
+        
+        // Thêm điều kiện tìm kiếm theo khoảng thời gian
+        if (startDate != null && !startDate.trim().isEmpty()) {
+            sql.append(" AND PremiereDate >= ?");
+            parameters.add(java.sql.Date.valueOf(startDate));
+        }
+        
+        if (endDate != null && !endDate.trim().isEmpty()) {
+            sql.append(" AND PremiereDate <= ?");
+            parameters.add(java.sql.Date.valueOf(endDate));
+        }
+        
+        sql.append(" ORDER BY PremiereDate DESC");
+        
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            
+            // Set parameters
+            for (int i = 0; i < parameters.size(); i++) {
+                ps.setObject(i + 1, parameters.get(i));
+            }
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Movie m = new Movie();
+                    m.setId(rs.getInt("Id"));
+                    m.setName(rs.getString("Name"));
+                    m.setMovieDuration(rs.getInt("MovieDuration"));
+                    m.setPremiereDate(rs.getDate("PremiereDate"));
+                    m.setStatus(rs.getString("Status"));
+                    m.setImage(rs.getString("Image"));
+                    m.setDescription(rs.getString("Description"));
+                    list.add(m);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
