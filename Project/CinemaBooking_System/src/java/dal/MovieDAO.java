@@ -242,4 +242,78 @@ public class MovieDAO extends DBContext {
             ps.executeBatch();
         }
     }
+
+    // ✅ Thêm đạo diễn mới
+    public int addDirector(Director director) {
+        String sql = "INSERT INTO Director (Code, Name) VALUES (?, ?)";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, director.getCode());
+            ps.setString(2, director.getName());
+            ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // ✅ Kiểm tra đạo diễn đã tồn tại
+    public boolean isDirectorExists(String name) {
+        String sql = "SELECT COUNT(*) FROM Director WHERE Name = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ✅ Thêm ngôn ngữ mới
+    public int addLanguage(Language language) {
+        String sql = "INSERT INTO Language (Code, Name) VALUES (?, ?)";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, language.getCode());
+            ps.setString(2, language.getName());
+            ps.executeUpdate();
+            
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // ✅ Kiểm tra ngôn ngữ đã tồn tại
+    public boolean isLanguageExists(String name) {
+        String sql = "SELECT COUNT(*) FROM Language WHERE Name = ?";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

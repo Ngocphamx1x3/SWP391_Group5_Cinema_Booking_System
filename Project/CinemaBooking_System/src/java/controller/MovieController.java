@@ -2,6 +2,8 @@ package controller;
 
 import dal.MovieDAO;
 import model.Movie;
+import model.Director;
+import model.Language;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -87,6 +89,12 @@ public class MovieController extends HttpServlet {
                     break;
                 case "update":
                     updateMovie(request, response);
+                    break;
+                case "addDirector":
+                    addDirector(request, response);
+                    break;
+                case "addLanguage":
+                    addLanguage(request, response);
                     break;
                 default:
                     listMovies(request, response);
@@ -174,5 +182,105 @@ public class MovieController extends HttpServlet {
         request.setAttribute("movie", movie);
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieForm.jsp");
         rd.forward(request, response);
+    }
+
+    // ======================= THÊM ĐẠO DIỄN MỚI =======================
+    private void addDirector(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        try {
+            String directorName = request.getParameter("directorName");
+            String directorCode = request.getParameter("directorCode");
+
+            // Validation
+            if (directorName == null || directorName.trim().isEmpty()) {
+                request.setAttribute("error", "Tên đạo diễn không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            if (directorCode == null || directorCode.trim().isEmpty()) {
+                request.setAttribute("error", "Mã đạo diễn không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Kiểm tra đạo diễn đã tồn tại
+            if (movieDAO.isDirectorExists(directorName)) {
+                request.setAttribute("error", "Đạo diễn '" + directorName + "' đã tồn tại");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Tạo đạo diễn mới
+            Director director = new Director();
+            director.setCode(directorCode);
+            director.setName(directorName);
+
+            int directorId = movieDAO.addDirector(director);
+
+            if (directorId > 0) {
+                request.setAttribute("success", "Đạo diễn '" + directorName + "' đã được thêm thành công!");
+                showAddForm(request, response);
+            } else {
+                request.setAttribute("error", "Lỗi khi thêm đạo diễn");
+                showAddForm(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi xử lý: " + e.getMessage());
+            showAddForm(request, response);
+        }
+    }
+
+    // ======================= THÊM NGÔN NGỮ MỚI =======================
+    private void addLanguage(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        try {
+            String languageName = request.getParameter("languageName");
+            String languageCode = request.getParameter("languageCode");
+
+            // Validation
+            if (languageName == null || languageName.trim().isEmpty()) {
+                request.setAttribute("error", "Tên ngôn ngữ không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            if (languageCode == null || languageCode.trim().isEmpty()) {
+                request.setAttribute("error", "Mã ngôn ngữ không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Kiểm tra ngôn ngữ đã tồn tại
+            if (movieDAO.isLanguageExists(languageName)) {
+                request.setAttribute("error", "Ngôn ngữ '" + languageName + "' đã tồn tại");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Tạo ngôn ngữ mới
+            Language language = new Language();
+            language.setCode(languageCode);
+            language.setName(languageName);
+
+            int languageId = movieDAO.addLanguage(language);
+
+            if (languageId > 0) {
+                request.setAttribute("success", "Ngôn ngữ '" + languageName + "' đã được thêm thành công!");
+                showAddForm(request, response);
+            } else {
+                request.setAttribute("error", "Lỗi khi thêm ngôn ngữ");
+                showAddForm(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi xử lý: " + e.getMessage());
+            showAddForm(request, response);
+        }
     }
 }
