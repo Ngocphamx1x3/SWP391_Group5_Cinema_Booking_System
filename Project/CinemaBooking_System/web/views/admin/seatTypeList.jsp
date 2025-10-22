@@ -4,6 +4,7 @@
     List<SeatType> seatTypes = (List<SeatType>) request.getAttribute("seatTypes");
     String success = request.getParameter("success");
     String error = request.getParameter("error");
+    String searchKeyword = request.getParameter("search"); // Get search keyword from request parameter
 %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -12,7 +13,6 @@
         <title>Quản lý Loại Ghế | Cinema Booking</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-            /* Kế thừa toàn bộ CSS từ dashboard và userManager */
             * {
                 margin: 0;
                 padding: 0;
@@ -21,25 +21,24 @@
 
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-                color: #e4e9f0;
+                background: #f4f7fa; /* Light background */
+                color: #2d3748; /* Dark text */
                 min-height: 100vh;
             }
 
-            /* ===== Sidebar ===== */
+            /* ===== Sidebar (Light Theme) ===== */
             .sidebar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 280px;
                 height: 100vh;
-                background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-                backdrop-filter: blur(10px);
-                border-right: 1px solid rgba(0, 255, 255, 0.1);
+                background: #ffffff; /* White background */
+                border-right: 1px solid #e2e8f0; /* Light gray border */
                 display: flex;
                 flex-direction: column;
                 padding: 30px 0;
-                box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05); /* Subtle shadow */
                 z-index: 1000;
             }
 
@@ -52,9 +51,10 @@
             .sidebar-logo h2 {
                 font-size: 26px;
                 font-weight: 700;
-                background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c; /* Dark text for logo */
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
                 letter-spacing: 1px;
             }
 
@@ -72,7 +72,7 @@
             }
 
             .sidebar a {
-                color: #94a3b8;
+                color: #4a5568; /* Dark gray text for links */
                 text-decoration: none;
                 padding: 16px 30px;
                 display: flex;
@@ -97,8 +97,8 @@
             }
 
             .sidebar a:hover {
-                background: rgba(0, 212, 255, 0.08);
-                color: #00d4ff;
+                background: #e6f7ff; /* Light blue background */
+                color: #007bff; /* Darker blue text */
                 padding-left: 35px;
             }
 
@@ -107,8 +107,8 @@
             }
 
             .sidebar a.active {
-                background: rgba(0, 212, 255, 0.12);
-                color: #00d4ff;
+                background: #e6f7ff; /* Light blue background */
+                color: #007bff; /* Darker blue text */
                 padding-left: 35px;
             }
 
@@ -122,20 +122,20 @@
                 color: #ef4444;
                 margin: 20px 20px 0;
                 border-radius: 12px;
-                justify-content: center;
+                justify-content: center; /* Ensures content is centered */
             }
 
             .sidebar a.logout:hover {
                 background: rgba(239, 68, 68, 0.2);
-                padding-left: 30px;
+                padding-left: 30px; /* Reset padding for consistent centering */
             }
 
-            /* ===== Header ===== */
+            /* ===== Header (Light Theme) ===== */
             header {
                 margin-left: 280px;
-                background: rgba(15, 20, 25, 0.8);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.8); /* Light transparent background */
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid #e2e8f0; /* Light gray border */
                 padding: 20px 40px;
                 display: flex;
                 justify-content: space-between;
@@ -148,9 +148,10 @@
             header h1 {
                 font-size: 28px;
                 font-weight: 700;
-                background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c; /* Dark heading */
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
             }
 
             .header-right {
@@ -161,24 +162,23 @@
 
             .header-right span {
                 font-weight: 500;
-                color: #94a3b8;
+                color: #4a5568; /* Dark gray text */
                 font-size: 14px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
 
-            /* ===== Content ===== */
+            /* ===== Content (Light Theme) ===== */
             .content {
                 margin-left: 280px;
                 padding: 40px;
             }
 
-            /* ===== Toolbar ===== */
+            /* ===== Toolbar (Light Theme) ===== */
             .toolbar {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(0, 255, 255, 0.15);
+                background: #ffffff; /* White background */
+                border: 1px solid #e2e8f0; /* Light gray border */
                 border-radius: 20px;
                 padding: 25px 30px;
                 margin-bottom: 30px;
@@ -187,6 +187,7 @@
                 align-items: center;
                 flex-wrap: wrap;
                 gap: 20px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
             }
 
             .search-box {
@@ -198,19 +199,19 @@
 
             .search-box input {
                 flex: 1;
-                background: rgba(0, 212, 255, 0.05);
-                border: 1px solid rgba(0, 255, 255, 0.2);
+                background: #ffffff; /* White input background */
+                border: 1px solid #ced4da; /* Gray border */
                 border-radius: 12px;
                 padding: 12px 20px;
-                color: #e4e9f0;
+                color: #2d3748; /* Dark text */
                 font-size: 14px;
                 outline: none;
                 transition: all 0.3s ease;
             }
 
             .search-box input:focus {
-                border-color: #00d4ff;
-                box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+                border-color: #007bff; /* Blue border on focus */
+                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus ring */
             }
 
             .search-box input::placeholder {
@@ -235,17 +236,28 @@
 
             .btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+                box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3); /* Blue shadow */
+            }
+             .btn-secondary { /* Style for Reset button */
+                background: #6c757d; /* Gray background */
+                color: #ffffff; /* White text */
+                border: 1px solid #6c757d;
             }
 
-            /* ===== Table Container ===== */
+            .btn-secondary:hover {
+                background: #5a6268; /* Darker gray */
+                transform: translateY(-2px);
+            }
+
+
+            /* ===== Table Container (Light Theme) ===== */
             .table-container {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(0, 255, 255, 0.15);
+                background: #ffffff; /* White background */
+                border: 1px solid #e2e8f0; /* Light gray border */
                 border-radius: 20px;
                 padding: 30px;
                 overflow-x: auto;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
             }
 
             table {
@@ -254,27 +266,28 @@
             }
 
             th {
-                background: rgba(0, 212, 255, 0.08);
-                color: #00d4ff;
+                background: #f8f9fa; /* Lighter gray background */
+                color: #4a5568; /* Dark gray text */
                 font-weight: 600;
                 text-transform: uppercase;
                 font-size: 12px;
                 letter-spacing: 1px;
                 padding: 15px;
                 text-align: left;
-                border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+                border-bottom: 2px solid #dee2e6; /* Slightly darker border */
             }
 
             td {
                 padding: 18px 15px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                color: #94a3b8;
+                border-bottom: 1px solid #e2e8f0; /* Light gray border */
+                color: #2d3748; /* Dark text */
                 font-size: 14px;
+                vertical-align: middle; /* Align content vertically */
             }
 
             tr:hover td {
-                background: rgba(0, 212, 255, 0.05);
-                color: #e4e9f0;
+                background: #f8f9fa; /* Lighter hover */
+                color: #1a202c; /* Darker text on hover */
             }
 
             .color-sample {
@@ -282,7 +295,8 @@
                 height: 20px;
                 border-radius: 4px;
                 display: inline-block;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border: 1px solid #ced4da; /* Gray border */
+                vertical-align: middle; /* Align with text */
             }
 
             .status-badge {
@@ -293,6 +307,7 @@
                 display: inline-block;
             }
 
+            /* Status colors remain the same */
             .status-active {
                 background: rgba(16, 185, 129, 0.2);
                 color: #10b981;
@@ -319,22 +334,24 @@
                 transition: all 0.3s ease;
                 font-weight: 600;
                 text-decoration: none;
-                display: inline-block;
+                display: inline-flex; /* Use flex for icon alignment */
+                align-items: center;
+                gap: 4px; /* Space between icon and text */
             }
 
             .btn-edit {
-                background: rgba(0, 212, 255, 0.2);
-                color: #00d4ff;
-                border: 1px solid rgba(0, 212, 255, 0.3);
+                background: rgba(0, 123, 255, 0.2); /* Light blue */
+                color: #007bff;
+                border: 1px solid rgba(0, 123, 255, 0.3);
             }
 
             .btn-edit:hover {
-                background: rgba(0, 212, 255, 0.3);
+                background: rgba(0, 123, 255, 0.3);
                 transform: translateY(-2px);
             }
 
             .btn-delete {
-                background: rgba(239, 68, 68, 0.2);
+                background: rgba(239, 68, 68, 0.2); /* Light red */
                 color: #ef4444;
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
@@ -344,7 +361,7 @@
                 transform: translateY(-2px);
             }
 
-            /* ===== Alert Messages ===== */
+            /* ===== Alert Messages (Light Theme) ===== */
             .alert {
                 padding: 15px 20px;
                 border-radius: 12px;
@@ -363,12 +380,15 @@
                 color: #ef4444;
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
+            .toolbar select option {
+                 color: #333;
+                 background-color: #fff;
+            }
 
-            /* ===== Footer ===== */
+            /* ===== Footer (Light Theme) ===== */
             footer {
-                background: rgba(15, 20, 25, 0.9);
-                backdrop-filter: blur(10px);
-                border-top: 1px solid rgba(0, 255, 255, 0.1);
+                background: #ffffff; /* White background */
+                border-top: 1px solid #e2e8f0; /* Light gray border */
                 color: #6b7280;
                 text-align: center;
                 padding: 25px;
@@ -376,11 +396,25 @@
                 margin-top: 40px;
                 font-size: 14px;
             }
+              /* Responsive */
+             @media (max-width: 992px) { /* Adjust breakpoint if needed */
+                  .sidebar { width: 100%; height: auto; position: relative; box-shadow: none; border-right: none; border-bottom: 1px solid #e2e8f0;}
+                  header, .content, footer { margin-left: 0; }
+             }
+             @media (max-width: 768px) {
+                 th, td { padding: 12px 10px; font-size: 13px;}
+                 .btn, .btn-small { padding: 10px 15px; font-size: 13px;}
+                 .btn-small { padding: 6px 12px; font-size: 12px;}
+                  header h1 { font-size: 24px;}
+                  .content { padding: 25px;}
+                  .toolbar { padding: 20px;}
+                  .search-box { min-width: 250px;}
+                  .search-box button { padding: 10px 15px;}
+             }
         </style>
     </head>
     <body>
 
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-logo">
                 <h2>🎬 CINEMA PRO</h2>
@@ -391,14 +425,13 @@
                 <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
                 <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
                 <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-                <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
                 <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
+                <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">💺 Quản lý loại ghế</a>
                 <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
         </div>
 
-        <!-- Header -->
         <header>
             <h1>💺 Quản lý Loại Ghế</h1>
             <div class="header-right">
@@ -407,15 +440,13 @@
             </div>
         </header>
 
-        <!-- Main content -->
         <div class="content">
 
-            <!-- Alert Messages -->
             <% if (success != null) { %>
             <div class="alert alert-success">
-                <% 
+                <%
                     switch(success) {
-                        case "create": 
+                        case "create":
                             out.print("✅ Thêm loại ghế thành công!");
                             break;
                         case "update":
@@ -431,37 +462,21 @@
 
             <% if (error != null) { %>
             <div class="alert alert-error">
-                ❌ Có lỗi xảy ra khi xử lý!
+                ❌ Có lỗi xảy ra khi xử lý! <%= error %> <%-- Display specific error if available --%>
             </div>
             <% } %>
 
-            <!-- Toolbar -->
             <div class="toolbar">
                 <form method="GET" action="${pageContext.request.contextPath}/admin/seat-types" class="search-box">
-                    <input type="text" name="search" 
-                           placeholder="🔍 Tìm kiếm theo mã, tên loại ghế..." 
-                           value="${searchKeyword != null ? searchKeyword : ''}">
-                    <button type="submit" style="
-                            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-                            color: white;
-                            border: none;
-                            border-radius: 12px;
-                            padding: 12px 20px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                            ">Tìm kiếm</button>
-                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn" style="
-                       background: rgba(107, 114, 128, 0.3);
-                       color: #e4e9f0;
-                       border: 1px solid rgba(107, 114, 128, 0.5);
-                       ">🔄 Reset</a>
+                    <input type="text" name="search"
+                           placeholder="🔍 Tìm kiếm theo mã, tên loại ghế..."
+                           value="<%= searchKeyword != null ? searchKeyword : "" %>">
+                    <button type="submit" class="btn btn-primary" style="padding: 12px 20px;">Tìm kiếm</button>
+                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">🔄 Reset</a>
                 </form>
                 <a href="${pageContext.request.contextPath}/admin/seat-types?action=add" class="btn">➕ Thêm loại ghế</a>
             </div>
 
-            <!-- Seat Types Table -->
             <div class="table-container">
                 <table>
                     <thead>
@@ -479,8 +494,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (seatTypes != null && !seatTypes.isEmpty()) { 
-                            for (SeatType seatType : seatTypes) { 
+                        <% if (seatTypes != null && !seatTypes.isEmpty()) {
+                            for (SeatType seatType : seatTypes) {
                         %>
                         <tr>
                             <td>#<%= seatType.getId() %></td>
@@ -506,21 +521,21 @@
                             </td>
                             <td>
                                 <small style="color: #6b7280;">
-                                    <%= seatType.getFormattedUpdatedAt() %> <!-- HIỂN THỊ NGÀY CẬP NHẬT -->
+                                    <%= seatType.getFormattedUpdatedAt() %>
                                 </small>
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="${pageContext.request.contextPath}/admin/seat-types?action=edit&id=<%= seatType.getId() %>" 
-                                       class="btn-small btn-edit">✏️ Sửa</a>
-                                    <a href="${pageContext.request.contextPath}/admin/seat-types?action=delete&id=<%= seatType.getId() %>" 
-                                       class="btn-small btn-delete" 
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa loại ghế này?')">🗑️ Xóa</a>
+                                    <a href="${pageContext.request.contextPath}/admin/seat-types?action=edit&id=<%= seatType.getId() %>"
+                                       class="btn-small btn-edit" title="Sửa">✏️ Sửa</a>
+                                    <a href="${pageContext.request.contextPath}/admin/seat-types?action=delete&id=<%= seatType.getId() %>"
+                                       class="btn-small btn-delete" title="Xóa"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa loại ghế \'<%= seatType.getName() %>\'?')">🗑️ Xóa</a>
                                 </div>
                             </td>
                         </tr>
-                        <% } 
-                         } else { %>
+                        <% }
+                           } else { %>
                         <tr>
                             <td colspan="10" style="text-align: center; color: #6b7280; padding: 40px;">
                                 📝 Chưa có loại ghế nào. Hãy thêm loại ghế đầu tiên!
@@ -532,7 +547,6 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <footer>
             © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
         </footer>

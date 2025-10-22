@@ -235,7 +235,7 @@ public class MovieDAO extends DBContext {
         if (ids == null) return;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             for (String id : ids) {
-                ps.setInt(1, movieId);
+               ps.setInt(1, movieId);
                 ps.setInt(2, Integer.parseInt(id));
                 ps.addBatch();
             }

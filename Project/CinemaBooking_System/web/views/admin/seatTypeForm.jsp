@@ -12,7 +12,6 @@
     <title><%= isEdit ? "Chỉnh sửa" : "Thêm mới" %> Loại Ghế | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Kế thừa toàn bộ CSS từ các trang trước */
         * {
             margin: 0;
             padding: 0;
@@ -21,25 +20,24 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e4e9f0;
+            background: #f4f7fa; /* Light background */
+            color: #2d3748; /* Dark text */
             min-height: 100vh;
         }
 
-        /* ===== Sidebar ===== */
+        /* ===== Sidebar (Light Theme) ===== */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* White background */
+            border-right: 1px solid #e2e8f0; /* Light gray border */
             display: flex;
             flex-direction: column;
             padding: 30px 0;
-            box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05); /* Subtle shadow */
             z-index: 1000;
         }
 
@@ -52,9 +50,10 @@
         .sidebar-logo h2 {
             font-size: 26px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Dark text for logo */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             letter-spacing: 1px;
         }
 
@@ -72,7 +71,7 @@
         }
 
         .sidebar a {
-            color: #94a3b8;
+            color: #4a5568; /* Dark gray text for links */
             text-decoration: none;
             padding: 16px 30px;
             display: flex;
@@ -97,8 +96,8 @@
         }
 
         .sidebar a:hover {
-            background: rgba(0, 212, 255, 0.08);
-            color: #00d4ff;
+            background: #e6f7ff; /* Light blue background */
+            color: #007bff; /* Darker blue text */
             padding-left: 35px;
         }
 
@@ -107,8 +106,8 @@
         }
 
         .sidebar a.active {
-            background: rgba(0, 212, 255, 0.12);
-            color: #00d4ff;
+            background: #e6f7ff; /* Light blue background */
+            color: #007bff; /* Darker blue text */
             padding-left: 35px;
         }
 
@@ -122,20 +121,20 @@
             color: #ef4444;
             margin: 20px 20px 0;
             border-radius: 12px;
-            justify-content: center;
+            justify-content: center; /* Ensures content is centered */
         }
 
         .sidebar a.logout:hover {
             background: rgba(239, 68, 68, 0.2);
-            padding-left: 30px;
+            padding-left: 30px; /* Reset padding for consistent centering */
         }
 
-        /* ===== Header ===== */
+        /* ===== Header (Light Theme) ===== */
         header {
             margin-left: 280px;
-            background: rgba(15, 20, 25, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.8); /* Light transparent background */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0; /* Light gray border */
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -148,9 +147,10 @@
         header h1 {
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Dark heading */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
         }
 
         .header-right {
@@ -161,28 +161,28 @@
 
         .header-right span {
             font-weight: 500;
-            color: #94a3b8;
+            color: #4a5568; /* Dark gray text */
             font-size: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* ===== Content ===== */
+        /* ===== Content (Light Theme) ===== */
         .content {
             margin-left: 280px;
             padding: 40px;
         }
 
-        /* ===== Form Container ===== */
+        /* ===== Form Container (Light Theme) ===== */
         .form-container {
-            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: #ffffff; /* White background */
+            border: 1px solid #e2e8f0; /* Light gray border */
             border-radius: 20px;
             padding: 40px;
             max-width: 600px;
             margin: 0 auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); /* Subtle shadow */
         }
 
         .form-header {
@@ -193,9 +193,10 @@
         .form-header h2 {
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #00d4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1a202c; /* Dark heading */
+            background: none;
+            -webkit-background-clip: unset;
+            -webkit-text-fill-color: unset;
             margin-bottom: 10px;
         }
 
@@ -204,14 +205,14 @@
             font-size: 14px;
         }
 
-        /* ===== Form Styles ===== */
+        /* ===== Form Styles (Light Theme) ===== */
         .form-group {
             margin-bottom: 25px;
         }
 
         .form-group label {
             display: block;
-            color: #94a3b8;
+            color: #4a5568; /* Dark gray label */
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 8px;
@@ -223,22 +224,27 @@
         .form-group select,
         .form-group textarea {
             width: 100%;
-            background: rgba(0, 212, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            background: #ffffff; /* White input background */
+            border: 1px solid #ced4da; /* Gray border */
             border-radius: 12px;
             padding: 14px 16px;
-            color: #e4e9f0;
+            color: #2d3748; /* Dark text */
             font-size: 14px;
             outline: none;
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
         }
+        
+        .form-group select option {
+             color: #333;
+             background-color: #fff;
+        }
 
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            border-color: #007bff; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus ring */
         }
 
         .form-group textarea {
@@ -256,9 +262,17 @@
             width: 30px;
             height: 30px;
             border-radius: 6px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid #ced4da; /* Gray border */
             margin-left: 10px;
         }
+        
+        /* Specific style for color input to align it */
+         input[type="color"] {
+             padding: 5px; /* Adjust padding for color input */
+             height: 48px; /* Match height of other inputs */
+             cursor: pointer;
+         }
+
 
         .checkbox-group {
             display: flex;
@@ -270,7 +284,7 @@
         .checkbox-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #00d4ff;
+            accent-color: #007bff; /* Blue accent color */
         }
 
         .checkbox-group label {
@@ -278,16 +292,17 @@
             text-transform: none;
             letter-spacing: normal;
             font-size: 14px;
-            color: #e4e9f0;
+            color: #2d3748; /* Dark text */
+            font-weight: 500; /* Normal weight */
         }
 
-        /* ===== Form Actions ===== */
+        /* ===== Form Actions (Light Theme) ===== */
         .form-actions {
             display: flex;
             gap: 15px;
             margin-top: 40px;
             padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid #e2e8f0; /* Light gray border */
         }
 
         .btn {
@@ -314,21 +329,21 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3); /* Blue shadow */
         }
 
         .btn-secondary {
-            background: rgba(107, 114, 128, 0.3);
-            color: #e4e9f0;
-            border: 1px solid rgba(107, 114, 128, 0.5);
+            background: #6c757d; /* Gray background */
+            color: #ffffff; /* White text */
+            border: 1px solid #6c757d;
         }
 
         .btn-secondary:hover {
-            background: rgba(107, 114, 128, 0.5);
+            background: #5a6268; /* Darker gray */
             transform: translateY(-2px);
         }
 
-        /* ===== Alert Messages ===== */
+        /* ===== Alert Messages (Light Theme) ===== */
         .alert {
             padding: 15px 20px;
             border-radius: 12px;
@@ -342,11 +357,10 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
-        /* ===== Footer ===== */
+        /* ===== Footer (Light Theme) ===== */
         footer {
-            background: rgba(15, 20, 25, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 255, 255, 0.1);
+            background: #ffffff; /* White background */
+            border-top: 1px solid #e2e8f0; /* Light gray border */
             color: #6b7280;
             text-align: center;
             padding: 25px;
@@ -354,17 +368,30 @@
             margin-top: 40px;
             font-size: 14px;
         }
+        .toolbar select option {
+             color: #333;
+             background-color: #fff;
+        }
 
         /* ===== Required Field ===== */
         .required::after {
             content: " *";
             color: #ef4444;
         }
+          /* Responsive */
+         @media (max-width: 992px) { /* Adjust breakpoint if needed */
+              .sidebar { width: 100%; height: auto; position: relative; box-shadow: none; border-right: none; border-bottom: 1px solid #e2e8f0;}
+              header, .content, footer { margin-left: 0; }
+         }
+         @media (max-width: 768px) {
+             .form-row { grid-template-columns: 1fr; } /* Stack columns on smaller screens */
+             .content { padding: 25px;}
+              header h1 { font-size: 24px;}
+         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-logo">
             <h2>🎬 CINEMA PRO</h2>
@@ -382,7 +409,6 @@
         <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
     </div>
 
-    <!-- Header -->
     <header>
         <h1><%= isEdit ? "✏️ Chỉnh sửa Loại Ghế" : "➕ Thêm Loại Ghế Mới" %></h1>
         <div class="header-right">
@@ -391,23 +417,19 @@
         </div>
     </header>
 
-    <!-- Main content -->
     <div class="content">
         <div class="form-container">
-            <!-- Form Header -->
             <div class="form-header">
                 <h2><%= isEdit ? "Chỉnh sửa Thông Tin Loại Ghế" : "Thêm Loại Ghế Mới" %></h2>
                 <p><%= isEdit ? "Cập nhật thông tin loại ghế hiện có" : "Điền đầy đủ thông tin để thêm loại ghế mới" %></p>
             </div>
 
-            <!-- Error Message -->
             <% if (error != null) { %>
                 <div class="alert alert-error">
                     ❌ <%= error %>
                 </div>
             <% } %>
 
-            <!-- Form -->
             <form action="${pageContext.request.contextPath}/admin/seat-types" method="post">
                 <% if (isEdit) { %>
                     <input type="hidden" name="id" value="<%= seatType.getId() %>">
@@ -415,68 +437,61 @@
                 <input type="hidden" name="action" value="<%= isEdit ? "update" : "create" %>">
 
                 <div class="form-row">
-                    <!-- Mã loại ghế -->
                     <div class="form-group">
                         <label for="code" class="required">Mã loại ghế</label>
-                        <input type="text" id="code" name="code" 
-                               value="<%= isEdit ? seatType.getCode() : "" %>" 
+                        <input type="text" id="code" name="code"
+                               value="<%= isEdit ? seatType.getCode() : "" %>"
                                placeholder="VD: STANDARD, VIP, COUPLE"
                                required>
                     </div>
 
-                    <!-- Tên loại ghế -->
                     <div class="form-group">
                         <label for="name" class="required">Tên loại ghế</label>
-                        <input type="text" id="name" name="name" 
-                               value="<%= isEdit ? seatType.getName() : "" %>" 
+                        <input type="text" id="name" name="name"
+                               value="<%= isEdit ? seatType.getName() : "" %>"
                                placeholder="VD: Ghế Thường, Ghế VIP"
                                required>
                     </div>
                 </div>
 
                 <div class="form-row">
-                    <!-- Phụ phí -->
                     <div class="form-group">
                         <label for="surcharge" class="required">Phụ phí (VND)</label>
-                        <input type="number" id="surcharge" name="surcharge" 
-                               value="<%= isEdit ? (int)seatType.getSurcharge() : "0" %>" 
+                        <input type="number" id="surcharge" name="surcharge"
+                               value="<%= isEdit ? (int)seatType.getSurcharge() : "0" %>"
                                min="0" step="1000"
                                placeholder="0"
                                required>
                     </div>
 
-                    <!-- Màu sắc -->
                     <div class="form-group">
                         <label for="color" class="required">Màu sắc</label>
                         <div style="display: flex; align-items: center;">
-                            <input type="color" id="color" name="color" 
+                            <input type="color" id="color" name="color"
                                    value="<%= isEdit ? seatType.getColor() : "#1E90FF" %>"
-                                   style="flex: 1; height: 45px; padding: 5px;"
+                                   style="flex-grow: 1;" /* Make input take available space */
                                    required>
-                            <div class="color-preview" id="colorPreview" 
+                            <div class="color-preview" id="colorPreview"
                                  style="background-color: <%= isEdit ? seatType.getColor() : "#1E90FF" %>"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Mô tả -->
                 <div class="form-group">
                     <label for="description">Mô tả</label>
-                    <textarea id="description" name="description" 
+                    <textarea id="description" name="description"
                               placeholder="Mô tả chi tiết về loại ghế..."><%= isEdit ? seatType.getDescription() : "" %></textarea>
                 </div>
 
-                <!-- Trạng thái -->
                 <div class="form-group">
                     <label>Trạng thái</label>
                     <div class="checkbox-group">
-                        <input type="checkbox" id="status" name="status" 
+                        <input type="checkbox" id="status" name="status"
                                <%= isEdit ? (seatType.isStatus() ? "checked" : "") : "checked" %>>
                         <label for="status">Đang hoạt động</label>
                     </div>
                 </div>
 
-                <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         <%= isEdit ? "💾 Cập nhật" : "➕ Thêm mới" %>
@@ -489,12 +504,10 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
         © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
     </footer>
 
-    <!-- JavaScript for Color Preview -->
     <script>
         // Update color preview in real-time
         document.getElementById('color').addEventListener('input', function() {

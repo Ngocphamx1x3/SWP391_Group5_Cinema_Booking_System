@@ -419,8 +419,7 @@
             <p>Staff Panel</p>
         </div>
         <nav>
-    <a href="${pageContext.request.contextPath}/staffdashboard" class="active">📊 Bảng điều khiển rạp</a>
-    <a href="${pageContext.request.contextPath}/views/staff/myCinema.jsp">🏢 Thông tin rạp của tôi</a>
+    <a href="${pageContext.request.contextPath}/staffdashboard" class="active">🏢 Thông tin rạp của tôi</a>
     <a href="${pageContext.request.contextPath}/views/staff/roomManager.jsp">🎭 Quản lý phòng chiếu</a>
     <a href="${pageContext.request.contextPath}/views/staff/seatManager.jsp">💺 Thiết kế ghế trong phòng</a>
     <a href="${pageContext.request.contextPath}/views/staff/screeningManager.jsp">📅 Quản lý lịch chiếu</a>
