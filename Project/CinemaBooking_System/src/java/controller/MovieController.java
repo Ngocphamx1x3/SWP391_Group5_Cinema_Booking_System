@@ -110,11 +110,60 @@ public class MovieController extends HttpServlet {
         }
     }
 
+    // ======================= Helper: Chuẩn hóa movieStatus =======================
+    private String normalizeMovieStatus(String status) {
+        if (status == null) return Movie.STATUS_SHOWING;
+
+        switch (status.trim().toLowerCase()) {
+            case "đang chiếu":
+            case "dang chieu":
+            case "active":
+                return Movie.STATUS_SHOWING;
+
+            case "sắp chiếu":
+            case "sap chieu":
+            case "comingsoon":
+                return Movie.STATUS_COMING_SOON;
+
+            case "ngưng chiếu":
+            case "ngung chieu":
+            case "inactive":
+            case "stopped":
+                return Movie.STATUS_STOPPED;
+
+            default:
+                return Movie.STATUS_SHOWING;
+        }
+    }
+
+    // ======================= Helper: Build Movie from Request =======================
+    private Movie buildMovieFromRequest(HttpServletRequest request, boolean isUpdate) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Movie m = new Movie();
+
+        if (isUpdate) {
+            m.setId(Integer.parseInt(request.getParameter("id")));
+        } else {
+            m.setCode("mv" + (int) (Math.random() * 100000));
+            m.setTrailer(null);
+            m.setRatedId(1);
+        }
+
+        m.setName(request.getParameter("movieTitle"));
+        m.setDescription(request.getParameter("movieDescription"));
+        m.setImage(request.getParameter("posterUrl"));
+        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
+        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
+        m.setStatus(normalizeMovieStatus(request.getParameter("movieStatus")));
+
+        return m;
+    }
+
     // ======================= DANH SÁCH PHIM =======================
     private void listMovies(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Movie> list = movieDAO.getAllMovies(); // chỉ lấy phim chưa ngưng hoạt động
+        List<Movie> list = movieDAO.getAllMovies();
         request.setAttribute("movieList", list);
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
         rd.forward(request, response);
@@ -130,12 +179,12 @@ public class MovieController extends HttpServlet {
 
         List<Movie> list = movieDAO.searchMovies(movieName, startDate, endDate);
         request.setAttribute("movieList", list);
-        
+
         // Truyền lại các tham số tìm kiếm để hiển thị trong form
         request.setAttribute("searchName", movieName);
         request.setAttribute("startDate", startDate);
         request.setAttribute("endDate", endDate);
-        
+
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
         rd.forward(request, response);
     }
@@ -144,19 +193,7 @@ public class MovieController extends HttpServlet {
     private void insertMovie(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Movie m = new Movie();
-
-        m.setCode("mv" + (int) (Math.random() * 100000));
-        m.setName(request.getParameter("movieTitle"));
-        m.setDescription(request.getParameter("movieDescription"));
-        m.setImage(request.getParameter("posterUrl"));
-        m.setTrailer(null);
-        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
-        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
-        m.setStatus(request.getParameter("movieStatus"));
-        m.setRatedId(1);
-
+        Movie m = buildMovieFromRequest(request, false);
         movieDAO.addMovie(m);
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
@@ -165,17 +202,7 @@ public class MovieController extends HttpServlet {
     private void updateMovie(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Movie m = new Movie();
-
-        m.setId(Integer.parseInt(request.getParameter("id")));
-        m.setName(request.getParameter("movieTitle"));
-        m.setDescription(request.getParameter("movieDescription"));
-        m.setImage(request.getParameter("posterUrl"));
-        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
-        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
-        m.setStatus(request.getParameter("movieStatus"));
-
+        Movie m = buildMovieFromRequest(request, true);
         movieDAO.updateMovie(m);
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
@@ -185,7 +212,7 @@ public class MovieController extends HttpServlet {
             throws IOException {
 
         int id = Integer.parseInt(request.getParameter("id"));
-        movieDAO.deleteMovie(id); // đổi tên hàm cho dễ hiểu
+        movieDAO.deleteMovie(id);
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
