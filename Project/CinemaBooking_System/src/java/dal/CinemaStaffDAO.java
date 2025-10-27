@@ -130,7 +130,31 @@ public class CinemaStaffDAO extends DBContext {
         }
         return false;
     }
+
+// GET ASSIGNMENTS BY STAFF ID
+public List<CinemaStaff> getAssignmentsByStaffId(int staffId) {
+    List<CinemaStaff> list = new ArrayList<>();
+    String sql = "SELECT cs.*, c.Name as cinema_name, u.username as staff_name, u.email as staff_email " +
+                "FROM Cinema_Staff cs " +
+                "INNER JOIN Cinema c ON cs.cinema_id = c.Id " +
+                "INNER JOIN Users u ON cs.staff_id = u.id " +
+                "WHERE cs.staff_id = ? AND cs.status = 1 " +
+                "ORDER BY c.Name";
     
+    try (Connection conn = getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        
+        ps.setInt(1, staffId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToCinemaStaff(rs));
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
     // CHECK IF STAFF IS ALREADY ASSIGNED TO CINEMA
     public boolean isStaffAssignedToCinema(int staffId, int cinemaId) {
         String sql = "SELECT COUNT(*) FROM Cinema_Staff WHERE staff_id = ? AND cinema_id = ? AND status = 1";
