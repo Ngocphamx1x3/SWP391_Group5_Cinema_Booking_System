@@ -17,6 +17,10 @@ public class Room {
     private Timestamp createdDate;
     private Timestamp updatedDate;
     
+    // Thông tin từ join
+    private String cinemaName;
+    private String cinemaCode;
+    
     // ===== CONSTRUCTORS =====
     public Room() {}
     
@@ -75,6 +79,12 @@ public class Room {
     public Timestamp getUpdatedDate() { return updatedDate; }
     public void setUpdatedDate(Timestamp updatedDate) { this.updatedDate = updatedDate; }
     
+    public String getCinemaName() { return cinemaName; }
+    public void setCinemaName(String cinemaName) { this.cinemaName = cinemaName; }
+    
+    public String getCinemaCode() { return cinemaCode; }
+    public void setCinemaCode(String cinemaCode) { this.cinemaCode = cinemaCode; }
+    
     // ===== HELPER METHODS =====
     public String getStatusText() {
         return this.status ? "Đang hoạt động" : "Ngừng hoạt động";
@@ -93,4 +103,32 @@ public class Room {
         }
         return "N/A";
     }
+     public int getMaxPossibleCapacity() {
+        return this.seatRows * this.seatColumns;
+    }
+    
+    public String getFormattedCapacity() {
+        return String.format("%,d ghế", this.capacity);
+    }
+    
+    public String getLayoutInfo() {
+        return String.format("%d hàng × %d cột (Tối đa: %,d ghế)", 
+                           this.seatRows, this.seatColumns, this.getMaxPossibleCapacity());
+    }
+    public String getScreenTypeText() {
+        switch(this.screenType) {
+            case "2D": return "2D Standard";
+            case "3D": return "3D";
+            case "IMAX": return "IMAX";
+            case "4DX": return "4DX";
+            default: return this.screenType;
+        }
+    }
+    public boolean isValidCapacity() {
+        return this.capacity <= this.getMaxPossibleCapacity();
+    }
+    public int calculateCapacity() {
+        return this.seatRows * this.seatColumns;
+    }
+    
 }

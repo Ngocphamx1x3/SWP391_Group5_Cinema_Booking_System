@@ -42,14 +42,18 @@ public class SeatTypeDAO extends DBContext {
 
     // GET SEAT TYPE BY ID
     public SeatType getSeatTypeById(int id) {
-        String sql = "SELECT * FROM SeatType WHERE id = ?";
-
+        String sql = "SELECT * FROM SeatType WHERE Id = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToSeatType(rs);
+                    SeatType seatType = new SeatType();
+                    seatType.setId(rs.getInt("Id"));
+                    seatType.setName(rs.getString("Name"));
+                    seatType.setCode(rs.getString("Code"));
+                    seatType.setColor(rs.getString("Color"));
+                    seatType.setSurcharge(rs.getDouble("Surcharge"));
+                    return seatType;
                 }
             }
         } catch (Exception e) {
