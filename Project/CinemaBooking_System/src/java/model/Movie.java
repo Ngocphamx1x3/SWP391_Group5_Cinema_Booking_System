@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.List;
 
 public class Movie {
-
+    public static final String STATUS_SHOWING = "Đang chiếu";
+    public static final String STATUS_COMING_SOON = "Sắp chiếu";
+    public static final String STATUS_STOPPED = "Ngưng chiếu";
     private int id;
     private String code;
     private String name;

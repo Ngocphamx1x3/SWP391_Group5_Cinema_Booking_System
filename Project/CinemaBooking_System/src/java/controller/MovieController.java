@@ -2,6 +2,8 @@ package controller;
 
 import dal.MovieDAO;
 import model.Movie;
+import model.Director;
+import model.Language;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
@@ -43,6 +45,9 @@ public class MovieController extends HttpServlet {
                     break;
                 case "edit":
                     showEditForm(request, response);
+                    break;
+                case "search":
+                    searchMovies(request, response);
                     break;
                 default:
                     listMovies(request, response);
@@ -88,6 +93,12 @@ public class MovieController extends HttpServlet {
                 case "update":
                     updateMovie(request, response);
                     break;
+                case "addDirector":
+                    addDirector(request, response);
+                    break;
+                case "addLanguage":
+                    addLanguage(request, response);
+                    break;
                 default:
                     listMovies(request, response);
                     break;
@@ -99,12 +110,81 @@ public class MovieController extends HttpServlet {
         }
     }
 
+    // ======================= Helper: Chuẩn hóa movieStatus =======================
+    private String normalizeMovieStatus(String status) {
+        if (status == null) return Movie.STATUS_SHOWING;
+
+        switch (status.trim().toLowerCase()) {
+            case "đang chiếu":
+            case "dang chieu":
+            case "active":
+                return Movie.STATUS_SHOWING;
+
+            case "sắp chiếu":
+            case "sap chieu":
+            case "comingsoon":
+                return Movie.STATUS_COMING_SOON;
+
+            case "ngưng chiếu":
+            case "ngung chieu":
+            case "inactive":
+            case "stopped":
+                return Movie.STATUS_STOPPED;
+
+            default:
+                return Movie.STATUS_SHOWING;
+        }
+    }
+
+    // ======================= Helper: Build Movie from Request =======================
+    private Movie buildMovieFromRequest(HttpServletRequest request, boolean isUpdate) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Movie m = new Movie();
+
+        if (isUpdate) {
+            m.setId(Integer.parseInt(request.getParameter("id")));
+        } else {
+            m.setCode("mv" + (int) (Math.random() * 100000));
+            m.setTrailer(null);
+            m.setRatedId(1);
+        }
+
+        m.setName(request.getParameter("movieTitle"));
+        m.setDescription(request.getParameter("movieDescription"));
+        m.setImage(request.getParameter("posterUrl"));
+        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
+        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
+        m.setStatus(normalizeMovieStatus(request.getParameter("movieStatus")));
+
+        return m;
+    }
+
     // ======================= DANH SÁCH PHIM =======================
     private void listMovies(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        List<Movie> list = movieDAO.getAllMovies(); // chỉ lấy phim chưa ngưng hoạt động
+        List<Movie> list = movieDAO.getAllMovies();
         request.setAttribute("movieList", list);
+        RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
+        rd.forward(request, response);
+    }
+
+    // ======================= TÌM KIẾM PHIM =======================
+    private void searchMovies(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String movieName = request.getParameter("searchName");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+
+        List<Movie> list = movieDAO.searchMovies(movieName, startDate, endDate);
+        request.setAttribute("movieList", list);
+
+        // Truyền lại các tham số tìm kiếm để hiển thị trong form
+        request.setAttribute("searchName", movieName);
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
+
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieManager.jsp");
         rd.forward(request, response);
     }
@@ -113,19 +193,7 @@ public class MovieController extends HttpServlet {
     private void insertMovie(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Movie m = new Movie();
-
-        m.setCode("mv" + (int) (Math.random() * 100000));
-        m.setName(request.getParameter("movieTitle"));
-        m.setDescription(request.getParameter("movieDescription"));
-        m.setImage(request.getParameter("posterUrl"));
-        m.setTrailer(null);
-        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
-        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
-        m.setStatus(request.getParameter("movieStatus"));
-        m.setRatedId(1);
-
+        Movie m = buildMovieFromRequest(request, false);
         movieDAO.addMovie(m);
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
@@ -134,17 +202,7 @@ public class MovieController extends HttpServlet {
     private void updateMovie(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Movie m = new Movie();
-
-        m.setId(Integer.parseInt(request.getParameter("id")));
-        m.setName(request.getParameter("movieTitle"));
-        m.setDescription(request.getParameter("movieDescription"));
-        m.setImage(request.getParameter("posterUrl"));
-        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
-        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
-        m.setStatus(request.getParameter("movieStatus"));
-
+        Movie m = buildMovieFromRequest(request, true);
         movieDAO.updateMovie(m);
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
@@ -154,7 +212,7 @@ public class MovieController extends HttpServlet {
             throws IOException {
 
         int id = Integer.parseInt(request.getParameter("id"));
-        movieDAO.deleteMovie(id); // đổi tên hàm cho dễ hiểu
+        movieDAO.deleteMovie(id);
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
@@ -174,5 +232,105 @@ public class MovieController extends HttpServlet {
         request.setAttribute("movie", movie);
         RequestDispatcher rd = request.getRequestDispatcher("/views/admin/movieForm.jsp");
         rd.forward(request, response);
+    }
+
+    // ======================= THÊM ĐẠO DIỄN MỚI =======================
+    private void addDirector(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        try {
+            String directorName = request.getParameter("directorName");
+            String directorCode = request.getParameter("directorCode");
+
+            // Validation
+            if (directorName == null || directorName.trim().isEmpty()) {
+                request.setAttribute("error", "Tên đạo diễn không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            if (directorCode == null || directorCode.trim().isEmpty()) {
+                request.setAttribute("error", "Mã đạo diễn không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Kiểm tra đạo diễn đã tồn tại
+            if (movieDAO.isDirectorExists(directorName)) {
+                request.setAttribute("error", "Đạo diễn '" + directorName + "' đã tồn tại");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Tạo đạo diễn mới
+            Director director = new Director();
+            director.setCode(directorCode);
+            director.setName(directorName);
+
+            int directorId = movieDAO.addDirector(director);
+
+            if (directorId > 0) {
+                request.setAttribute("success", "Đạo diễn '" + directorName + "' đã được thêm thành công!");
+                showAddForm(request, response);
+            } else {
+                request.setAttribute("error", "Lỗi khi thêm đạo diễn");
+                showAddForm(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi xử lý: " + e.getMessage());
+            showAddForm(request, response);
+        }
+    }
+
+    // ======================= THÊM NGÔN NGỮ MỚI =======================
+    private void addLanguage(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        try {
+            String languageName = request.getParameter("languageName");
+            String languageCode = request.getParameter("languageCode");
+
+            // Validation
+            if (languageName == null || languageName.trim().isEmpty()) {
+                request.setAttribute("error", "Tên ngôn ngữ không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            if (languageCode == null || languageCode.trim().isEmpty()) {
+                request.setAttribute("error", "Mã ngôn ngữ không được để trống");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Kiểm tra ngôn ngữ đã tồn tại
+            if (movieDAO.isLanguageExists(languageName)) {
+                request.setAttribute("error", "Ngôn ngữ '" + languageName + "' đã tồn tại");
+                showAddForm(request, response);
+                return;
+            }
+
+            // Tạo ngôn ngữ mới
+            Language language = new Language();
+            language.setCode(languageCode);
+            language.setName(languageName);
+
+            int languageId = movieDAO.addLanguage(language);
+
+            if (languageId > 0) {
+                request.setAttribute("success", "Ngôn ngữ '" + languageName + "' đã được thêm thành công!");
+                showAddForm(request, response);
+            } else {
+                request.setAttribute("error", "Lỗi khi thêm ngôn ngữ");
+                showAddForm(request, response);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi xử lý: " + e.getMessage());
+            showAddForm(request, response);
+        }
     }
 }
