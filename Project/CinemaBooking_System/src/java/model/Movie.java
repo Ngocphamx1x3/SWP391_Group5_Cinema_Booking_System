@@ -14,8 +14,8 @@ public class Movie {
     private String image;
     private String trailer;
     private int movieDuration;
-    private Date premiereDate;
-    private Date endDate;
+    private java.util.Date  premiereDate;
+    private java.util.Date endDate;
     private String status;
     private int ratedId;
     private List<MovieType> movieTypes;
@@ -110,11 +110,11 @@ public class Movie {
         this.premiereDate = premiereDate;
     }
 
-    public Date getEndDate() {
+      public java.util.Date getEndDate() {
         return endDate;
     }
-
-    public void setEndDate(Date endDate) {
+    
+    public void setEndDate(java.util.Date endDate) {
         this.endDate = endDate;
     }
 
