@@ -1,17 +1,27 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="model.Room, java.util.List"%>
+<%@page import="model.Schedule, java.util.List"%>
 <%
-    List<Room> rooms = (List<Room>) request.getAttribute("rooms");
+    List<Schedule> schedules = (List<Schedule>) request.getAttribute("schedules");
     String success = request.getParameter("success");
     String error = request.getParameter("error");
-    String searchKeyword = (String) request.getAttribute("searchKeyword");
-    String selectedScreenType = (String) request.getAttribute("selectedScreenType");
+    
+    // Thêm các biến phân trang
+    Integer currentPage = (Integer) request.getAttribute("currentPage");
+    Integer pageSize = (Integer) request.getAttribute("pageSize");
+    Integer totalPages = (Integer) request.getAttribute("totalPages");
+    Integer totalRecords = (Integer) request.getAttribute("totalRecords");
+    
+    // Set giá trị mặc định nếu null
+    if (currentPage == null) currentPage = 1;
+    if (pageSize == null) pageSize = 10;
+    if (totalPages == null) totalPages = 1;
+    if (totalRecords == null) totalRecords = 0;
 %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Quản lý Phòng Chiếu | Cinema Booking</title>
+        <title>Quản lý Lịch Chiếu | Cinema Booking</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
             * {
@@ -196,21 +206,10 @@
                 gap: 15px;
                 flex: 1;
                 min-width: 300px;
-                align-items: center;
             }
 
-            .search-box form {
-                display: flex;
-                gap: 15px;
-                width: 100%;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-
-            .search-box input,
-            .search-box select {
+            .search-box input {
                 flex: 1;
-                min-width: 150px;
                 background: #ffffff;
                 border: 1px solid #ced4da;
                 border-radius: 12px;
@@ -219,34 +218,15 @@
                 font-size: 14px;
                 outline: none;
                 transition: all 0.3s ease;
-                font-family: 'Inter', sans-serif;
             }
 
-            @media (max-width: 768px) {
-                .search-box form {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-
-                .search-box input,
-                .search-box select {
-                    min-width: 100%;
-                }
-            }
-
-            .search-box input:focus,
-            .search-box select:focus {
+            .search-box input:focus {
                 border-color: #007bff;
                 box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
             }
 
             .search-box input::placeholder {
                 color: #6b7280;
-            }
-
-            .search-box select option {
-                color: #333;
-                background-color: #fff;
             }
 
             .btn {
@@ -268,17 +248,6 @@
             .btn:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
-            }
-
-            .btn-secondary {
-                background: #6c757d;
-                color: #ffffff;
-                border: 1px solid #6c757d;
-            }
-
-            .btn-secondary:hover {
-                background: #5a6268;
-                transform: translateY(-2px);
             }
 
             /* ===== Table Container ===== */
@@ -340,37 +309,15 @@
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
 
-            .screen-type-badge {
-                padding: 4px 12px;
-                border-radius: 6px;
+            .time-badge {
+                background: rgba(59, 130, 246, 0.2);
+                color: #3b82f6;
+                padding: 4px 10px;
+                border-radius: 8px;
                 font-size: 11px;
                 font-weight: 600;
                 display: inline-block;
-                margin: 2px;
-            }
-
-            .screen-2d {
-                background: rgba(59, 130, 246, 0.2);
-                color: #3b82f6;
-                border: 1px solid rgba(59, 130, 246, 0.3);
-            }
-
-            .screen-3d {
-                background: rgba(16, 185, 129, 0.2);
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.3);
-            }
-
-            .screen-imax {
-                background: rgba(245, 158, 11, 0.2);
-                color: #f59e0b;
-                border: 1px solid rgba(245, 158, 11, 0.3);
-            }
-
-            .screen-4dx {
-                background: rgba(139, 92, 246, 0.2);
-                color: #8b5cf6;
-                border: 1px solid rgba(139, 92, 246, 0.3);
+                margin: 2px 0;
             }
 
             .action-buttons {
@@ -433,6 +380,67 @@
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
 
+            /* ===== Phân trang ===== */
+            .pagination {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 20px;
+                margin-top: 20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .pagination-info {
+                color: #6b7280;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            .pagination-controls {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .page-numbers {
+                display: flex;
+                gap: 5px;
+            }
+
+            .page-size-selector {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .page-size-selector select {
+                padding: 6px 10px;
+                border-radius: 6px;
+                border: 1px solid #ced4da;
+                font-size: 14px;
+                outline: none;
+            }
+
+            .btn-disabled {
+                background: #f8f9fa !important;
+                color: #6c757d !important;
+                border-color: #dee2e6 !important;
+                cursor: not-allowed !important;
+                opacity: 0.6;
+            }
+
+            .pagination-controls .btn-small {
+                min-width: 40px;
+                text-align: center;
+                padding: 6px 10px;
+            }
+
             /* ===== Footer ===== */
             footer {
                 background: #ffffff;
@@ -458,12 +466,12 @@
                 .action-buttons {
                     flex-direction: column;
                 }
-                .toolbar {
+                .pagination {
                     flex-direction: column;
-                    align-items: stretch;
+                    text-align: center;
                 }
-                .search-box {
-                    min-width: 100%;
+                .pagination-controls {
+                    justify-content: center;
                 }
             }
         </style>
@@ -476,20 +484,20 @@
                 <p>Staff Panel</p>
             </div>
             <nav>
-                <a href="${pageContext.request.contextPath}/staffdashboard">🏢 Thông tin rạp của tôi</a>
-                <a href="${pageContext.request.contextPath}/staff/rooms" class="active">🎭 Quản lý phòng chiếu</a>
+                <a href="${pageContext.request.contextPath}/staffdashboard">📊 Bảng điều khiển</a>
+                <a href="${pageContext.request.contextPath}/staff/rooms">🏢 Quản lý phòng chiếu</a>
                 <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
-                <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
+                <a href="${pageContext.request.contextPath}/staff/schedules" class="active">🎭 Quản lý lịch chiếu</a>
+                <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
+                <a href="${pageContext.request.contextPath}/staff/reports">📈 Báo cáo doanh thu</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
         </div>
 
         <header>
-            <h1>🎭 Quản lý Phòng Chiếu</h1>
+            <h1>🎭 Quản lý Lịch Chiếu</h1>
             <div class="header-right">
-                <span>👤 Staff: <%= session.getAttribute("staffName") != null ? session.getAttribute("staffName") : "Nhân viên" %></span>
+                <span>👤 Staff: Nguyễn Văn B</span>
                 <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
             </div>
         </header>
@@ -501,13 +509,13 @@
                 <% 
                     switch(success) {
                         case "create": 
-                            out.print("✅ Thêm phòng chiếu thành công!");
+                            out.print("✅ Thêm lịch chiếu thành công!");
                             break;
                         case "update":
-                            out.print("✅ Cập nhật phòng chiếu thành công!");
+                            out.print("✅ Cập nhật lịch chiếu thành công!");
                             break;
                         case "delete":
-                            out.print("✅ Xóa phòng chiếu thành công!");
+                            out.print("✅ Xóa lịch chiếu thành công!");
                             break;
                     }
                 %>
@@ -521,23 +529,16 @@
             <% } %>
 
             <div class="toolbar">
-                <form method="GET" action="${pageContext.request.contextPath}/staff/rooms" class="search-box" id="searchForm">
-                    <input type="text" name="keyword" 
-                           placeholder="🔍 Tìm kiếm theo mã, tên, loại phòng..." 
-                           value="<%= searchKeyword != null ? searchKeyword : "" %>">
-
-                    <select name="type" id="screenTypeFilter">
-                        <option value="">Tất cả loại phòng</option>
-                        <option value="2D" <%= "2D".equals(selectedScreenType) ? "selected" : "" %>>2D Standard</option>
-                        <option value="3D" <%= "3D".equals(selectedScreenType) ? "selected" : "" %>>3D</option>
-                        <option value="IMAX" <%= "IMAX".equals(selectedScreenType) ? "selected" : "" %>>IMAX</option>
-                        <option value="4DX" <%= "4DX".equals(selectedScreenType) ? "selected" : "" %>>4DX</option>
-                    </select>
-
-                    <button type="submit" class="btn">Tìm kiếm</button>
-                    <a href="${pageContext.request.contextPath}/staff/rooms" class="btn btn-secondary">🔄 Reset</a>
-                </form>
-                <a href="${pageContext.request.contextPath}/staff/rooms?action=add" class="btn">➕ Thêm phòng chiếu</a>
+                <div class="search-box">
+                    <input type="text" placeholder="🔍 Tìm kiếm theo tên lịch chiếu...">
+                    <button type="button" class="btn">Tìm kiếm</button>
+                    <a href="${pageContext.request.contextPath}/staff/schedules" class="btn" style="
+                       background: #6c757d;
+                       color: #ffffff;
+                       border: 1px solid #6c757d;
+                       ">🔄 Reset</a>
+                </div>
+                <a href="${pageContext.request.contextPath}/staff/schedules?action=add" class="btn">➕ Thêm lịch chiếu</a>
             </div>
 
             <div class="table-container">
@@ -545,96 +546,148 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Mã phòng</th>
-                            <th>Tên phòng</th>
-                            <th>Loại màn hình</th>
-                            <th>Hệ thống âm thanh</th>
-                            <th>Sức chứa</th>
-                            <th>Layout ghế</th>
+                            <th>Tên lịch</th>
+                            <th>Phim</th>
+                            <th>Phòng</th>
+                            <th>Thời gian</th>
+                            <th>Giá vé</th>
                             <th>Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (rooms != null && !rooms.isEmpty()) { 
-                            for (Room room : rooms) { 
+                        <% if (schedules != null && !schedules.isEmpty()) { 
+                            for (Schedule schedule : schedules) { 
                         %>
                         <tr>
-                            <td>#<%= room.getId() %></td>
-                            <td><strong><%= room.getCode() %></strong></td>
+                            <td>#<%= schedule.getId() %></td>
+                            <td><strong><%= schedule.getName() %></strong></td>
                             <td>
-                                <strong><%= room.getName() %></strong>
-                                <% if (room.getDescription() != null && !room.getDescription().isEmpty()) { %>
-                                <br><small style="color: #6b7280;"><%= room.getDescription() %></small>
+                                <strong><%= schedule.getMovieName() != null ? schedule.getMovieName() : "Movie #" + schedule.getMovieId() %></strong>
+                            </td>
+                            <td>
+                                <%= schedule.getRoomName() != null ? schedule.getRoomName() : "Room #" + schedule.getRoomId() %>
+                                <% if (schedule.getCinemaName() != null) { %>
+                                <br><small style="color: #6b7280;"><%= schedule.getCinemaName() %></small>
                                 <% } %>
                             </td>
                             <td>
-                                <span class="screen-type-badge screen-<%= room.getScreenType().toLowerCase() %>">
-                                    <%= room.getScreenTypeText() %>
+                                <div class="time-badge">Bắt đầu: <%= schedule.getFormattedStartAt() %></div>
+                                <div class="time-badge">Kết thúc: <%= schedule.getFormattedFinishAt() %></div>
+                            </td>
+                            <td><strong><%= String.format("%,d", (long)schedule.getPrice()) %> VND</strong></td>
+                            <td>
+                                <span class="status-badge <%= Schedule.STATUS_ACTIVE.equals(schedule.getStatus()) ? "status-active" : "status-inactive" %>">
+                                    <%= schedule.getStatus() %>
                                 </span>
-                            </td>
-                            <td><%= room.getSoundSystem() %></td>
-                            <td><%= room.getCapacity() %> ghế</td>
-                            <td><%= room.getSeatRows() %> x <%= room.getSeatColumns() %></td>
-                            <td>
-                                <span class="status-badge <%= room.isStatus() ? "status-active" : "status-inactive" %>">
-                                    <%= room.getStatusText() %>
-                                </span>
-                            </td>
-                            <td>
-                                <small style="color: #6b7280;">
-                                    <%= room.getFormattedCreatedDate() %>
-                                </small>
-                            </td>
-                            <td>
-                                <small style="color: #6b7280;">
-                                    <%= room.getFormattedUpdatedDate() %>
-                                </small>
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="${pageContext.request.contextPath}/staff/rooms?action=edit&id=<%= room.getId() %>" 
+                                    <% if (schedule.canBeEdited()) { %>
+                                    <a href="${pageContext.request.contextPath}/staff/schedules?action=edit&id=<%= schedule.getId() %>" 
                                        class="btn-small btn-edit" title="Chỉnh sửa">✏️</a>
-                                    <a href="${pageContext.request.contextPath}/staff/rooms?action=delete&id=<%= room.getId() %>" 
+                                    <% } %>
+                                    <a href="${pageContext.request.contextPath}/staff/schedules?action=delete&id=<%= schedule.getId() %>" 
                                        class="btn-small btn-delete" 
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa phòng chiếu này?')"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa lịch chiếu này?')"
                                        title="Xóa">🗑️</a>
                                 </div>
                             </td>
                         </tr>
                         <% } 
-                       } else { %>
+                        } else { %>
                         <tr>
-                            <td colspan="11" style="text-align: center; color: #6b7280; padding: 40px;">
-                                📝 Chưa có phòng chiếu nào. Hãy thêm phòng chiếu đầu tiên!
+                            <td colspan="8" style="text-align: center; color: #6b7280; padding: 40px;">
+                                📝 Chưa có lịch chiếu nào. Hãy thêm lịch chiếu đầu tiên!
                             </td>
                         </tr>
                         <% } %>
                     </tbody>
                 </table>
+
+                <!-- PHÂN TRANG -->
+                <% if (schedules != null && !schedules.isEmpty() && totalPages > 1) { %>
+                <div class="pagination">
+                    
+                    <!-- Thông tin trang -->
+                    <div class="pagination-info">
+                        Hiển thị <%= Math.min((currentPage-1)*pageSize + 1, totalRecords) %> - 
+                        <%= Math.min(currentPage * pageSize, totalRecords) %> của <%= totalRecords %> lịch chiếu
+                    </div>
+                    
+                    <!-- Nút phân trang -->
+                    <div class="pagination-controls">
+                        
+                        <!-- Nút đầu trang -->
+                        <a href="${pageContext.request.contextPath}/staff/schedules?page=1&pageSize=<%= pageSize %>" 
+                           class="btn-small <%= currentPage == 1 ? "btn-disabled" : "btn-edit" %>"
+                           <%= currentPage == 1 ? "onclick=\"return false;\"" : "" %>>
+                            ⏮️
+                        </a>
+                        
+                        <!-- Nút trang trước -->
+                        <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= currentPage - 1 %>&pageSize=<%= pageSize %>" 
+                           class="btn-small <%= currentPage == 1 ? "btn-disabled" : "btn-edit" %>"
+                           <%= currentPage == 1 ? "onclick=\"return false;\"" : "" %>>
+                            ◀️
+                        </a>
+                        
+                        <!-- Các trang -->
+                        <div class="page-numbers">
+                            <%
+                                int startPage = Math.max(1, currentPage - 2);
+                                int endPage = Math.min(totalPages, currentPage + 2);
+                                
+                                for (int i = startPage; i <= endPage; i++) {
+                            %>
+                            <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= i %>&pageSize=<%= pageSize %>" 
+                               class="btn-small <%= i == currentPage ? "btn-primary" : "btn-edit" %>"
+                               style="<%= i == currentPage ? "background: #007bff; color: white;" : "" %>">
+                                <%= i %>
+                            </a>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Nút trang sau -->
+                        <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= currentPage + 1 %>&pageSize=<%= pageSize %>" 
+                           class="btn-small <%= currentPage == totalPages ? "btn-disabled" : "btn-edit" %>"
+                           <%= currentPage == totalPages ? "onclick=\"return false;\"" : "" %>>
+                            ▶️
+                        </a>
+                        
+                        <!-- Nút cuối trang -->
+                        <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= totalPages %>&pageSize=<%= pageSize %>" 
+                           class="btn-small <%= currentPage == totalPages ? "btn-disabled" : "btn-edit" %>"
+                           <%= currentPage == totalPages ? "onclick=\"return false;\"" : "" %>>
+                            ⏭️
+                        </a>
+                        
+                    </div>
+                    
+                    <!-- Chọn số item mỗi trang -->
+                    <div class="page-size-selector">
+                        <label style="font-size: 14px; color: #6b7280;">Hiển thị:</label>
+                        <select onchange="changePageSize(this.value)" style="padding: 5px; border-radius: 5px; border: 1px solid #ced4da;">
+                            <option value="5" <%= pageSize == 5 ? "selected" : "" %>>5</option>
+                            <option value="10" <%= pageSize == 10 ? "selected" : "" %>>10</option>
+                            <option value="20" <%= pageSize == 20 ? "selected" : "" %>>20</option>
+                            <option value="50" <%= pageSize == 50 ? "selected" : "" %>>50</option>
+                        </select>
+                    </div>
+                </div>
+                <% } %>
             </div>
         </div>
-        <script>
-            document.getElementById('screenTypeFilter').addEventListener('change', function () {
-                document.getElementById('searchForm').submit();
-            });
-
-            document.querySelector('.btn-secondary').addEventListener('click', function (e) {
-                e.preventDefault();
-                window.location.href = '${pageContext.request.contextPath}/staff/rooms';
-            });
-
-            document.querySelector('input[name="keyword"]').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('searchForm').submit();
-                }
-            });
-        </script>
+        
         <footer>
             © 2025 Cinema Booking System - Staff Panel | Powered by Modern Technology
         </footer>
+
+        <script>
+        function changePageSize(pageSize) {
+            window.location.href = '${pageContext.request.contextPath}/staff/schedules?page=1&pageSize=' + pageSize;
+        }
+        </script>
 
     </body>
 </html>

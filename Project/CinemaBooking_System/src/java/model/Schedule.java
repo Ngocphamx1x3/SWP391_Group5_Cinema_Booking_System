@@ -3,18 +3,12 @@ package model;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Lớp Schedule - đại diện cho lịch chiếu phim tại rạp
- * Áp dụng Java Coding Convention cho class và member.
- */
 public class Schedule {
 
     // Status constants
-    public static final String STATUS_ACTIVE = "active";
-    public static final String STATUS_CANCELLED = "cancelled";
-    public static final String STATUS_INACTIVE = "inactive";
+    public static final String STATUS_ACTIVE = "Đang hoạt động";
+    public static final String STATUS_INACTIVE = "Ngưng hoạt động";
 
-    // Fields (private)
     private int id;
     private String code;
     private String name;
@@ -22,16 +16,22 @@ public class Schedule {
     private Date finishAt;
     private double price;
     private String status;
-    private int operatingStatus;
     private int movieId;
     private int roomId;
+    private int staffId;
+    private String movieName;
+    private String roomName;
+    private String cinemaName;
+    private String cinemaAddress;
+    private String roomDescription;
 
     // Constructors
     public Schedule() {
+        this.status = STATUS_ACTIVE;
     }
 
-    public Schedule(int id, String code, String name, Date startAt, Date finishAt, double price,
-                    String status, int operatingStatus, int movieId, int roomId) {
+    public Schedule(int id, String code, String name, Date startAt, Date finishAt,
+            double price, String status, int movieId, int roomId, int staffId) {
         this.id = id;
         this.code = code;
         this.name = name;
@@ -39,12 +39,12 @@ public class Schedule {
         this.finishAt = finishAt;
         this.price = price;
         this.status = status;
-        this.operatingStatus = operatingStatus;
         this.movieId = movieId;
         this.roomId = roomId;
+        this.staffId = staffId;
     }
 
-    // Getter & Setter methods
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -101,14 +101,6 @@ public class Schedule {
         this.status = status;
     }
 
-    public int getOperatingStatus() {
-        return operatingStatus;
-    }
-
-    public void setOperatingStatus(int operatingStatus) {
-        this.operatingStatus = operatingStatus;
-    }
-
     public int getMovieId() {
         return movieId;
     }
@@ -125,73 +117,108 @@ public class Schedule {
         this.roomId = roomId;
     }
 
-    @Override
-    public String toString() {
-        return "Schedule{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", startAt=" + startAt +
-                ", finishAt=" + finishAt +
-                ", price=" + price +
-                ", status='" + status + '\'' +
-                ", operatingStatus=" + operatingStatus +
-                ", movieId=" + movieId +
-                ", roomId=" + roomId +
-                '}';
+    public int getStaffId() {
+        return staffId;
     }
 
-    /**
-     * Kiểm tra lịch chiếu có thể sửa không.
-     * Không cho phép nếu đã kết thúc hoặc đang ở trạng thái huỷ.
-     * @return true nếu được sửa, false nếu không
-     */
+    public void setStaffId(int staffId) {
+        this.staffId = staffId;
+    }
+
+    public String getMovieName() {
+        return movieName;
+    }
+
+    public void setMovieName(String movieName) {
+        this.movieName = movieName;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public String getCinemaName() {
+        return cinemaName;
+    }
+
+    public void setCinemaName(String cinemaName) {
+        this.cinemaName = cinemaName;
+    }
+
+    public String getCinemaAddress() {
+        return cinemaAddress;
+    }
+
+    public void setCinemaAddress(String cinemaAddress) {
+        this.cinemaAddress = cinemaAddress;
+    }
+
+    public String getRoomDescription() {
+        return roomDescription;
+    }
+
+    public void setRoomDescription(String roomDescription) {
+        this.roomDescription = roomDescription;
+    }
+
+    public boolean isValidStartTime() {
+        if (startAt == null) {
+            return false;
+        }
+
+        Date now = new Date();
+        long minTime = now.getTime() + (30 * 60 * 1000);
+        return startAt.getTime() >= minTime;
+    }
+
+    public boolean isValidEndTime(int movieDuration) {
+        if (startAt == null || finishAt == null) {
+            return false;
+        }
+
+        // Tính thời gian kết thúc dự kiến = startAt + movieDuration
+        long expectedEndTime = startAt.getTime() + (movieDuration * 60 * 1000);
+        long tolerance = 5 * 60 * 1000; // Dung sai 5 phút
+
+        return Math.abs(finishAt.getTime() - expectedEndTime) <= tolerance;
+    }
+
+    public void calculateEndTime(int movieDuration) {
+        if (startAt != null) {
+            long endTimeMillis = startAt.getTime() + (movieDuration * 60 * 1000);
+            this.finishAt = new Date(endTimeMillis);
+        }
+    }
+
     public boolean canBeEdited() {
-        // Không được sửa nếu lịch đã kết thúc
-        if (finishAt != null) {
-            Date now = new Date();
-            if (finishAt.before(now)) {
-                return false;
-            }
+        if (STATUS_INACTIVE.equals(status)) {
+            return true;
         }
-        // Không được sửa nếu trạng thái đã huỷ
-        if (status != null) {
-            String s = status.trim().toLowerCase();
-            if (s.equals("canceled") || s.equals("cancelled") || s.equals("huy")) {
-                return false;
-            }
+
+        if (startAt != null) {
+            Date now = new Date();
+            return startAt.getTime() - now.getTime() > (30 * 60 * 1000);
         }
         return true;
     }
 
-    /**
-     * Kiểm tra lịch chiếu có thể huỷ không.
-     * Chỉ kiểm tra trạng thái thời gian và trạng thái mã.
-     * @return true nếu có thể huỷ, false nếu không
-     */
     public boolean canBeCancelled() {
-        // Không thể huỷ nếu đã kết thúc
-        if (finishAt != null) {
+        if (STATUS_INACTIVE.equals(status)) {
+            return true;
+        }
+
+        if (startAt != null) {
             Date now = new Date();
-            if (finishAt.before(now)) {
-                return false;
-            }
+            return startAt.getTime() - now.getTime() > (30 * 60 * 1000);
         }
-        // Không thể huỷ nếu trạng thái đã hủy
-        if (status != null) {
-            String s = status.trim().toLowerCase();
-            if (s.equals("canceled") || s.equals("cancelled") || s.equals("huy")) {
-                return false;
-            }
-        }
-        // Có thể mở rộng với logic vé đã bán
         return true;
     }
 
-    /**
-     * Định dạng thời gian bắt đầu về dạng dd/MM/yyyy HH:mm.
-     * @return Chuỗi thời gian đã định dạng, hoặc "" nếu null
-     */
+    // Format methods
     public String getFormattedStartAt() {
         if (startAt == null) {
             return "";
@@ -199,10 +226,6 @@ public class Schedule {
         return new SimpleDateFormat("dd/MM/yyyy HH:mm").format(startAt);
     }
 
-    /**
-     * Định dạng thời gian kết thúc về dạng dd/MM/yyyy HH:mm.
-     * @return Chuỗi thời gian đã định dạng, hoặc "" nếu null
-     */
     public String getFormattedFinishAt() {
         if (finishAt == null) {
             return "";
@@ -210,32 +233,32 @@ public class Schedule {
         return new SimpleDateFormat("dd/MM/yyyy HH:mm").format(finishAt);
     }
 
-    /**
-     * Định dạng startAt phục vụ cho input type="datetime-local".
-     * @return Chuỗi yyyy-MM-dd HH:mm, hoặc "" nếu null
-     */
-    public String getStartAtLocal() {
+    public String getStartAtForInput() {
         if (startAt == null) {
             return "";
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        return sdf.format(startAt);
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(startAt);
     }
 
-    /**
-     * Lấy tên nhãn trạng thái hoạt động thực tế.
-     * @return Chuỗi tiếng Việt trạng thái theo operatingStatus
-     */
-    public String getOperatingStatusLabel() {
-        switch (operatingStatus) {
-            case 0:
-                return "Chờ chiếu";
-            case 1:
-                return "Đang chiếu";
-            case 2:
-                return "Đã chiếu";
-            default:
-                return "Không xác định";
+    public String getFinishAtForInput() {
+        if (finishAt == null) {
+            return "";
         }
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(finishAt);
+    }
+
+    @Override
+    public String toString() {
+        return "Schedule{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", startAt=" + getFormattedStartAt()
+                + ", finishAt=" + getFormattedFinishAt()
+                + ", price=" + price
+                + ", status='" + status + '\''
+                + ", movieId=" + movieId
+                + ", roomId=" + roomId
+                + ", staffId=" + staffId
+                + '}';
     }
 }

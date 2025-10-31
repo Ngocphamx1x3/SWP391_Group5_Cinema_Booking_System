@@ -111,10 +111,12 @@
                     <h2>TRAILER - ${movie.name}</h2>
                     <hr style="margin-top: 20px; opacity: 0.5">
                     <div class="embed-responsive embed-responsive-16by9 video">
-                        <iframe width="80%" height="315" src="${movie.trailer}" frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen></iframe>
-                    </div>
+                        <iframe width="80%" height="315" src="${movie.trailer}" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                referrerpolicy="strict-origin-when-cross-origin"> 
+                        </iframe>
+                    </div>
                 </div>
             </div>
         </c:forEach>

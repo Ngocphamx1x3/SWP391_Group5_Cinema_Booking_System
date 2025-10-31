@@ -13,6 +13,8 @@ public class SeatDesignDAO extends DBContext {
 
     // GET ALL SEATS BY ROOM ID
     public List<Seat> getSeatsByRoomId(int roomId) {
+        System.out.println("🪑 SeatDesignDAO.getSeatsByRoomId() called for room: " + roomId);
+
         List<Seat> list = new ArrayList<>();
         String sql = "SELECT s.*, st.color as type_color, st.name as type_name, st.surcharge as type_surcharge "
                 + "FROM Seat s "
@@ -20,15 +22,30 @@ public class SeatDesignDAO extends DBContext {
                 + "WHERE s.RoomId = ? "
                 + "ORDER BY s.position_y, s.position_x";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        System.out.println("📝 SQL: " + sql);
 
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, roomId);
+            System.out.println("🔧 Set parameter: roomId = " + roomId);
+
             try (ResultSet rs = ps.executeQuery()) {
+                int count = 0;
                 while (rs.next()) {
-                    list.add(mapResultSetToSeat(rs));
+                    count++;
+                    Seat seat = mapResultSetToSeat(rs);
+                    list.add(seat);
+
+                    if (count <= 3) { // Log 3 ghế đầu tiên để debug
+                        System.out.println("   🪑 Seat " + count + ": " + seat.getCode()
+                                + " - Type: " + seat.getTypeName()
+                                + " - Position: " + seat.getPositionX() + "," + seat.getPositionY()
+                                + " - Color: " + seat.getCustomColor());
+                    }
                 }
+                System.out.println("✅ Total seats found: " + count);
             }
         } catch (Exception e) {
+            System.out.println("💥 Error in getSeatsByRoomId: " + e.getMessage());
             e.printStackTrace();
         }
         return list;
@@ -448,5 +465,50 @@ public class SeatDesignDAO extends DBContext {
             System.err.println("Error calculating seat price: " + e.getMessage());
         }
         return basePrice; // Fallback to base price if error
+    }
+
+    public boolean isSeatOccupied(int seatId, int scheduleId) {
+        String sql = "SELECT COUNT(*) FROM Ticket t "
+                + "INNER JOIN Schedule s ON t.ScheduleId = s.Id "
+                + "WHERE t.SeatId = ? AND t.ScheduleId = ? "
+                + "AND t.Status IN ( N'Đã thanh toán')";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, seatId);
+            ps.setInt(2, scheduleId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking seat occupancy: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+// GET ALL OCCUPIED SEATS FOR A SCHEDULE
+    public List<Integer> getOccupiedSeatIds(int scheduleId) throws Exception {
+        String sql
+                = "SELECT DISTINCT t.SeatId "
+                + "FROM Ticket t "
+                + "JOIN Orders o ON o.Id = t.OrderId "
+                + "WHERE t.ScheduleId = ? "
+                + "  AND ( t.Status = 'CONFIRMED' "
+                + "     OR (t.Status = 'HOLD' AND o.Status = 'PENDING' AND o.ExpiredAt > GETDATE()) )";
+        List<Integer> ids = new java.util.ArrayList<>();
+        try (var c = new util.DBContext().getConnection(); var ps = c.prepareStatement(sql)) {
+            ps.setInt(1, scheduleId);
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt(1));
+                }
+            }
+        }
+        System.out.println("🔒 [SeatDesignDAO] occupied seatIds for schedule " + scheduleId + ": " + ids);
+        return ids;
     }
 }
