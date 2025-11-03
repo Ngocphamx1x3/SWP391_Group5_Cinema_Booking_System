@@ -95,18 +95,34 @@
                 
                 console.log('🌐 Fetching from URL:', url);
                 
-                fetch(url)
+                // QUAN TRỌNG: Thêm credentials: 'include' để gửi kèm session cookie
+                fetch(url, {
+                    credentials: 'include',
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                     .then(response => {
                         console.log('📨 Response status:', response.status, response.statusText);
+                        // Nếu redirect về login (302 hoặc redirect), xử lý riêng
+                        if (response.redirected && response.url.includes('/login')) {
+                            if (confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại không?')) {
+                                window.location.href = contextPath + '/login';
+                            }
+                            return;
+                        }
                         if (!response.ok) {
                             throw new Error('HTTP ' + response.status + ': ' + response.statusText);
                         }
                         return response.text();
                     })
                     .then(html => {
-                        console.log('✅ HTML received, length:', html.length);
-                        console.log('📄 First 200 chars:', html.substring(0, 200));
-                        document.getElementById('seatModalBody').innerHTML = html;
+                        if (html) {
+                            console.log('✅ HTML received, length:', html.length);
+                            console.log('📄 First 200 chars:', html.substring(0, 200));
+                            document.getElementById('seatModalBody').innerHTML = html;
+                        }
                     })
                     .catch(error => {
                         console.error('❌ Error loading seat data:', error);

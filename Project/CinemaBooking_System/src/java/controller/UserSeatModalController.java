@@ -35,7 +35,21 @@ public class UserSeatModalController extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = req.getSession(false);
+        System.out.println("🔍 UserSeatModalController - Session check:");
+        System.out.println("   Session exists: " + (session != null));
+        if (session != null) {
+            System.out.println("   Session ID: " + session.getId());
+            System.out.println("   Account in session: " + (session.getAttribute("account") != null));
+            if (session.getAttribute("account") != null) {
+                model.Users user = (model.Users) session.getAttribute("account");
+                System.out.println("   User ID: " + user.getId());
+                System.out.println("   User Email: " + user.getEmail());
+            }
+        }
+        System.out.println("   Cookies: " + java.util.Arrays.toString(req.getCookies()));
+        
         if (session == null || session.getAttribute("account") == null) {
+            System.out.println("❌ Session invalid - redirecting to login");
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }

@@ -605,6 +605,9 @@
                 $.ajax({
                     url: '${pageContext.request.contextPath}/schedule-ajax',
                     type: 'GET',
+                    xhrFields: {
+                        withCredentials: true  // QUAN TRỌNG: Gửi kèm session cookie
+                    },
                     data: {
                         movieId: movieId,
                         date: selectedDate
@@ -614,7 +617,14 @@
                         $('#scheduleContent').html(response);
                     },
                     error: function (xhr, status, error) {
-                        console.log("AJAX Error:", error);
+                        console.log("AJAX Error:", error, "Status:", xhr.status);
+                        // Nếu lỗi 401 hoặc redirect về login
+                        if (xhr.status === 401 || xhr.responseURL && xhr.responseURL.includes('/login')) {
+                            if (confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại không?')) {
+                                window.location.href = '${pageContext.request.contextPath}/login';
+                            }
+                            return;
+                        }
                         $('#scheduleContent').html(`
                 <div class="no-schedule">
                     <i class="fas fa-exclamation-triangle fa-2x mb-3 text-danger"></i>

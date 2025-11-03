@@ -51,7 +51,16 @@ public class LoginController extends HttpServlet {
             }
 
             HttpSession session = request.getSession();
+            // Đảm bảo session không bị invalidate
+            session.setMaxInactiveInterval(30 * 60); // 30 phút
+            
             session.setAttribute("account", user);
+            
+            System.out.println("✅ LoginController - Session created:");
+            System.out.println("   Session ID: " + session.getId());
+            System.out.println("   User ID: " + user.getId());
+            System.out.println("   User Email: " + user.getEmail());
+            System.out.println("   User Role: " + user.getRole());
             
             // Lấy thông tin avatar từ UserProfile
             UserDAO userDAO = new UserDAO();

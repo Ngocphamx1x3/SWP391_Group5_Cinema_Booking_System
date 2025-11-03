@@ -1,165 +1,70 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%
+    // Set active page for sidebar highlighting
+    request.setAttribute("activePage", "dashboard");
+    request.setAttribute("pageTitle", "🏢 Bảng điều khiển nhân viên");
+%>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Staff Dashboard | Cinema Booking</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <jsp:include page="../layout/StaffStyles.jsp"/>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
+            /* ===== Dashboard Dark Theme Override ===== */
             body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                 background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
                 color: #e4e9f0;
-                min-height: 100vh;
             }
 
-            /* ===== Sidebar ===== */
+            /* ===== Sidebar Dark Theme ===== */
             .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 280px;
-                height: 100vh;
                 background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
                 backdrop-filter: blur(10px);
                 border-right: 1px solid rgba(255, 193, 7, 0.1);
-                display: flex;
-                flex-direction: column;
-                padding: 30px 0;
                 box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
-                z-index: 1000;
-            }
-
-            .sidebar-logo {
-                text-align: center;
-                margin-bottom: 50px;
-                padding: 0 25px;
             }
 
             .sidebar-logo h2 {
-                font-size: 26px;
-                font-weight: 700;
                 background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
-                letter-spacing: 1px;
-            }
-
-            .sidebar-logo p {
-                font-size: 11px;
-                color: #6b7280;
-                margin-top: 5px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }
-
-            .sidebar nav {
-                flex: 1;
-                overflow-y: auto;
             }
 
             .sidebar a {
                 color: #94a3b8;
-                text-decoration: none;
-                padding: 16px 30px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                font-size: 15px;
-                font-weight: 500;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                position: relative;
             }
 
             .sidebar a::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 4px;
                 background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
-                transform: scaleY(0);
-                transition: transform 0.3s ease;
             }
 
             .sidebar a:hover {
                 background: rgba(255, 193, 7, 0.08);
                 color: #ffc107;
-                padding-left: 35px;
-            }
-
-            .sidebar a:hover::before {
-                transform: scaleY(1);
             }
 
             .sidebar a.active {
                 background: rgba(255, 193, 7, 0.12);
                 color: #ffc107;
-                padding-left: 35px;
             }
 
-            .sidebar a.active::before {
-                transform: scaleY(1);
-            }
-
-            .sidebar a.logout {
-                margin-top: auto;
-                background: rgba(239, 68, 68, 0.1);
-                color: #ef4444;
-                margin: 20px 20px 0;
-                border-radius: 12px;
-                justify-content: center;
-            }
-
-            .sidebar a.logout:hover {
-                background: rgba(239, 68, 68, 0.2);
-                padding-left: 30px;
-            }
-
-            /* ===== Header ===== */
+            /* ===== Header Dark Theme ===== */
             header {
-                margin-left: 280px;
                 background: rgba(15, 20, 25, 0.8);
                 backdrop-filter: blur(20px);
                 border-bottom: 1px solid rgba(255, 193, 7, 0.1);
-                padding: 20px 40px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                position: sticky;
-                top: 0;
-                z-index: 100;
             }
 
             header h1 {
-                font-size: 28px;
-                font-weight: 700;
                 background: linear-gradient(135deg, #ffffff 0%, #ffc107 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
             }
 
-            .header-right {
-                display: flex;
-                align-items: center;
-                gap: 35px;
-            }
-
             .header-right span {
-                font-weight: 500;
                 color: #94a3b8;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
             }
 
             .notification-badge {
@@ -178,12 +83,6 @@
                 font-size: 11px;
                 font-weight: 700;
                 box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
-            }
-
-            /* ===== Content ===== */
-            .content {
-                margin-left: 280px;
-                padding: 40px;
             }
 
             /* ===== Stats Cards ===== */
@@ -397,41 +296,21 @@
                 transform: translateX(5px);
             }
 
-            /* ===== Footer ===== */
+            /* ===== Footer Dark Theme ===== */
             footer {
                 background: rgba(15, 20, 25, 0.9);
                 backdrop-filter: blur(10px);
                 border-top: 1px solid rgba(255, 193, 7, 0.1);
-                color: #6b7280;
-                text-align: center;
-                padding: 25px;
-                margin-left: 280px;
-                font-size: 14px;
             }
         </style>
     </head>
     <body>
 
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <h2>🎬 CINEMA STAFF</h2>
-                <p>Staff Panel</p>
-            </div>
-            <nav>
-                <a href="${pageContext.request.contextPath}/staffdashboard" class="active">🏢 Thông tin rạp của tôi</a>
-                <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
-               <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
-            </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
-        </div>
-
-        <!-- Header -->
+        <jsp:include page="../layout/StaffSidebar.jsp"/>
+        
+        <!-- Header with notification badge -->
         <header>
-            <h1>Bảng điều khiển nhân viên</h1>
+            <h1>🏢 Bảng điều khiển nhân viên</h1>
             <div class="header-right">
                 <c:if test="${not empty staffUser}">
                     <span>👤 ${staffUser.username} (${staffUser.role})</span>
@@ -603,10 +482,10 @@
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer>
-            © 2025 Cinema Booking System - Staff Panel | Ca làm: 07:00 - 15:00
-        </footer>
+        <%
+            request.setAttribute("footerText", "© 2025 Cinema Booking System - Staff Panel | Ca làm: 07:00 - 15:00");
+        %>
+        <jsp:include page="../layout/StaffFooter.jsp"/>
 
     </body>
 </html>

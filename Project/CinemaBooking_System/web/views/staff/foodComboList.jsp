@@ -1,26 +1,22 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="model.Room, java.util.List"%>
+<%@page import="model.FoodCombo, java.util.List"%>
 <%
-    List<Room> rooms = (List<Room>) request.getAttribute("rooms");
+    List<FoodCombo> foodCombos = (List<FoodCombo>) request.getAttribute("foodCombos");
     String success = request.getParameter("success");
     String error = request.getParameter("error");
     String searchKeyword = (String) request.getAttribute("searchKeyword");
-    String selectedScreenType = (String) request.getAttribute("selectedScreenType");
     
     // Set active page for sidebar highlighting
-    request.setAttribute("activePage", "rooms");
-    request.setAttribute("pageTitle", "🎭 Quản lý Phòng Chiếu");
+    request.setAttribute("activePage", "food-combos");
+    request.setAttribute("pageTitle", "🍔 Quản lý Combo");
 %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Quản lý Phòng Chiếu | Cinema Booking</title>
+        <title>Quản lý Combo | Cinema Booking</title>
         <jsp:include page="../layout/StaffStyles.jsp"/>
         <style>
-            /* ===== Content-specific styles ===== */
-
-            /* ===== Toolbar ===== */
             .toolbar {
                 background: #ffffff;
                 border: 1px solid #e2e8f0;
@@ -51,8 +47,7 @@
                 flex-wrap: wrap;
             }
 
-            .search-box input,
-            .search-box select {
+            .search-box input {
                 flex: 1;
                 min-width: 150px;
                 background: #ffffff;
@@ -66,31 +61,9 @@
                 font-family: 'Inter', sans-serif;
             }
 
-            @media (max-width: 768px) {
-                .search-box form {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-
-                .search-box input,
-                .search-box select {
-                    min-width: 100%;
-                }
-            }
-
-            .search-box input:focus,
-            .search-box select:focus {
+            .search-box input:focus {
                 border-color: #007bff;
                 box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-            }
-
-            .search-box input::placeholder {
-                color: #6b7280;
-            }
-
-            .search-box select option {
-                color: #333;
-                background-color: #fff;
             }
 
             .btn {
@@ -117,15 +90,8 @@
             .btn-secondary {
                 background: #6c757d;
                 color: #ffffff;
-                border: 1px solid #6c757d;
             }
 
-            .btn-secondary:hover {
-                background: #5a6268;
-                transform: translateY(-2px);
-            }
-
-            /* ===== Table Container ===== */
             .table-container {
                 background: #ffffff;
                 border: 1px solid #e2e8f0;
@@ -161,7 +127,6 @@
 
             tr:hover td {
                 background: #f8f9fa;
-                color: #1a202c;
             }
 
             .status-badge {
@@ -182,39 +147,6 @@
                 background: rgba(239, 68, 68, 0.2);
                 color: #ef4444;
                 border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-
-            .screen-type-badge {
-                padding: 4px 12px;
-                border-radius: 6px;
-                font-size: 11px;
-                font-weight: 600;
-                display: inline-block;
-                margin: 2px;
-            }
-
-            .screen-2d {
-                background: rgba(59, 130, 246, 0.2);
-                color: #3b82f6;
-                border: 1px solid rgba(59, 130, 246, 0.3);
-            }
-
-            .screen-3d {
-                background: rgba(16, 185, 129, 0.2);
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.3);
-            }
-
-            .screen-imax {
-                background: rgba(245, 158, 11, 0.2);
-                color: #f59e0b;
-                border: 1px solid rgba(245, 158, 11, 0.3);
-            }
-
-            .screen-4dx {
-                background: rgba(139, 92, 246, 0.2);
-                color: #8b5cf6;
-                border: 1px solid rgba(139, 92, 246, 0.3);
             }
 
             .action-buttons {
@@ -241,9 +173,16 @@
                 border: 1px solid rgba(0, 123, 255, 0.3);
             }
 
-            .btn-edit:hover {
-                background: rgba(0, 123, 255, 0.3);
-                transform: translateY(-2px);
+            .btn-detail {
+                background: rgba(139, 92, 246, 0.2);
+                color: #8b5cf6;
+                border: 1px solid rgba(139, 92, 246, 0.3);
+            }
+
+            .btn-toggle {
+                background: rgba(245, 158, 11, 0.2);
+                color: #f59e0b;
+                border: 1px solid rgba(245, 158, 11, 0.3);
             }
 
             .btn-delete {
@@ -252,12 +191,17 @@
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
 
-            .btn-delete:hover {
-                background: rgba(239, 68, 68, 0.3);
-                transform: translateY(-2px);
+            .price-cell {
+                font-weight: 700;
+                color: #10b981;
+                font-size: 15px;
             }
 
-            /* ===== Alert Messages ===== */
+            .items-count {
+                color: #6b7280;
+                font-size: 12px;
+            }
+
             .alert {
                 padding: 15px 20px;
                 border-radius: 12px;
@@ -276,20 +220,6 @@
                 color: #ef4444;
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
-
-            /* ===== Responsive ===== */
-            @media (max-width: 768px) {
-                .action-buttons {
-                    flex-direction: column;
-                }
-                .toolbar {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-                .search-box {
-                    min-width: 100%;
-                }
-            }
         </style>
     </head>
     <body>
@@ -304,13 +234,16 @@
                 <% 
                     switch(success) {
                         case "create": 
-                            out.print("✅ Thêm phòng chiếu thành công!");
+                            out.print("✅ Thêm combo thành công!");
                             break;
                         case "update":
-                            out.print("✅ Cập nhật phòng chiếu thành công!");
+                            out.print("✅ Cập nhật combo thành công!");
                             break;
                         case "delete":
-                            out.print("✅ Xóa phòng chiếu thành công!");
+                            out.print("✅ Xóa combo thành công!");
+                            break;
+                        case "toggle":
+                            out.print("✅ Cập nhật trạng thái thành công!");
                             break;
                     }
                 %>
@@ -319,28 +252,19 @@
 
             <% if (error != null) { %>
             <div class="alert alert-error">
-                ❌ Có lỗi xảy ra khi xử lý!
+                ❌ <%= error %>
             </div>
             <% } %>
 
             <div class="toolbar">
-                <form method="GET" action="${pageContext.request.contextPath}/staff/rooms" class="search-box" id="searchForm">
+                <form method="GET" action="${pageContext.request.contextPath}/staff/food-combos" class="search-box" id="searchForm">
                     <input type="text" name="keyword" 
-                           placeholder="🔍 Tìm kiếm theo mã, tên, loại phòng..." 
+                           placeholder="🔍 Tìm kiếm theo tên, mô tả..." 
                            value="<%= searchKeyword != null ? searchKeyword : "" %>">
-
-                    <select name="type" id="screenTypeFilter">
-                        <option value="">Tất cả loại phòng</option>
-                        <option value="2D" <%= "2D".equals(selectedScreenType) ? "selected" : "" %>>2D Standard</option>
-                        <option value="3D" <%= "3D".equals(selectedScreenType) ? "selected" : "" %>>3D</option>
-                        <option value="IMAX" <%= "IMAX".equals(selectedScreenType) ? "selected" : "" %>>IMAX</option>
-                        <option value="4DX" <%= "4DX".equals(selectedScreenType) ? "selected" : "" %>>4DX</option>
-                    </select>
-
                     <button type="submit" class="btn">Tìm kiếm</button>
-                    <a href="${pageContext.request.contextPath}/staff/rooms" class="btn btn-secondary">🔄 Reset</a>
+                    <a href="${pageContext.request.contextPath}/staff/food-combos" class="btn btn-secondary">🔄 Reset</a>
                 </form>
-                <a href="${pageContext.request.contextPath}/staff/rooms?action=add" class="btn">➕ Thêm phòng chiếu</a>
+                <a href="${pageContext.request.contextPath}/staff/food-combos?action=add" class="btn">➕ Thêm combo mới</a>
             </div>
 
             <div class="table-container">
@@ -348,61 +272,82 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Mã phòng</th>
-                            <th>Tên phòng</th>
-                            <th>Loại màn hình</th>
-                            <th>Hệ thống âm thanh</th>
-                            <th>Sức chứa</th>
-                            <th>Layout ghế</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên combo</th>
+                            <th>Giá</th>
+                            <th>Số món</th>
+                            <th>Mô tả</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
-                            <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (rooms != null && !rooms.isEmpty()) { 
-                            for (Room room : rooms) { 
+                        <% if (foodCombos != null && !foodCombos.isEmpty()) { 
+                            for (FoodCombo combo : foodCombos) { 
                         %>
                         <tr>
-                            <td>#<%= room.getId() %></td>
-                            <td><strong><%= room.getCode() %></strong></td>
+                            <td>#<%= combo.getComboID() %></td>
                             <td>
-                                <strong><%= room.getName() %></strong>
-                                <% if (room.getDescription() != null && !room.getDescription().isEmpty()) { %>
-                                <br><small style="color: #6b7280;"><%= room.getDescription() %></small>
+                                <% if (combo.getImage() != null && !combo.getImage().isEmpty()) { %>
+                                <div style="position: relative; width: 50px; height: 50px;">
+                                    <img src="${pageContext.request.contextPath}/assets/user/img/<%= combo.getImage() %>" 
+                                         alt="<%= combo.getName() %>" 
+                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;"
+                                         id="comboImage_<%= combo.getComboID() %>"
+                                         onerror="handleComboImageError(this);">
+                                    <div id="comboPlaceholder_<%= combo.getComboID() %>" 
+                                         style="display: none; width: 50px; height: 50px; background: #e2e8f0; border-radius: 8px; color: #6b7280; font-size: 9px; text-align: center; padding: 2px; border: 1px solid #e2e8f0; position: absolute; top: 0; left: 0;">
+                                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">Không có ảnh</div>
+                                    </div>
+                                </div>
+                                <% } else { %>
+                                <div style="width: 50px; height: 50px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 9px; text-align: center; padding: 2px; border: 1px solid #e2e8f0;">
+                                    Không có ảnh
+                                </div>
                                 <% } %>
                             </td>
+                            <td><strong><%= combo.getName() %></strong></td>
+                            <td class="price-cell"><%= combo.getFormattedPrice() %></td>
                             <td>
-                                <span class="screen-type-badge screen-<%= room.getScreenType().toLowerCase() %>">
-                                    <%= room.getScreenTypeText() %>
-                                </span>
-                            </td>
-                            <td><%= room.getSoundSystem() %></td>
-                            <td><%= room.getCapacity() %> ghế</td>
-                            <td><%= room.getSeatRows() %> x <%= room.getSeatColumns() %></td>
-                            <td>
-                                <span class="status-badge <%= room.isStatus() ? "status-active" : "status-inactive" %>">
-                                    <%= room.getStatusText() %>
+                                <span class="items-count">
+                                    <%= combo.getItems() != null ? combo.getTotalItemsCount() : 0 %> món
                                 </span>
                             </td>
                             <td>
                                 <small style="color: #6b7280;">
-                                    <%= room.getFormattedCreatedDate() %>
+                                    <%= combo.getDescription() != null && !combo.getDescription().isEmpty() 
+                                        ? (combo.getDescription().length() > 50 
+                                            ? combo.getDescription().substring(0, 50) + "..." 
+                                            : combo.getDescription()) 
+                                        : "Không có mô tả" %>
                                 </small>
                             </td>
                             <td>
+                                <span class="status-badge <%= combo.getStatus() ? "status-active" : "status-inactive" %>">
+                                    <%= combo.getStatusText() %>
+                                </span>
+                            </td>
+                            <td>
                                 <small style="color: #6b7280;">
-                                    <%= room.getFormattedUpdatedDate() %>
+                                    <%= combo.getFormattedCreatedDate() %>
                                 </small>
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="${pageContext.request.contextPath}/staff/rooms?action=edit&id=<%= room.getId() %>" 
+                                    <a href="${pageContext.request.contextPath}/staff/food-combos?action=detail&id=<%= combo.getComboID() %>" 
+                                       class="btn-small btn-detail" title="Xem chi tiết">👁️</a>
+                                    <a href="${pageContext.request.contextPath}/staff/food-combos?action=edit&id=<%= combo.getComboID() %>" 
                                        class="btn-small btn-edit" title="Chỉnh sửa">✏️</a>
-                                    <a href="${pageContext.request.contextPath}/staff/rooms?action=delete&id=<%= room.getId() %>" 
+                                    <a href="${pageContext.request.contextPath}/staff/food-combos?action=toggle&id=<%= combo.getComboID() %>" 
+                                       class="btn-small btn-toggle" 
+                                       title="<%= combo.getStatus() ? "Ẩn combo" : "Hiện combo" %>"
+                                       onclick="return confirm('Bạn có chắc muốn <%= combo.getStatus() ? "ẩn" : "hiện" %> combo này?')">
+                                        <%= combo.getStatus() ? "👁️" : "👁️‍🗨️" %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/staff/food-combos?action=delete&id=<%= combo.getComboID() %>" 
                                        class="btn-small btn-delete" 
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa phòng chiếu này?')"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa combo này?')"
                                        title="Xóa">🗑️</a>
                                 </div>
                             </td>
@@ -410,8 +355,8 @@
                         <% } 
                        } else { %>
                         <tr>
-                            <td colspan="11" style="text-align: center; color: #6b7280; padding: 40px;">
-                                📝 Chưa có phòng chiếu nào. Hãy thêm phòng chiếu đầu tiên!
+                            <td colspan="9" style="text-align: center; color: #6b7280; padding: 40px;">
+                                📝 Chưa có combo nào. Hãy thêm combo đầu tiên!
                             </td>
                         </tr>
                         <% } %>
@@ -420,14 +365,19 @@
             </div>
         </div>
         <script>
-            document.getElementById('screenTypeFilter').addEventListener('change', function () {
-                document.getElementById('searchForm').submit();
-            });
-
-            document.querySelector('.btn-secondary').addEventListener('click', function (e) {
-                e.preventDefault();
-                window.location.href = '${pageContext.request.contextPath}/staff/rooms';
-            });
+            // Handle image error for combo images
+            function handleComboImageError(img) {
+                const comboId = img.id.replace('comboImage_', '');
+                const placeholder = document.getElementById('comboPlaceholder_' + comboId);
+                
+                if (placeholder) {
+                    img.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+                
+                // Prevent infinite loop
+                img.onerror = null;
+            }
 
             document.querySelector('input[name="keyword"]').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
@@ -439,3 +389,4 @@
 
     </body>
 </html>
+

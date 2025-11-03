@@ -1,21 +1,21 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="model.Room, java.util.List"%>
+<%@page import="model.FoodItem, java.util.List"%>
 <%
-    List<Room> rooms = (List<Room>) request.getAttribute("rooms");
+    List<FoodItem> foodItems = (List<FoodItem>) request.getAttribute("foodItems");
     String success = request.getParameter("success");
     String error = request.getParameter("error");
     String searchKeyword = (String) request.getAttribute("searchKeyword");
-    String selectedScreenType = (String) request.getAttribute("selectedScreenType");
+    String selectedType = (String) request.getAttribute("selectedType");
     
     // Set active page for sidebar highlighting
-    request.setAttribute("activePage", "rooms");
-    request.setAttribute("pageTitle", "🎭 Quản lý Phòng Chiếu");
+    request.setAttribute("activePage", "food-items");
+    request.setAttribute("pageTitle", "🍿 Quản lý Món Lẻ");
 %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Quản lý Phòng Chiếu | Cinema Booking</title>
+        <title>Quản lý Món Lẻ | Cinema Booking</title>
         <jsp:include page="../layout/StaffStyles.jsp"/>
         <style>
             /* ===== Content-specific styles ===== */
@@ -64,18 +64,6 @@
                 outline: none;
                 transition: all 0.3s ease;
                 font-family: 'Inter', sans-serif;
-            }
-
-            @media (max-width: 768px) {
-                .search-box form {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-
-                .search-box input,
-                .search-box select {
-                    min-width: 100%;
-                }
             }
 
             .search-box input:focus,
@@ -184,7 +172,7 @@
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
 
-            .screen-type-badge {
+            .type-badge {
                 padding: 4px 12px;
                 border-radius: 6px;
                 font-size: 11px;
@@ -193,28 +181,28 @@
                 margin: 2px;
             }
 
-            .screen-2d {
-                background: rgba(59, 130, 246, 0.2);
-                color: #3b82f6;
-                border: 1px solid rgba(59, 130, 246, 0.3);
-            }
-
-            .screen-3d {
-                background: rgba(16, 185, 129, 0.2);
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.3);
-            }
-
-            .screen-imax {
+            .type-popcorn {
                 background: rgba(245, 158, 11, 0.2);
                 color: #f59e0b;
                 border: 1px solid rgba(245, 158, 11, 0.3);
             }
 
-            .screen-4dx {
+            .type-drink {
+                background: rgba(59, 130, 246, 0.2);
+                color: #3b82f6;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+            }
+
+            .type-snack {
                 background: rgba(139, 92, 246, 0.2);
                 color: #8b5cf6;
                 border: 1px solid rgba(139, 92, 246, 0.3);
+            }
+
+            .type-other {
+                background: rgba(107, 114, 128, 0.2);
+                color: #6b7280;
+                border: 1px solid rgba(107, 114, 128, 0.3);
             }
 
             .action-buttons {
@@ -246,6 +234,17 @@
                 transform: translateY(-2px);
             }
 
+            .btn-toggle {
+                background: rgba(245, 158, 11, 0.2);
+                color: #f59e0b;
+                border: 1px solid rgba(245, 158, 11, 0.3);
+            }
+
+            .btn-toggle:hover {
+                background: rgba(245, 158, 11, 0.3);
+                transform: translateY(-2px);
+            }
+
             .btn-delete {
                 background: rgba(239, 68, 68, 0.2);
                 color: #ef4444;
@@ -255,6 +254,24 @@
             .btn-delete:hover {
                 background: rgba(239, 68, 68, 0.3);
                 transform: translateY(-2px);
+            }
+
+            .price-cell {
+                font-weight: 700;
+                color: #10b981;
+                font-size: 15px;
+            }
+
+            .image-cell {
+                width: 60px;
+            }
+
+            .image-preview {
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
             }
 
             /* ===== Alert Messages ===== */
@@ -304,13 +321,16 @@
                 <% 
                     switch(success) {
                         case "create": 
-                            out.print("✅ Thêm phòng chiếu thành công!");
+                            out.print("✅ Thêm món thành công!");
                             break;
                         case "update":
-                            out.print("✅ Cập nhật phòng chiếu thành công!");
+                            out.print("✅ Cập nhật món thành công!");
                             break;
                         case "delete":
-                            out.print("✅ Xóa phòng chiếu thành công!");
+                            out.print("✅ Xóa món thành công!");
+                            break;
+                        case "toggle":
+                            out.print("✅ Cập nhật trạng thái thành công!");
                             break;
                     }
                 %>
@@ -319,28 +339,27 @@
 
             <% if (error != null) { %>
             <div class="alert alert-error">
-                ❌ Có lỗi xảy ra khi xử lý!
+                ❌ <%= error %>
             </div>
             <% } %>
 
             <div class="toolbar">
-                <form method="GET" action="${pageContext.request.contextPath}/staff/rooms" class="search-box" id="searchForm">
+                <form method="GET" action="${pageContext.request.contextPath}/staff/food-items" class="search-box" id="searchForm">
                     <input type="text" name="keyword" 
-                           placeholder="🔍 Tìm kiếm theo mã, tên, loại phòng..." 
+                           placeholder="🔍 Tìm kiếm theo tên, mô tả..." 
                            value="<%= searchKeyword != null ? searchKeyword : "" %>">
 
-                    <select name="type" id="screenTypeFilter">
-                        <option value="">Tất cả loại phòng</option>
-                        <option value="2D" <%= "2D".equals(selectedScreenType) ? "selected" : "" %>>2D Standard</option>
-                        <option value="3D" <%= "3D".equals(selectedScreenType) ? "selected" : "" %>>3D</option>
-                        <option value="IMAX" <%= "IMAX".equals(selectedScreenType) ? "selected" : "" %>>IMAX</option>
-                        <option value="4DX" <%= "4DX".equals(selectedScreenType) ? "selected" : "" %>>4DX</option>
+                    <select name="type" id="typeFilter">
+                        <option value="">Tất cả loại</option>
+                        <option value="Popcorn" <%= "Popcorn".equals(selectedType) ? "selected" : "" %>>Bắp rang</option>
+                        <option value="Drink" <%= "Drink".equals(selectedType) ? "selected" : "" %>>Nước uống</option>
+                        <option value="Snack" <%= "Snack".equals(selectedType) ? "selected" : "" %>>Đồ ăn vặt</option>
                     </select>
 
                     <button type="submit" class="btn">Tìm kiếm</button>
-                    <a href="${pageContext.request.contextPath}/staff/rooms" class="btn btn-secondary">🔄 Reset</a>
+                    <a href="${pageContext.request.contextPath}/staff/food-items" class="btn btn-secondary">🔄 Reset</a>
                 </form>
-                <a href="${pageContext.request.contextPath}/staff/rooms?action=add" class="btn">➕ Thêm phòng chiếu</a>
+                <a href="${pageContext.request.contextPath}/staff/food-items?action=add" class="btn">➕ Thêm món mới</a>
             </div>
 
             <div class="table-container">
@@ -348,12 +367,11 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Mã phòng</th>
-                            <th>Tên phòng</th>
-                            <th>Loại màn hình</th>
-                            <th>Hệ thống âm thanh</th>
-                            <th>Sức chứa</th>
-                            <th>Layout ghế</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên món</th>
+                            <th>Loại</th>
+                            <th>Giá</th>
+                            <th>Mô tả</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
                             <th>Ngày cập nhật</th>
@@ -361,48 +379,85 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (rooms != null && !rooms.isEmpty()) { 
-                            for (Room room : rooms) { 
+                        <% if (foodItems != null && !foodItems.isEmpty()) { 
+                            for (FoodItem item : foodItems) { 
                         %>
                         <tr>
-                            <td>#<%= room.getId() %></td>
-                            <td><strong><%= room.getCode() %></strong></td>
-                            <td>
-                                <strong><%= room.getName() %></strong>
-                                <% if (room.getDescription() != null && !room.getDescription().isEmpty()) { %>
-                                <br><small style="color: #6b7280;"><%= room.getDescription() %></small>
+                            <td>#<%= item.getItemID() %></td>
+                            <td class="image-cell">
+                                <% if (item.getImage() != null && !item.getImage().isEmpty()) { %>
+                                <div style="position: relative; width: 50px; height: 50px;">
+                                    <img src="${pageContext.request.contextPath}/assets/user/img/<%= item.getImage() %>" 
+                                         alt="<%= item.getName() %>" 
+                                         class="image-preview"
+                                         id="itemImage_<%= item.getItemID() %>"
+                                         onerror="handleItemImageError(this);">
+                                    <div id="itemPlaceholder_<%= item.getItemID() %>" 
+                                         style="display: none; width: 50px; height: 50px; background: #e2e8f0; border-radius: 8px; color: #6b7280; font-size: 9px; text-align: center; padding: 2px; border: 1px solid #e2e8f0; position: absolute; top: 0; left: 0;">
+                                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">Không có ảnh</div>
+                                    </div>
+                                </div>
+                                <% } else { %>
+                                <div class="image-preview" style="background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 9px; text-align: center;">
+                                    Không có ảnh
+                                </div>
                                 <% } %>
                             </td>
                             <td>
-                                <span class="screen-type-badge screen-<%= room.getScreenType().toLowerCase() %>">
-                                    <%= room.getScreenTypeText() %>
+                                <strong><%= item.getName() %></strong>
+                            </td>
+                            <td>
+                                <% 
+                                    String typeClass = "type-other";
+                                    if (item.getType() != null) {
+                                        String typeLower = item.getType().toLowerCase();
+                                        if (typeLower.contains("popcorn")) typeClass = "type-popcorn";
+                                        else if (typeLower.contains("drink")) typeClass = "type-drink";
+                                        else if (typeLower.contains("snack")) typeClass = "type-snack";
+                                    }
+                                %>
+                                <span class="type-badge <%= typeClass %>">
+                                    <%= item.getTypeDisplayName() %>
                                 </span>
                             </td>
-                            <td><%= room.getSoundSystem() %></td>
-                            <td><%= room.getCapacity() %> ghế</td>
-                            <td><%= room.getSeatRows() %> x <%= room.getSeatColumns() %></td>
+                            <td class="price-cell"><%= item.getFormattedPrice() %></td>
                             <td>
-                                <span class="status-badge <%= room.isStatus() ? "status-active" : "status-inactive" %>">
-                                    <%= room.getStatusText() %>
+                                <small style="color: #6b7280;">
+                                    <%= item.getDescription() != null && !item.getDescription().isEmpty() 
+                                        ? (item.getDescription().length() > 50 
+                                            ? item.getDescription().substring(0, 50) + "..." 
+                                            : item.getDescription()) 
+                                        : "Không có mô tả" %>
+                                </small>
+                            </td>
+                            <td>
+                                <span class="status-badge <%= item.getStatus() ? "status-active" : "status-inactive" %>">
+                                    <%= item.getStatusText() %>
                                 </span>
                             </td>
                             <td>
                                 <small style="color: #6b7280;">
-                                    <%= room.getFormattedCreatedDate() %>
+                                    <%= item.getFormattedCreatedDate() %>
                                 </small>
                             </td>
                             <td>
                                 <small style="color: #6b7280;">
-                                    <%= room.getFormattedUpdatedDate() %>
+                                    <%= item.getFormattedUpdatedDate() %>
                                 </small>
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="${pageContext.request.contextPath}/staff/rooms?action=edit&id=<%= room.getId() %>" 
+                                    <a href="${pageContext.request.contextPath}/staff/food-items?action=edit&id=<%= item.getItemID() %>" 
                                        class="btn-small btn-edit" title="Chỉnh sửa">✏️</a>
-                                    <a href="${pageContext.request.contextPath}/staff/rooms?action=delete&id=<%= room.getId() %>" 
+                                    <a href="${pageContext.request.contextPath}/staff/food-items?action=toggle&id=<%= item.getItemID() %>" 
+                                       class="btn-small btn-toggle" 
+                                       title="<%= item.getStatus() ? "Ẩn món" : "Hiện món" %>"
+                                       onclick="return confirm('Bạn có chắc muốn <%= item.getStatus() ? "ẩn" : "hiện" %> món này?')">
+                                        <%= item.getStatus() ? "👁️" : "👁️‍🗨️" %>
+                                    </a>
+                                    <a href="${pageContext.request.contextPath}/staff/food-items?action=delete&id=<%= item.getItemID() %>" 
                                        class="btn-small btn-delete" 
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa phòng chiếu này?')"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa món này?')"
                                        title="Xóa">🗑️</a>
                                 </div>
                             </td>
@@ -410,8 +465,8 @@
                         <% } 
                        } else { %>
                         <tr>
-                            <td colspan="11" style="text-align: center; color: #6b7280; padding: 40px;">
-                                📝 Chưa có phòng chiếu nào. Hãy thêm phòng chiếu đầu tiên!
+                            <td colspan="10" style="text-align: center; color: #6b7280; padding: 40px;">
+                                📝 Chưa có món nào. Hãy thêm món đầu tiên!
                             </td>
                         </tr>
                         <% } %>
@@ -420,13 +475,27 @@
             </div>
         </div>
         <script>
-            document.getElementById('screenTypeFilter').addEventListener('change', function () {
+            // Handle image error for food item images
+            function handleItemImageError(img) {
+                const itemId = img.id.replace('itemImage_', '');
+                const placeholder = document.getElementById('itemPlaceholder_' + itemId);
+                
+                if (placeholder) {
+                    img.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+                
+                // Prevent infinite loop
+                img.onerror = null;
+            }
+
+            document.getElementById('typeFilter').addEventListener('change', function () {
                 document.getElementById('searchForm').submit();
             });
 
             document.querySelector('.btn-secondary').addEventListener('click', function (e) {
                 e.preventDefault();
-                window.location.href = '${pageContext.request.contextPath}/staff/rooms';
+                window.location.href = '${pageContext.request.contextPath}/staff/food-items';
             });
 
             document.querySelector('input[name="keyword"]').addEventListener('keypress', function (e) {
@@ -439,3 +508,4 @@
 
     </body>
 </html>
+
