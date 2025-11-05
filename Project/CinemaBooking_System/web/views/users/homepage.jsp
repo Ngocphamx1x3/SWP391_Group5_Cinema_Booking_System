@@ -54,6 +54,12 @@
                     <div class="khoi">
                         <c:forEach var="movie" items="${listmovie}">
                             <figure class="snip1208">
+                                <!-- Thêm badge voucher nếu phim có voucher -->
+                <c:if test="${movieVoucherStatus[movie.id]}">
+                    <div class="voucher-badge">
+                        <i class="fas fa-tag"></i> KHUYẾN MÃI
+                    </div>
+                </c:if>
                                 <img src="${pageContext.request.contextPath}/assets/admin/img/img/${movie.image}"
                                      style="width: 100%; height: 459px">
                                 <div class="date">

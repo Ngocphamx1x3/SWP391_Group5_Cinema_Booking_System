@@ -2,6 +2,7 @@ package controller;
 
 import dal.OrderDAO;
 import dal.TicketDAO;
+import dal.VoucherDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -68,6 +69,9 @@ public class PaymentReturnController extends HttpServlet {
                     boolean confirmed = false;
                     try {
                         confirmed = ticketDAO.confirmTicketsByOrder(orderId);
+                        if (confirmed) {
+                confirmVoucherUsage(orderId);
+            }
                     } catch (Exception ee) {
                         System.out.println(TAG + "EX while confirmTicketsByOrder: " + ee.getMessage());
                         ee.printStackTrace();
@@ -158,4 +162,21 @@ public class PaymentReturnController extends HttpServlet {
         System.out.println(TAG + "[Mail] sent=" + ok + " to=" + info.userEmail);
         return ok;
     }
+    
+    
+    
+    private void confirmVoucherUsage(int orderId) {
+    try {
+        // Kiểm tra xem order có dùng voucher không
+        Integer voucherId = orderDAO.getVoucherIdByOrder(orderId);
+        if (voucherId != null) {
+            // Cập nhật trạng thái voucher (nếu cần)
+            VoucherDAO voucherDAO = new VoucherDAO();
+            voucherDAO.deactivateIfExhausted(voucherId);
+            System.out.println(TAG + "Voucher usage confirmed for order: " + orderId);
+        }
+    } catch (Exception e) {
+        System.out.println(TAG + "Error confirming voucher usage: " + e.getMessage());
+    }
+}
 }
