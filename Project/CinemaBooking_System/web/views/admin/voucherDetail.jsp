@@ -410,13 +410,29 @@
                     </div>
                 </div>
             </c:if>
+  <div class="detail-section">
+    <h3>🎬 Phim áp dụng</h3>
+    <div class="detail-item">
+        <div class="detail-label">Danh sách phim</div>
+        <div class="detail-value">
+            <c:choose>
+                <c:when test="${empty appliedMovies}">
+                    <em>Áp dụng cho tất cả phim</em>
+                </c:when>
+                <c:otherwise>
+                    <c:forEach var="movie" items="${appliedMovies}" varStatus="status">
+                        ${movie.name}<c:if test="${not status.last}">, </c:if>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+</div>
 
             <div class="form-actions">
                 <a href="${pageContext.request.contextPath}/admin/vouchers/edit/${voucher.id}" class="btn btn-primary">✏️ Chỉnh sửa</a>
                 <a href="${pageContext.request.contextPath}/admin/vouchers" class="btn btn-secondary">← Quay lại danh sách</a>
             </div>
-        </div>
-    </div>
 
 </body>
 </html>

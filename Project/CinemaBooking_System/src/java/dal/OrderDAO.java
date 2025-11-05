@@ -161,4 +161,25 @@ public class OrderDAO extends DBContext {
             }
         }
     }
+    
+    // Thêm vào OrderDAO
+public Integer getVoucherIdByOrder(int orderId) {
+    String sql = "SELECT VoucherId FROM VoucherUsage WHERE OrderId = ?";
+    
+    try (Connection conn = new DBContext().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        stmt.setInt(1, orderId);
+        ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            return rs.getInt("VoucherId");
+        }
+        return null;
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    }
+}
 }

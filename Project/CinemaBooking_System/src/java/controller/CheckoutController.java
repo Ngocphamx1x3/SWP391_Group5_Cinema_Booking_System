@@ -2,6 +2,7 @@ package controller;
 
 import dal.OrderDAO;
 import dal.TicketDAO;
+import dal.VoucherDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -18,9 +19,9 @@ public class CheckoutController extends HttpServlet {
 
     private final OrderDAO orderDAO = new OrderDAO();
     private final TicketDAO ticketDAO = new TicketDAO();
+    private final VoucherDAO voucherDAO = new VoucherDAO();
     private final PayOSService payOS  = new PayOSService();
 
-    // Optional: cho phép test nhanh bằng GET -> redirect về home (tránh đọc nhầm params PayOS)
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.sendRedirect(req.getContextPath() + "/");
@@ -29,11 +30,27 @@ public class CheckoutController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
-        // --- 0) Input ---
+        
+         // DEBUG: In ra tất cả parameters
+        System.out.println("=== CHECKOUT DEBUG ===");
+        java.util.Enumeration<String> paramNames = req.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            String paramValue = req.getParameter(paramName);
+            System.out.println(paramName + ": " + paramValue);
+        }
+        System.out.println("======================");
+        
+        // --- 0) Input với hỗ trợ voucher ---
         String scheduleIdStr = req.getParameter("scheduleId");
-        String seatIdsStr    = req.getParameter("seatIds");     // "12,15,16"
-        String totalStr      = req.getParameter("totalAmount");  // long (VND)
+        String seatIdsStr    = req.getParameter("seatIds");
+        String totalStr      = req.getParameter("totalAmount");      // Tổng sau giảm giá
+        String originalStr   = req.getParameter("originalAmount");   // Tổng gốc (optional)
+        
+        // Voucher parameters
+        String voucherIdStr  = req.getParameter("voucherId");
+        String voucherCode   = req.getParameter("voucherCode");
+        String discountStr   = req.getParameter("discountAmount");
 
         if (scheduleIdStr == null || seatIdsStr == null || totalStr == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing params");
@@ -41,10 +58,18 @@ public class CheckoutController extends HttpServlet {
         }
 
         final int scheduleId;
-        final long total;
+        final long total; // Số tiền thực tế cần thanh toán (đã trừ discount)
+        final long originalAmount;
+        final long discountAmount;
+        final Integer voucherId;
+        
         try {
             scheduleId = Integer.parseInt(scheduleIdStr.trim());
             total      = Long.parseLong(totalStr.trim());
+            originalAmount = (originalStr != null) ? Long.parseLong(originalStr.trim()) : total;
+            discountAmount = (discountStr != null) ? Long.parseLong(discountStr.trim()) : 0;
+            voucherId = (voucherIdStr != null && !voucherIdStr.trim().isEmpty()) 
+                      ? Integer.parseInt(voucherIdStr.trim()) : null;
         } catch (NumberFormatException nfe) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid params");
             return;
@@ -68,14 +93,36 @@ public class CheckoutController extends HttpServlet {
             return;
         }
 
-        // --- 2) Create PENDING order ---
-        long payOrderCode = System.currentTimeMillis();         // numeric for PayOS
-        String displayOrderCode = "ORD" + payOrderCode;         // save to DB
+        // --- 2) Validate voucher nếu có ---
+        if (voucherId != null && voucherCode != null) {
+            try {
+                model.Voucher voucher = voucherDAO.getVoucherById(voucherId);
+                if (voucher == null || !voucher.getCode().equals(voucherCode)) {
+                    // Voucher không hợp lệ, sử dụng tổng gốc
+                    req.setAttribute("error", "Voucher không hợp lệ");
+                    // Không cần redirect, tiếp tục với tổng gốc
+                } else {
+                    // Lưu thông tin voucher vào session để sử dụng sau
+                    session.setAttribute("appliedVoucher", voucher);
+                    session.setAttribute("discountAmount", discountAmount);
+                    session.setAttribute("originalAmount", originalAmount);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Continue without voucher if there's an error
+            }
+        }
+
+        // --- 3) Create PENDING order với số tiền thực tế (đã trừ discount) ---
+        long payOrderCode = System.currentTimeMillis();
+        String displayOrderCode = "ORD" + payOrderCode;
 
         String description = displayOrderCode;
         if (description.length() > 25) description = description.substring(0, 25);
 
         Timestamp expiredAt = Timestamp.from(Instant.now().plusSeconds(15 * 60));
+        
+        // Sử dụng total (số tiền đã giảm giá) để tạo order
         int orderId = orderDAO.createPendingOrder(user.getId(), total, displayOrderCode, expiredAt);
         if (orderId <= 0) {
             req.setAttribute("error", "Cannot create order.");
@@ -83,23 +130,46 @@ public class CheckoutController extends HttpServlet {
             return;
         }
 
-        // --- 3) Hold seats ---
-        long unitPrice = Math.round((double) total / Math.max(1, seatIds.size()));
-        boolean held = ticketDAO.holdSeatsForOrder(orderId, scheduleId, seatIds, unitPrice); // Status='HOLD'
+        // --- 4) Lưu thông tin voucher vào order nếu có ---
+if (voucherId != null) {
+    try {
+        // Cập nhật cả VoucherUsage VÀ giảm quantity trong bảng Voucher
+        boolean voucherUsed = voucherDAO.useVoucherForOrder(voucherId, orderId, discountAmount);
+        if (voucherUsed) {
+            System.out.println("✅ Voucher applied successfully: " + voucherCode);
+            
+            // Cập nhật usedQuantity trong bảng Voucher
+            boolean quantityUpdated = voucherDAO.updateVoucherQuantity(voucherId);
+            if (quantityUpdated) {
+                System.out.println("✅ Voucher quantity updated: " + voucherCode);
+                
+                // Kiểm tra và deactivate voucher nếu hết
+                voucherDAO.deactivateIfExhausted(voucherId);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        // Continue even if voucher saving fails
+    }
+}
+
+        // --- 5) Hold seats ---
+        long unitPrice = Math.round((double) originalAmount / Math.max(1, seatIds.size())); // Sử dụng giá gốc để tính unit price
+        boolean held = ticketDAO.holdSeatsForOrder(orderId, scheduleId, seatIds, unitPrice);
         if (!held) {
             req.setAttribute("error", "Some seats are already held/paid. Please reselect.");
             req.getRequestDispatcher("/views/users/seatModalContent.jsp").forward(req, resp);
             return;
         }
 
-        // --- 4) Create PayOS payment ---
+        // --- 6) Create PayOS payment với số tiền thực tế ---
         try {
-            String returnUrl = buildAbsUrl(req, "/payment/return"); // PayOS sẽ tự append ?code&status&orderCode&id
+            String returnUrl = buildAbsUrl(req, "/payment/return");
             String cancelUrl = buildAbsUrl(req, "/payment/cancel");
 
             PayOSService.PaymentResult pr = payOS.createPayment(
-                    String.valueOf(payOrderCode), // numeric string
-                    total,
+                    String.valueOf(payOrderCode),
+                    total, // Số tiền thực tế sau giảm giá
                     description,
                     returnUrl,
                     cancelUrl
@@ -109,19 +179,21 @@ public class CheckoutController extends HttpServlet {
                 orderDAO.updateProviderRef(orderId, pr.providerRef);
             }
 
-            // --- 5) Forward to QR page ---
-            req.setAttribute("orderCode",   displayOrderCode);
-            req.setAttribute("amount",      total);
-            req.setAttribute("expireAt",    expiredAt.getTime());
-            req.setAttribute("qrDataUri",   pr.qrDataUri);   // may be null
-            req.setAttribute("qrPlain",     pr.qrPlain);     // EMV string, fallback for local QR
+            // --- 7) Forward to QR page với thông tin giảm giá ---
+            req.setAttribute("orderCode", displayOrderCode);
+            req.setAttribute("amount", total);
+            req.setAttribute("originalAmount", originalAmount);
+            req.setAttribute("discountAmount", discountAmount);
+            req.setAttribute("voucherCode", voucherCode);
+            req.setAttribute("expireAt", expiredAt.getTime());
+            req.setAttribute("qrDataUri", pr.qrDataUri);
+            req.setAttribute("qrPlain", pr.qrPlain);
             req.setAttribute("checkoutUrl", pr.checkoutUrl);
 
             req.getRequestDispatcher("/views/users/checkout.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();
-            // (Optional) rollback holds if payment creation failed
             req.setAttribute("error", "Cannot create payment request.");
             req.getRequestDispatcher("/error.jsp").forward(req, resp);
         }

@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.Performer;
+import model.VoucherMovie;
 
 public class MovieDAO extends DBContext {
 
@@ -443,4 +444,42 @@ public class MovieDAO extends DBContext {
         }
         return list;
     }
+    
+    // Thêm vào MovieDAO.java
+public boolean hasVoucher(int movieId) {
+    String sql = "SELECT COUNT(*) FROM VoucherMovie WHERE MovieId = ?";
+    try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, movieId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+// Hoặc nếu bạn muốn lấy thông tin voucher chi tiết
+public List<VoucherMovie> getVouchersByMovieId(int movieId) {
+    List<VoucherMovie> vouchers = new ArrayList<>();
+    String sql = "SELECT * FROM VoucherMovie WHERE MovieId = ?";
+    try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, movieId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                VoucherMovie voucher = new VoucherMovie();
+                voucher.setId(rs.getInt("Id"));
+                voucher.setVoucherId(rs.getInt("VoucherId"));
+                voucher.setMovieId(rs.getInt("MovieId"));
+                // Thêm các trường khác nếu có
+                vouchers.add(voucher);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return vouchers;
+}
 }

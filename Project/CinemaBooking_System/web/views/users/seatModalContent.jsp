@@ -169,6 +169,14 @@
         <div class="legend-item"><div class="legend-color selected"></div><span>Bạn chọn</span></div>
     </div>
 
+    <!-- Thêm phần Voucher vào modal ghế -->
+<div class="voucher-container" id="voucherContainer">
+    <div class="voucher-loading">
+        <i class="fas fa-spinner fa-spin"></i> Đang tải khuyến mãi...
+    </div>
+</div>
+
+
     <!-- Selection Summary -->
     <div class="selection-summary">
         <h4>Ghế đã chọn:</h4>
@@ -176,8 +184,348 @@
             <div class="no-selection">Chưa chọn ghế</div>
         </div>
         <div class="total-price">Tổng: <span id="totalAmount">0</span> VND</div>
+        
+        
         <button class="confirm-btn" id="confirmBtn" disabled>Xác Nhận</button>
     </div>
+    
+<!-- Thêm đoạn script này vào cuối file seat-modal.jsp, trước thẻ đóng </div> -->
+<script>
+// ========== VOUCHER SIMPLE SYSTEM ==========
+console.log("🎫 VOUCHER SIMPLE SYSTEM - Initializing");
+
+// Định nghĩa các hàm debug TRƯỚC KHI sử dụng
+window.reloadVouchers = function() {
+    console.log('🔄 Manual voucher reload triggered');
+    initializeVoucherSimple();
+};
+
+window.debugVoucherSystem = function() {
+    const modalEl = document.querySelector('.seat-modal-content');
+    const voucherContainer = document.getElementById('voucherContainer');
+    
+    console.log('=== VOUCHER DEBUG INFO ===');
+    console.log('Modal element:', modalEl ? 'Found' : 'Not found');
+    console.log('Voucher container:', voucherContainer ? 'Found' : 'Not found');
+    
+    if (modalEl) {
+        console.log('Schedule ID:', modalEl.dataset.scheduleId);
+        console.log('Context path:', modalEl.dataset.contextPath);
+    }
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log('Movie ID from URL:', urlParams.get('id'));
+    
+    // Test AJAX call
+    if (modalEl && urlParams.get('id')) {
+        const testUrl = modalEl.dataset.contextPath + '/voucher-ajax?movieId=' + urlParams.get('id') + '&totalAmount=0';
+        console.log('Test URL:', testUrl);
+        
+        fetch(testUrl)
+            .then(r => {
+                console.log('Test fetch status:', r.status);
+                return r.text();
+            })
+            .then(html => {
+                console.log('Test fetch response length:', html.length);
+                console.log('Test fetch first 100 chars:', html.substring(0, 100));
+            })
+            .catch(e => console.log('Test fetch error:', e));
+    }
+};
+
+// Khởi tạo voucher system đơn giản và hiệu quả
+function initializeVoucherSimple() {
+    console.log('🎫 [SIMPLE] Starting voucher initialization...');
+    
+    const voucherContainer = document.getElementById('voucherContainer');
+    if (!voucherContainer) {
+        console.log('❌ [SIMPLE] Voucher container not found');
+        return;
+    }
+    
+    const modalEl = document.querySelector('.seat-modal-content');
+    if (!modalEl) {
+        console.log('❌ [SIMPLE] Modal not found');
+        return;
+    }
+    
+    const scheduleId = modalEl.dataset.scheduleId;
+    const contextPath = modalEl.dataset.contextPath || '';
+    
+    console.log('✅ [SIMPLE] Modal found, scheduleId:', scheduleId);
+    
+    // Lấy movieId từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+    
+    if (!movieId) {
+        console.log('❌ [SIMPLE] No movieId found');
+        voucherContainer.innerHTML = '<div class="no-vouchers">Không thể xác định phim</div>';
+        return;
+    }
+    
+    console.log('✅ [SIMPLE] Movie ID:', movieId);
+    
+    // Load vouchers trực tiếp
+    loadVouchersDirect(movieId, 0, contextPath, voucherContainer);
+}
+
+// Hàm load voucher trực tiếp
+function loadVouchersDirect(movieId, totalAmount, contextPath, container) {
+    const url = contextPath + '/voucher-ajax?movieId=' + movieId + '&totalAmount=' + totalAmount;
+    
+    console.log('📡 [SIMPLE] Fetching from:', url);
+    
+    container.innerHTML = '<div class="voucher-loading"><i class="fas fa-spinner fa-spin"></i> Đang tải khuyến mãi...</div>';
+    
+    fetch(url)
+        .then(response => {
+            console.log('📨 [SIMPLE] Response status:', response.status);
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.text();
+        })
+        .then(html => {
+            console.log('✅ [SIMPLE] Vouchers loaded, length:', html.length);
+            console.log('📄 [SIMPLE] First 200 chars:', html.substring(0, 200));
+            container.innerHTML = html;
+            attachVoucherEventsSimple();
+        })
+        .catch(error => {
+            console.error('❌ [SIMPLE] Error:', error);
+            container.innerHTML = '<div class="no-vouchers">Lỗi tải khuyến mãi: ' + error.message + '</div>';
+        });
+}
+
+// Gắn sự kiện đơn giản
+// Gắn sự kiện cho voucher items (hệ thống cũ)
+function attachVoucherEventsSimple() {
+    const items = document.querySelectorAll('.voucher-item');
+    console.log('🎯 [SIMPLE] Found', items.length, 'voucher items');
+    
+    items.forEach(item => {
+        item.addEventListener('click', function() {
+            const isCurrentlySelected = this.classList.contains('selected');
+            
+            // Nếu đang được chọn thì không làm gì (vì đã có nút bỏ chọn)
+            if (isCurrentlySelected) {
+                return;
+            }
+            
+            // Bỏ chọn tất cả
+            document.querySelectorAll('.voucher-item').forEach(v => {
+                v.classList.remove('selected');
+                // Ẩn nút bỏ chọn của tất cả voucher
+                const deselectBtn = v.querySelector('.voucher-deselect-btn');
+                if (deselectBtn) deselectBtn.style.display = 'none';
+            });
+            
+            // Chọn voucher này
+            this.classList.add('selected');
+            
+            // Hiển thị nút bỏ chọn
+            const deselectBtn = this.querySelector('.voucher-deselect-btn');
+            if (deselectBtn) deselectBtn.style.display = 'block';
+            
+            const voucherData = {
+                id: this.dataset.voucherId,
+                code: this.dataset.voucherCode,
+                discountType: parseInt(this.dataset.discountType),
+                discountValue: parseFloat(this.dataset.discountValue),
+                maxDiscount: parseFloat(this.dataset.maxDiscount) || 0,
+                minOrder: parseFloat(this.dataset.minOrder) || 0
+            };
+            
+            console.log('💳 [SIMPLE] Voucher selected:', voucherData);
+            applyVoucherDiscount(voucherData);
+        });
+    });
+    
+    // Gắn sự kiện cho các nút bỏ chọn (nếu có)
+    document.querySelectorAll('.btn-deselect-voucher').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Ngăn sự kiện click lan ra voucher item
+            deselectVoucher(this);
+        });
+    });
+}
+
+// Hàm bỏ chọn voucher
+function deselectVoucher(button) {
+    const voucherItem = button.closest('.voucher-item');
+    voucherItem.classList.remove('selected');
+    
+    // Ẩn nút bỏ chọn
+    const deselectBtn = voucherItem.querySelector('.voucher-deselect-btn');
+    if (deselectBtn) deselectBtn.style.display = 'none';
+    
+    console.log('❌ [SIMPLE] Voucher deselected via button');
+    resetVoucherDiscount();
+}
+
+// Hàm reset voucher
+function resetVoucherDiscount() {
+    const baseTotal = calculateBaseTotalSimple();
+    console.log('🔄 [SIMPLE] Resetting voucher, returning to base total:', baseTotal);
+    
+    updateTotalDisplaySimple(baseTotal);
+    
+    // Cập nhật dataset.totalAmount
+    const modalEl = document.querySelector('.seat-modal-content');
+    if (modalEl) {
+        modalEl.dataset.totalAmount = String(baseTotal);
+        console.log('💾 [SIMPLE] Reset modal dataset.totalAmount:', modalEl.dataset.totalAmount);
+    }
+    
+    // Reset biến toàn cục
+    window.selectedVoucher = null;
+    window.appliedDiscount = 0;
+    
+    console.log('✅ [SIMPLE] Voucher reset completed');
+}
+
+// Hàm reset cho hệ thống cũ
+function resetVoucherDiscountOld() {
+    const baseTotal = calculateBaseTotal();
+    console.log('🔄 [VOUCHER] Resetting voucher, returning to base total:', baseTotal);
+    
+    updateTotalDisplay(baseTotal);
+    
+    // Reset biến toàn cục
+    window.selectedVoucher = null;
+    window.appliedDiscount = 0;
+}
+
+// Hàm reset voucher
+function resetVoucherDiscount() {
+    const baseTotal = calculateBaseTotalSimple();
+    console.log('🔄 [SIMPLE] Resetting voucher, returning to base total:', baseTotal);
+    
+    updateTotalDisplaySimple(baseTotal);
+    
+    // Cập nhật dataset.totalAmount
+    const modalEl = document.querySelector('.seat-modal-content');
+    if (modalEl) {
+        modalEl.dataset.totalAmount = String(baseTotal);
+        console.log('💾 [SIMPLE] Reset modal dataset.totalAmount:', modalEl.dataset.totalAmount);
+    }
+    
+    // Reset biến toàn cục
+    window.selectedVoucher = null;
+    window.appliedDiscount = 0;
+    
+    console.log('✅ [SIMPLE] Voucher reset completed');
+}
+// Áp dụng discount
+// Cập nhật tổng tiền với voucher
+function applyVoucherDiscount(voucher) {
+    const baseTotal = calculateBaseTotalSimple();
+    console.log('💰 [SIMPLE] Base total:', baseTotal);
+    
+    if (baseTotal < voucher.minOrder) {
+        const message = `Voucher ${voucher.code} yêu cầu đơn tối thiểu ${voucher.minOrder.toLocaleString()}₫`;
+        console.log('❌ [SIMPLE]', message);
+        alert(message);
+        document.querySelectorAll('.voucher-item').forEach(v => v.classList.remove('selected'));
+        updateTotalDisplaySimple(baseTotal);
+        return;
+    }
+    
+    let discountAmount = 0;
+    
+    if (voucher.discountType === 1) {
+        discountAmount = baseTotal * (voucher.discountValue / 100);
+        if (voucher.maxDiscount > 0 && discountAmount > voucher.maxDiscount) {
+            discountAmount = voucher.maxDiscount;
+        }
+    } else {
+        discountAmount = voucher.discountValue;
+    }
+    
+    const finalTotal = Math.max(0, baseTotal - discountAmount);
+    console.log('💰 [SIMPLE] Discount:', discountAmount, 'Final total:', finalTotal);
+    
+    updateTotalDisplaySimple(finalTotal);
+    
+    // QUAN TRỌNG: Cập nhật dataset.totalAmount để checkout sử dụng
+    const modalEl = document.querySelector('.seat-modal-content');
+    if (modalEl) {
+        modalEl.dataset.totalAmount = String(finalTotal);
+        console.log('💾 [SIMPLE] Updated modal dataset.totalAmount:', modalEl.dataset.totalAmount);
+    }
+    
+    // Lưu vào biến toàn cục để checkout sử dụng
+    window.selectedVoucher = voucher;
+    window.appliedDiscount = discountAmount;
+}
+
+// Tính tổng tiền đơn giản
+function calculateBaseTotalSimple() {
+    // Cách 1: Tính từ các ghế được chọn (chính xác nhất)
+    let total = 0;
+    document.querySelectorAll('.seat.selected').forEach(seat => {
+        total += parseFloat(seat.dataset.seatPrice) || 0;
+    });
+    
+    console.log('💰 [SIMPLE] Calculated base total from seats:', total);
+    return total;
+}
+
+// Cập nhật hiển thị tổng tiền
+function updateTotalDisplaySimple(total) {
+    const totalElement = document.getElementById('totalAmount');
+    const modalEl = document.querySelector('.seat-modal-content');
+    
+    if (totalElement) {
+        totalElement.textContent = total.toLocaleString();
+        console.log('💰 [SIMPLE] Updated total display:', total.toLocaleString());
+    }
+    
+    // QUAN TRỌNG: Đồng bộ với dataset
+    if (modalEl) {
+        modalEl.dataset.totalAmount = String(total);
+        console.log('💾 [SIMPLE] Updated modal dataset.totalAmount:', modalEl.dataset.totalAmount);
+    }
+}
+
+// Khởi tạo tự động
+function autoInitializeVoucher() {
+    console.log('🚀 [SIMPLE] Auto-initializing voucher system...');
+    
+    // Đợi một chút để đảm bảo DOM đã sẵn sàng
+    setTimeout(() => {
+        const modalEl = document.querySelector('.seat-modal-content');
+        if (modalEl) {
+            console.log('🎯 [SIMPLE] Modal found, initializing...');
+            initializeVoucherSimple();
+        } else {
+            console.log('👀 [SIMPLE] Modal not found yet, waiting...');
+            // Thử lại sau 1 giây
+            setTimeout(initializeVoucherSimple, 1000);
+        }
+    }, 500);
+}
+
+// Bắt đầu khởi tạo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoInitializeVoucher);
+} else {
+    autoInitializeVoucher();
+}
+
+// Cũng khởi tạo khi có sự kiện modal mở (nếu có)
+if (typeof window.openSeatModal === 'function') {
+    const originalOpenSeatModal = window.openSeatModal;
+    window.openSeatModal = function(...args) {
+        console.log('🎬 [SIMPLE] Seat modal opened, initializing voucher...');
+        const result = originalOpenSeatModal(...args);
+        setTimeout(initializeVoucherSimple, 1000);
+        return result;
+    };
+}
+
+console.log('✅ VOUCHER SIMPLE SYSTEM - Ready');
+</script>
 </div>
 
 <style>
@@ -467,4 +815,106 @@
         z-index:10000;
         box-shadow:0 4px 12px rgba(0,0,0,.3);
     }
+    
+    /* Voucher Section Styles */
+.voucher-container {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.voucher-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.no-vouchers {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.voucher-section {
+    margin: 0;
+}/* Voucher Container Styles */
+.voucher-container {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.voucher-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.voucher-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.voucher-item {
+    padding: 12px 15px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.voucher-item:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+}
+
+.voucher-item.selected {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.voucher-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.voucher-code {
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.voucher-discount {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.voucher-description {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.voucher-conditions {
+    font-size: 12px;
+    color: #868e96;
+}
+
+.no-vouchers {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-style: italic;
+}
 </style>
