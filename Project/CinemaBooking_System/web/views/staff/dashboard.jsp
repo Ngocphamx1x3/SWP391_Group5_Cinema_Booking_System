@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -423,7 +424,7 @@
                 <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
                 <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
                <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
+                <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
                 <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
@@ -536,60 +537,62 @@
             </div>
 
             <!-- Recent Bookings -->
-            <h2 class="section-title">🧾 Đặt vé gần đây</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
+<h2 class="section-title">🧾 Đặt vé gần đây</h2>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Mã vé</th>
+                <th>Khách hàng</th>
+                <th>Phim</th>
+                <th>Suất chiếu</th>
+                <th>Ghế</th>
+                <th>Thành tiền</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <c:choose>
+                <c:when test="${not empty recentBookings}">
+                    <c:forEach var="booking" items="${recentBookings}">
                         <tr>
-                            <th>Mã vé</th>
-                            <th>Khách hàng</th>
-                            <th>Phim</th>
-                            <th>Suất chiếu</th>
-                            <th>Ghế</th>
-                            <th>Thành tiền</th>
-                            <th>Trạng thái</th>
+                            <td>${booking.ticketCode}</td>
+                            <td>${booking.customerName}</td>
+                            <td>${booking.movieName}</td>
+                            <td>
+                                <c:if test="${not empty booking.showtime}">
+                                    <fmt:formatDate value="${booking.showtime}" pattern="HH:mm (dd/MM/yyyy)" />
+                                </c:if>
+                                <c:if test="${empty booking.showtime}">
+                                    N/A
+                                </c:if>
+                            </td>
+                            <td>${booking.seatsFormatted}</td>
+                            <td>${booking.totalAmountFormatted}</td>
+                            <td class="
+                                <c:choose>
+                                    <c:when test="${booking.status == 'CONFIRMED'}">status-success</c:when>
+                                    <c:when test="${booking.status == 'PENDING'}">status-pending</c:when>
+                                    <c:when test="${booking.status == 'CANCELLED'}">status-refund</c:when>
+                                    <c:otherwise></c:otherwise>
+                                </c:choose>
+                            ">
+                                ${booking.statusFormatted}
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#TK1001</td>
-                            <td>Nguyễn Văn A</td>
-                            <td>Deadpool & Wolverine</td>
-                            <td>14:00 07/10</td>
-                            <td>A1, A2, A3</td>
-                            <td>360,000₫</td>
-                            <td class="status-success">✅ Đã check-in</td>
-                        </tr>
-                        <tr>
-                            <td>#TK1002</td>
-                            <td>Trần Thị B</td>
-                            <td>Inside Out 2</td>
-                            <td>15:30 07/10</td>
-                            <td>B5, B6</td>
-                            <td>240,000₫</td>
-                            <td class="status-pending">⏳ Chưa check-in</td>
-                        </tr>
-                        <tr>
-                            <td>#TK1003</td>
-                            <td>Lê Văn C</td>
-                            <td>Venom 3</td>
-                            <td>16:45 07/10</td>
-                            <td>C8, C9</td>
-                            <td>240,000₫</td>
-                            <td class="status-pending">⏳ Chưa check-in</td>
-                        </tr>
-                        <tr>
-                            <td>#TK1004</td>
-                            <td>Phạm Thị D</td>
-                            <td>Joker: Folie à Deux</td>
-                            <td>18:15 07/10</td>
-                            <td>D12</td>
-                            <td>120,000₫</td>
-                            <td class="status-pending">⏳ Chưa check-in</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #6b7280;">
+                            📭 Không có đặt vé gần đây
+                        </td>
+                    </tr>
+                </c:otherwise>
+            </c:choose>
+        </tbody>
+    </table>
+</div>
 
             <!-- Notifications -->
             <h2 class="section-title">🔔 Thông báo ca làm</h2>
