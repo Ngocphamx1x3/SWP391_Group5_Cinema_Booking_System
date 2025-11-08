@@ -17,7 +17,7 @@ public class MovieDAO extends DBContext {
     // ✅ Lấy tất cả phim (trừ phim đã ngưng hoạt động)
     public List<Movie> getAllMovies() {
         List<Movie> list = new ArrayList<>();
-        String sql = "SELECT * FROM Movie WHERE Status IS NULL OR Status != N'Ngưng hoạt động'";
+String sql = "SELECT * FROM Movie";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {

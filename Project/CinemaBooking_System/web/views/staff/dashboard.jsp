@@ -1,6 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -16,8 +15,8 @@
 
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-                color: #e4e9f0;
+                background: #f4f7fa;
+                color: #2d3748;
                 min-height: 100vh;
             }
 
@@ -28,13 +27,12 @@
                 left: 0;
                 width: 280px;
                 height: 100vh;
-                background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-                backdrop-filter: blur(10px);
-                border-right: 1px solid rgba(255, 193, 7, 0.1);
+                background: #ffffff;
+                border-right: 1px solid #e2e8f0;
                 display: flex;
                 flex-direction: column;
                 padding: 30px 0;
-                box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
                 z-index: 1000;
             }
 
@@ -47,9 +45,10 @@
             .sidebar-logo h2 {
                 font-size: 26px;
                 font-weight: 700;
-                background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
                 letter-spacing: 1px;
             }
 
@@ -67,7 +66,7 @@
             }
 
             .sidebar a {
-                color: #94a3b8;
+                color: #4a5568;
                 text-decoration: none;
                 padding: 16px 30px;
                 display: flex;
@@ -86,14 +85,14 @@
                 top: 0;
                 height: 100%;
                 width: 4px;
-                background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
+                background: linear-gradient(180deg, #00d4ff 0%, #0099ff 100%);
                 transform: scaleY(0);
                 transition: transform 0.3s ease;
             }
 
             .sidebar a:hover {
-                background: rgba(255, 193, 7, 0.08);
-                color: #ffc107;
+                background: #e6f7ff;
+                color: #007bff;
                 padding-left: 35px;
             }
 
@@ -102,8 +101,8 @@
             }
 
             .sidebar a.active {
-                background: rgba(255, 193, 7, 0.12);
-                color: #ffc107;
+                background: #e6f7ff;
+                color: #007bff;
                 padding-left: 35px;
             }
 
@@ -128,9 +127,9 @@
             /* ===== Header ===== */
             header {
                 margin-left: 280px;
-                background: rgba(15, 20, 25, 0.8);
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 193, 7, 0.1);
+                border-bottom: 1px solid #e2e8f0;
                 padding: 20px 40px;
                 display: flex;
                 justify-content: space-between;
@@ -148,6 +147,15 @@
                 -webkit-text-fill-color: transparent;
             }
 
+            header h1 {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
+            }
+
             .header-right {
                 display: flex;
                 align-items: center;
@@ -156,29 +164,11 @@
 
             .header-right span {
                 font-weight: 500;
-                color: #94a3b8;
+                color: #4a5568;
                 font-size: 14px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
-            }
-
-            .notification-badge {
-                position: relative;
-                cursor: pointer;
-            }
-
-            .notification-badge .badge {
-                position: absolute;
-                top: -8px;
-                right: -8px;
-                background: linear-gradient(135deg, #ff0080 0%, #ff0040 100%);
-                color: white;
-                padding: 3px 7px;
-                border-radius: 10px;
-                font-size: 11px;
-                font-weight: 700;
-                box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
             }
 
             /* ===== Content ===== */
@@ -196,9 +186,8 @@
             }
 
             .stat-box {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 position: relative;
@@ -213,15 +202,15 @@
                 left: 0;
                 right: 0;
                 height: 3px;
-                background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+                background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
                 transform: scaleX(0);
                 transition: transform 0.3s ease;
             }
 
             .stat-box:hover {
                 transform: translateY(-5px);
-                border-color: rgba(255, 193, 7, 0.3);
-                box-shadow: 0 10px 40px rgba(255, 193, 7, 0.2);
+                border-color: #007bff;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
 
             .stat-box:hover::before {
@@ -240,9 +229,10 @@
             .stat-box .stat-value {
                 font-size: 36px;
                 font-weight: 700;
-                background: linear-gradient(135deg, #ffffff 0%, #ffc107 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
                 margin-bottom: 8px;
             }
 
@@ -261,9 +251,10 @@
                 font-size: 24px;
                 font-weight: 700;
                 margin-bottom: 25px;
-                background: linear-gradient(135deg, #ffffff 0%, #ffc107 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
             }
 
             .charts-grid {
@@ -274,29 +265,28 @@
             }
 
             .chart-box {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 transition: all 0.3s ease;
             }
 
             .chart-box:hover {
-                border-color: rgba(255, 193, 7, 0.3);
-                box-shadow: 0 10px 40px rgba(255, 193, 7, 0.15);
+                border-color: #007bff;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
 
             .chart-box h3 {
                 font-size: 18px;
                 font-weight: 600;
-                color: #e4e9f0;
+                color: #1a202c;
                 margin-bottom: 20px;
             }
 
             .chart-placeholder {
-                background: rgba(255, 193, 7, 0.05);
-                border: 1px dashed rgba(255, 193, 7, 0.3);
+                background: #f8f9fa;
+                border: 1px dashed #ced4da;
                 border-radius: 12px;
                 height: 300px;
                 display: flex;
@@ -308,9 +298,8 @@
 
             /* ===== Table Section ===== */
             .table-container {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 margin-bottom: 40px;
@@ -323,27 +312,27 @@
             }
 
             th {
-                background: rgba(255, 193, 7, 0.08);
-                color: #ffc107;
+                background: #f8f9fa;
+                color: #4a5568;
                 font-weight: 600;
                 text-transform: uppercase;
                 font-size: 12px;
                 letter-spacing: 1px;
                 padding: 15px;
                 text-align: left;
-                border-bottom: 2px solid rgba(255, 193, 7, 0.2);
+                border-bottom: 2px solid #dee2e6;
             }
 
             td {
                 padding: 18px 15px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                color: #94a3b8;
+                border-bottom: 1px solid #e2e8f0;
+                color: #2d3748;
                 font-size: 14px;
             }
 
             tr:hover td {
-                background: rgba(255, 193, 7, 0.05);
-                color: #e4e9f0;
+                background: #f8f9fa;
+                color: #1a202c;
             }
 
             .status-success {
@@ -356,16 +345,10 @@
                 font-weight: 600;
             }
 
-            .status-pending {
-                color: #ffc107;
-                font-weight: 600;
-            }
-
             /* ===== Notifications ===== */
             .notifications {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 margin-bottom: 40px;
@@ -375,7 +358,7 @@
                 font-size: 20px;
                 font-weight: 600;
                 margin-bottom: 20px;
-                color: #e4e9f0;
+                color: #1a202c;
             }
 
             .notifications ul {
@@ -384,26 +367,29 @@
 
             .notifications li {
                 padding: 15px;
-                background: rgba(255, 193, 7, 0.05);
-                border-left: 3px solid #ffc107;
+                background: #e6f7ff;
+                border-left: 3px solid #007bff;
                 border-radius: 8px;
                 margin-bottom: 12px;
-                color: #94a3b8;
+                color: #2d3748;
                 font-size: 14px;
                 transition: all 0.3s ease;
             }
+            .toolbar select option {
+                color: #333;
+                background-color: #fff;
+            }
 
             .notifications li:hover {
-                background: rgba(255, 193, 7, 0.1);
+                background: #d0ebf9; /* Nền xanh đậm hơn khi hover */
                 transform: translateX(5px);
             }
 
             /* ===== Footer ===== */
             footer {
-                background: rgba(15, 20, 25, 0.9);
-                backdrop-filter: blur(10px);
-                border-top: 1px solid rgba(255, 193, 7, 0.1);
-                color: #6b7280;
+                background: #ffffff; /* Nền trắng */
+                border-top: 1px solid #e2e8f0; /* Viền xám nhạt */
+                color: #6b7280; /* Giữ nguyên */
                 text-align: center;
                 padding: 25px;
                 margin-left: 280px;
@@ -423,8 +409,8 @@
                 <a href="${pageContext.request.contextPath}/staffdashboard" class="active">🏢 Thông tin rạp của tôi</a>
                 <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
                 <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
-               <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
+                <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
+                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
                 <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
@@ -441,10 +427,6 @@
                     <span>👤 Nhân viên</span>
                 </c:if>
                 <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
-                <div class="notification-badge">
-                    <span>🔔</span>
-                    <span class="badge">5</span>
-                </div>
             </div>
         </header>
 
@@ -537,62 +519,60 @@
             </div>
 
             <!-- Recent Bookings -->
-<h2 class="section-title">🧾 Đặt vé gần đây</h2>
-<div class="table-container">
-    <table>
-        <thead>
-            <tr>
-                <th>Mã vé</th>
-                <th>Khách hàng</th>
-                <th>Phim</th>
-                <th>Suất chiếu</th>
-                <th>Ghế</th>
-                <th>Thành tiền</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            <c:choose>
-                <c:when test="${not empty recentBookings}">
-                    <c:forEach var="booking" items="${recentBookings}">
+            <h2 class="section-title">🧾 Đặt vé gần đây</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td>${booking.ticketCode}</td>
-                            <td>${booking.customerName}</td>
-                            <td>${booking.movieName}</td>
-                            <td>
-                                <c:if test="${not empty booking.showtime}">
-                                    <fmt:formatDate value="${booking.showtime}" pattern="HH:mm (dd/MM/yyyy)" />
-                                </c:if>
-                                <c:if test="${empty booking.showtime}">
-                                    N/A
-                                </c:if>
-                            </td>
-                            <td>${booking.seatsFormatted}</td>
-                            <td>${booking.totalAmountFormatted}</td>
-                            <td class="
-                                <c:choose>
-                                    <c:when test="${booking.status == 'CONFIRMED'}">status-success</c:when>
-                                    <c:when test="${booking.status == 'PENDING'}">status-pending</c:when>
-                                    <c:when test="${booking.status == 'CANCELLED'}">status-refund</c:when>
-                                    <c:otherwise></c:otherwise>
-                                </c:choose>
-                            ">
-                                ${booking.statusFormatted}
-                            </td>
+                            <th>Mã vé</th>
+                            <th>Khách hàng</th>
+                            <th>Phim</th>
+                            <th>Suất chiếu</th>
+                            <th>Ghế</th>
+                            <th>Thành tiền</th>
+                            <th>Trạng thái</th>
                         </tr>
-                    </c:forEach>
-                </c:when>
-                <c:otherwise>
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: #6b7280;">
-                            📭 Không có đặt vé gần đây
-                        </td>
-                    </tr>
-                </c:otherwise>
-            </c:choose>
-        </tbody>
-    </table>
-</div>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#TK1001</td>
+                            <td>Nguyễn Văn A</td>
+                            <td>Deadpool & Wolverine</td>
+                            <td>14:00 07/10</td>
+                            <td>A1, A2, A3</td>
+                            <td>360,000₫</td>
+                            <td class="status-success">✅ Đã check-in</td>
+                        </tr>
+                        <tr>
+                            <td>#TK1002</td>
+                            <td>Trần Thị B</td>
+                            <td>Inside Out 2</td>
+                            <td>15:30 07/10</td>
+                            <td>B5, B6</td>
+                            <td>240,000₫</td>
+                            <td class="status-pending">⏳ Chưa check-in</td>
+                        </tr>
+                        <tr>
+                            <td>#TK1003</td>
+                            <td>Lê Văn C</td>
+                            <td>Venom 3</td>
+                            <td>16:45 07/10</td>
+                            <td>C8, C9</td>
+                            <td>240,000₫</td>
+                            <td class="status-pending">⏳ Chưa check-in</td>
+                        </tr>
+                        <tr>
+                            <td>#TK1004</td>
+                            <td>Phạm Thị D</td>
+                            <td>Joker: Folie à Deux</td>
+                            <td>18:15 07/10</td>
+                            <td>D12</td>
+                            <td>120,000₫</td>
+                            <td class="status-pending">⏳ Chưa check-in</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Notifications -->
             <h2 class="section-title">🔔 Thông báo ca làm</h2>

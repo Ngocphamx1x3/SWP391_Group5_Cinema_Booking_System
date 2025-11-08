@@ -66,6 +66,18 @@
             padding: 12px 0; display: block; text-decoration: none; font-weight: 500;
              transition: 0.3s;
         }
+        .status-finished {
+    background: rgba(239, 68, 68, 0.15); /* đỏ nhạt */
+    color: #ef4444; /* đỏ đậm */
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-inactive {
+    background: rgba(139, 92, 246, 0.15); /* tím nhạt */
+    color: #8b5cf6; /* tím đậm */
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
          .sidebar a.logout:hover {
               background: rgba(239, 68, 68, 0.2);
          }
@@ -405,10 +417,15 @@
                             <td>${m.movieDuration} phút</td>
                             <td><fmt:formatDate value="${m.premiereDate}" pattern="dd/MM/yy"/></td> <%-- Shortened date --%>
                             <td>
-                                <span class="status ${m.status == 'Đang chiếu' ? 'status-showing' : 'status-upcoming'}">
-                                    ${m.status}
-                                </span>
-                            </td>
+    <span class="status 
+        ${m.status == 'Đang chiếu' ? 'status-showing' : 
+          (m.status == 'Sắp chiếu' ? 'status-upcoming' : 
+          (m.status == 'Đã chiếu' ? 'status-finished' : 
+          (m.status == 'Ngưng hoạt động' ? 'status-inactive' : '')))}">
+        ${m.status}
+    </span>
+</td>
+
                             <td>
                                 <div class="action-buttons">
                                     <a href="${pageContext.request.contextPath}/admin/movies?action=edit&id=${m.id}" title="Chỉnh sửa">✏️</a>

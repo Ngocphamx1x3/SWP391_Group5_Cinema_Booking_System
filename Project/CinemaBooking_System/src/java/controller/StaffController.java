@@ -1,7 +1,6 @@
 package controller;
 
 import java.io.IOException;
-import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,8 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Users;
-import dal.RecentBookingDAO;
-import model.RecentBooking;
 
 @WebServlet(name = "StaffController", urlPatterns = {"/staffdashboard"}) 
 public class StaffController extends HttpServlet {
@@ -38,12 +35,7 @@ public class StaffController extends HttpServlet {
             return;
         }
         
-        // Lấy recent bookings từ database
-        RecentBookingDAO recentBookingDAO = new RecentBookingDAO();
-        List<RecentBooking> recentBookings = recentBookingDAO.getRecentBookingsByStaffCinema(user.getId(), 5);
-        
         request.setAttribute("staffUser", user);
-        request.setAttribute("recentBookings", recentBookings);
         request.getRequestDispatcher("/views/staff/dashboard.jsp").forward(request, response);
     }
 
