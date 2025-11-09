@@ -15,9 +15,10 @@ import java.util.*;
 public class PayOSService {
 
     // LẤY từ my.payos.vn
-private static final String CLIENT_ID = "ed84638f-c325-4b50-aff2-8de75b67c20f";
+    private static final String CLIENT_ID = "ed84638f-c325-4b50-aff2-8de75b67c20f";
     private static final String API_KEY   = "4383fe31-0954-44a7-9b6b-6c3d895f01da";
     private static final String CHECKSUM  = "9105c2595cc6c0bd6b3c0650c66e3f264d3d42f1f0cbfeab2aa881fe77e4d19d";
+
     private static final String CREATE_PAYMENT_URL = "https://api-merchant.payos.vn/v2/payment-requests";
 
     public static class PaymentResult {

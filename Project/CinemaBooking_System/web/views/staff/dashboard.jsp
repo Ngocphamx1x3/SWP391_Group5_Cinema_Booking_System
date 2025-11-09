@@ -1,88 +1,180 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<%
-    // Set active page for sidebar highlighting
-    request.setAttribute("activePage", "dashboard");
-    request.setAttribute("pageTitle", "🏢 Bảng điều khiển nhân viên");
-%>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Staff Dashboard | Cinema Booking</title>
-        <jsp:include page="../layout/StaffStyles.jsp"/>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-            /* ===== Dashboard Dark Theme Override ===== */
-            body {
-                background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-                color: #e4e9f0;
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
 
-            /* ===== Sidebar Dark Theme ===== */
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: #f4f7fa;
+                color: #2d3748;
+                min-height: 100vh;
+            }
+
+            /* ===== Sidebar ===== */
             .sidebar {
-                background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-                backdrop-filter: blur(10px);
-                border-right: 1px solid rgba(255, 193, 7, 0.1);
-                box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5);
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+                background: #ffffff;
+                border-right: 1px solid #e2e8f0;
+                display: flex;
+                flex-direction: column;
+                padding: 30px 0;
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
+                z-index: 1000;
+            }
+
+            .sidebar-logo {
+                text-align: center;
+                margin-bottom: 50px;
+                padding: 0 25px;
             }
 
             .sidebar-logo h2 {
-                background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                font-size: 26px;
+                font-weight: 700;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
+                letter-spacing: 1px;
+            }
+
+            .sidebar-logo p {
+                font-size: 11px;
+                color: #6b7280;
+                margin-top: 5px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+            .sidebar nav {
+                flex: 1;
+                overflow-y: auto;
             }
 
             .sidebar a {
-                color: #94a3b8;
+                color: #4a5568;
+                text-decoration: none;
+                padding: 16px 30px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                font-size: 15px;
+                font-weight: 500;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
             }
 
             .sidebar a::before {
-                background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                width: 4px;
+                background: linear-gradient(180deg, #00d4ff 0%, #0099ff 100%);
+                transform: scaleY(0);
+                transition: transform 0.3s ease;
             }
 
             .sidebar a:hover {
-                background: rgba(255, 193, 7, 0.08);
-                color: #ffc107;
+                background: #e6f7ff;
+                color: #007bff;
+                padding-left: 35px;
+            }
+
+            .sidebar a:hover::before {
+                transform: scaleY(1);
             }
 
             .sidebar a.active {
-                background: rgba(255, 193, 7, 0.12);
-                color: #ffc107;
+                background: #e6f7ff;
+                color: #007bff;
+                padding-left: 35px;
             }
 
-            /* ===== Header Dark Theme ===== */
+            .sidebar a.active::before {
+                transform: scaleY(1);
+            }
+
+            .sidebar a.logout {
+                margin-top: auto;
+                background: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
+                margin: 20px 20px 0;
+                border-radius: 12px;
+                justify-content: center;
+            }
+
+            .sidebar a.logout:hover {
+                background: rgba(239, 68, 68, 0.2);
+                padding-left: 30px;
+            }
+
+            /* ===== Header ===== */
             header {
-                background: rgba(15, 20, 25, 0.8);
+                margin-left: 280px;
+                background: rgba(255, 255, 255, 0.8);
                 backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 193, 7, 0.1);
+                border-bottom: 1px solid #e2e8f0;
+                padding: 20px 40px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 100;
             }
 
             header h1 {
+                font-size: 28px;
+                font-weight: 700;
                 background: linear-gradient(135deg, #ffffff 0%, #ffc107 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
             }
 
-            .header-right span {
-                color: #94a3b8;
-            }
-
-            .notification-badge {
-                position: relative;
-                cursor: pointer;
-            }
-
-            .notification-badge .badge {
-                position: absolute;
-                top: -8px;
-                right: -8px;
-                background: linear-gradient(135deg, #ff0080 0%, #ff0040 100%);
-                color: white;
-                padding: 3px 7px;
-                border-radius: 10px;
-                font-size: 11px;
+            header h1 {
+                font-size: 28px;
                 font-weight: 700;
-                box-shadow: 0 0 10px rgba(255, 0, 128, 0.5);
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
+            }
+
+            .header-right {
+                display: flex;
+                align-items: center;
+                gap: 35px;
+            }
+
+            .header-right span {
+                font-weight: 500;
+                color: #4a5568;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* ===== Content ===== */
+            .content {
+                margin-left: 280px;
+                padding: 40px;
             }
 
             /* ===== Stats Cards ===== */
@@ -94,9 +186,8 @@
             }
 
             .stat-box {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 position: relative;
@@ -111,15 +202,15 @@
                 left: 0;
                 right: 0;
                 height: 3px;
-                background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+                background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
                 transform: scaleX(0);
                 transition: transform 0.3s ease;
             }
 
             .stat-box:hover {
                 transform: translateY(-5px);
-                border-color: rgba(255, 193, 7, 0.3);
-                box-shadow: 0 10px 40px rgba(255, 193, 7, 0.2);
+                border-color: #007bff;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
 
             .stat-box:hover::before {
@@ -138,9 +229,10 @@
             .stat-box .stat-value {
                 font-size: 36px;
                 font-weight: 700;
-                background: linear-gradient(135deg, #ffffff 0%, #ffc107 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
                 margin-bottom: 8px;
             }
 
@@ -159,9 +251,10 @@
                 font-size: 24px;
                 font-weight: 700;
                 margin-bottom: 25px;
-                background: linear-gradient(135deg, #ffffff 0%, #ffc107 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+                color: #1a202c;
+                background: none;
+                -webkit-background-clip: unset;
+                -webkit-text-fill-color: unset;
             }
 
             .charts-grid {
@@ -172,29 +265,28 @@
             }
 
             .chart-box {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 transition: all 0.3s ease;
             }
 
             .chart-box:hover {
-                border-color: rgba(255, 193, 7, 0.3);
-                box-shadow: 0 10px 40px rgba(255, 193, 7, 0.15);
+                border-color: #007bff;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             }
 
             .chart-box h3 {
                 font-size: 18px;
                 font-weight: 600;
-                color: #e4e9f0;
+                color: #1a202c;
                 margin-bottom: 20px;
             }
 
             .chart-placeholder {
-                background: rgba(255, 193, 7, 0.05);
-                border: 1px dashed rgba(255, 193, 7, 0.3);
+                background: #f8f9fa;
+                border: 1px dashed #ced4da;
                 border-radius: 12px;
                 height: 300px;
                 display: flex;
@@ -206,9 +298,8 @@
 
             /* ===== Table Section ===== */
             .table-container {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 margin-bottom: 40px;
@@ -221,27 +312,27 @@
             }
 
             th {
-                background: rgba(255, 193, 7, 0.08);
-                color: #ffc107;
+                background: #f8f9fa;
+                color: #4a5568;
                 font-weight: 600;
                 text-transform: uppercase;
                 font-size: 12px;
                 letter-spacing: 1px;
                 padding: 15px;
                 text-align: left;
-                border-bottom: 2px solid rgba(255, 193, 7, 0.2);
+                border-bottom: 2px solid #dee2e6;
             }
 
             td {
                 padding: 18px 15px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                color: #94a3b8;
+                border-bottom: 1px solid #e2e8f0;
+                color: #2d3748;
                 font-size: 14px;
             }
 
             tr:hover td {
-                background: rgba(255, 193, 7, 0.05);
-                color: #e4e9f0;
+                background: #f8f9fa;
+                color: #1a202c;
             }
 
             .status-success {
@@ -254,16 +345,10 @@
                 font-weight: 600;
             }
 
-            .status-pending {
-                color: #ffc107;
-                font-weight: 600;
-            }
-
             /* ===== Notifications ===== */
             .notifications {
-                background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(26, 31, 46, 0.9) 100%);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 193, 7, 0.15);
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
                 border-radius: 20px;
                 padding: 30px;
                 margin-bottom: 40px;
@@ -273,7 +358,7 @@
                 font-size: 20px;
                 font-weight: 600;
                 margin-bottom: 20px;
-                color: #e4e9f0;
+                color: #1a202c;
             }
 
             .notifications ul {
@@ -282,35 +367,58 @@
 
             .notifications li {
                 padding: 15px;
-                background: rgba(255, 193, 7, 0.05);
-                border-left: 3px solid #ffc107;
+                background: #e6f7ff;
+                border-left: 3px solid #007bff;
                 border-radius: 8px;
                 margin-bottom: 12px;
-                color: #94a3b8;
+                color: #2d3748;
                 font-size: 14px;
                 transition: all 0.3s ease;
             }
+            .toolbar select option {
+                color: #333;
+                background-color: #fff;
+            }
 
             .notifications li:hover {
-                background: rgba(255, 193, 7, 0.1);
+                background: #d0ebf9; /* Nền xanh đậm hơn khi hover */
                 transform: translateX(5px);
             }
 
-            /* ===== Footer Dark Theme ===== */
+            /* ===== Footer ===== */
             footer {
-                background: rgba(15, 20, 25, 0.9);
-                backdrop-filter: blur(10px);
-                border-top: 1px solid rgba(255, 193, 7, 0.1);
+                background: #ffffff; /* Nền trắng */
+                border-top: 1px solid #e2e8f0; /* Viền xám nhạt */
+                color: #6b7280; /* Giữ nguyên */
+                text-align: center;
+                padding: 25px;
+                margin-left: 280px;
+                font-size: 14px;
             }
         </style>
     </head>
     <body>
 
-        <jsp:include page="../layout/StaffSidebar.jsp"/>
-        
-        <!-- Header with notification badge -->
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎬 CINEMA STAFF</h2>
+                <p>Staff Panel</p>
+            </div>
+            <nav>
+                <a href="${pageContext.request.contextPath}/staffdashboard" class="active">🏢 Thông tin rạp của tôi</a>
+                <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
+                <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
+                <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
+                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
+                <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
+            </nav>
+            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        </div>
+
+        <!-- Header -->
         <header>
-            <h1>🏢 Bảng điều khiển nhân viên</h1>
+            <h1>Bảng điều khiển nhân viên</h1>
             <div class="header-right">
                 <c:if test="${not empty staffUser}">
                     <span>👤 ${staffUser.username} (${staffUser.role})</span>
@@ -319,10 +427,6 @@
                     <span>👤 Nhân viên</span>
                 </c:if>
                 <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
-                <div class="notification-badge">
-                    <span>🔔</span>
-                    <span class="badge">5</span>
-                </div>
             </div>
         </header>
 
@@ -482,10 +586,10 @@
             </div>
         </div>
 
-        <%
-            request.setAttribute("footerText", "© 2025 Cinema Booking System - Staff Panel | Ca làm: 07:00 - 15:00");
-        %>
-        <jsp:include page="../layout/StaffFooter.jsp"/>
+        <!-- Footer -->
+        <footer>
+            © 2025 Cinema Booking System - Staff Panel | Ca làm: 07:00 - 15:00
+        </footer>
 
     </body>
 </html>
