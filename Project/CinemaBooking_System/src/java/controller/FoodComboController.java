@@ -160,32 +160,38 @@ public class FoodComboController extends HttpServlet {
     private void showEditForm(HttpServletRequest request, HttpServletResponse response, Users user)
             throws ServletException, IOException {
 
-        String idStr = request.getParameter("id");
-        if (idStr == null || idStr.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu ID");
-            return;
-        }
-
-        try {
-            int id = Integer.parseInt(idStr);
-            FoodCombo combo = foodComboDAO.getFoodComboById(id);
-
-            if (combo == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy combo");
+        // Check if foodCombo is already in request (from error handling)
+        FoodCombo combo = (FoodCombo) request.getAttribute("foodCombo");
+        
+        // If not, get ID from parameter and load from database
+        if (combo == null) {
+            String idStr = request.getParameter("id");
+            if (idStr == null || idStr.isEmpty()) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu ID");
                 return;
             }
 
-            // Load all active food items for selection
-            List<FoodItem> foodItems = foodItemDAO.getActiveFoodItems();
-            request.setAttribute("foodItems", foodItems);
-            request.setAttribute("foodCombo", combo);
+            try {
+                int id = Integer.parseInt(idStr);
+                combo = foodComboDAO.getFoodComboById(id);
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/views/staff/foodComboForm.jsp");
-            dispatcher.forward(request, response);
-
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID không hợp lệ");
+                if (combo == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy combo");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID không hợp lệ");
+                return;
+            }
         }
+
+        // Always load fresh food items list for selection
+        List<FoodItem> foodItems = foodItemDAO.getActiveFoodItems();
+        request.setAttribute("foodItems", foodItems);
+        request.setAttribute("foodCombo", combo);
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/views/staff/foodComboForm.jsp");
+        dispatcher.forward(request, response);
     }
 
     // SHOW DETAIL
@@ -248,7 +254,7 @@ public class FoodComboController extends HttpServlet {
 
             boolean status = "on".equals(statusStr);
 
-            // Xử lý hình ảnh
+            // Xử lý hình ảnh: servlet đã có @MultipartConfig nên có thể xử lý trực tiếp
             String imageFileName = null;
             try {
                 Part imagePart = request.getPart("imageFile");
@@ -256,14 +262,45 @@ public class FoodComboController extends HttpServlet {
                     imageFileName = handleImageUpload(request);
                 }
             } catch (Exception e) {
-                // Không có file upload
+                // Nếu lỗi validation file, báo lỗi và hiển thị lại form
+                if (e instanceof ServletException && e.getMessage().contains("Chỉ cho phép")) {
+                    request.setAttribute("error", e.getMessage());
+                    // Lưu lại dữ liệu đã nhập
+                    FoodCombo previousCombo = new FoodCombo();
+                    previousCombo.setName(name != null ? name.trim() : "");
+                    previousCombo.setDescription(description != null ? description.trim() : null);
+                    previousCombo.setPrice(price);
+                    request.setAttribute("previousData", previousCombo);
+                    showAddForm(request, response, user);
+                    return;
+                }
+                // Không có file upload hoặc lỗi khác, tiếp tục xử lý
             }
             
+            // Nếu không có file upload, lấy từ text input
             if (imageFileName == null) {
                 String imageParam = request.getParameter("image");
                 if (imageParam != null && !imageParam.trim().isEmpty()) {
                     imageFileName = imageParam.trim();
                 }
+            }
+
+            // Parse combo items trước để validate
+            List<ComboItem> items = parseComboItems(request, 0); // 0 vì chưa có comboID
+            
+            // Validate: combo phải có ít nhất một món
+            if (items.isEmpty()) {
+                request.setAttribute("error", "Combo phải có ít nhất một món!");
+                // Lưu lại dữ liệu đã nhập
+                FoodCombo previousCombo = new FoodCombo();
+                previousCombo.setName(name != null ? name.trim() : "");
+                previousCombo.setDescription(description != null ? description.trim() : null);
+                previousCombo.setPrice(price);
+                previousCombo.setStatus(status);
+                previousCombo.setImage(imageFileName);
+                request.setAttribute("previousData", previousCombo);
+                showAddForm(request, response, user);
+                return;
             }
 
             // Tạo FoodCombo object
@@ -279,15 +316,17 @@ public class FoodComboController extends HttpServlet {
             int comboID = foodComboDAO.addFoodCombo(combo);
             
             if (comboID > 0) {
-                // Parse and save combo items
-                List<ComboItem> items = parseComboItems(request, comboID);
-                if (!items.isEmpty()) {
-                    foodComboDAO.addComboItems(comboID, items);
+                // Set comboID cho các items và save
+                for (ComboItem item : items) {
+                    item.setComboID(comboID);
                 }
+                foodComboDAO.addComboItems(comboID, items);
 
                 response.sendRedirect(request.getContextPath() + "/staff/food-combos?success=create");
             } else {
                 request.setAttribute("error", "Lỗi khi tạo combo");
+                // Lưu lại dữ liệu đã nhập
+                request.setAttribute("previousData", combo);
                 showAddForm(request, response, user);
             }
 
@@ -344,23 +383,51 @@ public class FoodComboController extends HttpServlet {
 
             boolean status = "on".equals(statusStr);
 
-            // Xử lý hình ảnh: ưu tiên upload file, nếu không có thì lấy từ text input
-            String imageFileName = null;
+            // Parse combo items trước để validate
+            List<ComboItem> items = parseComboItems(request, id);
             
+            // Validate: combo phải có ít nhất một món
+            if (items.isEmpty()) {
+                request.setAttribute("error", "Combo phải có ít nhất một món!");
+                // Cập nhật thông tin từ form vào existingCombo để hiển thị lại
+                existingCombo.setName(name != null ? name.trim() : existingCombo.getName());
+                existingCombo.setDescription(description != null ? description.trim() : existingCombo.getDescription());
+                existingCombo.setPrice(price);
+                existingCombo.setStatus(status);
+                request.setAttribute("foodCombo", existingCombo);
+                showEditForm(request, response, user);
+                return;
+            }
+
+            // Xử lý hình ảnh: servlet đã có @MultipartConfig nên có thể xử lý trực tiếp
+            String imageFileName = null;
             try {
                 Part imagePart = request.getPart("imageFile");
                 if (imagePart != null && imagePart.getSize() > 0) {
                     imageFileName = handleImageUpload(request);
                     if (imageFileName != null) {
+                        // Xóa file cũ nếu có (có path injection protection)
                         if (existingCombo.getImage() != null && !existingCombo.getImage().isEmpty()) {
                             deleteOldImage(request, existingCombo.getImage());
                         }
                     }
                 }
             } catch (Exception e) {
-                // Không có file upload
+                // Nếu lỗi validation file, báo lỗi và hiển thị lại form
+                if (e instanceof ServletException && e.getMessage().contains("Chỉ cho phép")) {
+                    request.setAttribute("error", e.getMessage());
+                    existingCombo.setName(name != null ? name.trim() : existingCombo.getName());
+                    existingCombo.setDescription(description != null ? description.trim() : existingCombo.getDescription());
+                    existingCombo.setPrice(price);
+                    existingCombo.setStatus(status);
+                    request.setAttribute("foodCombo", existingCombo);
+                    showEditForm(request, response, user);
+                    return;
+                }
+                // Không có file upload hoặc lỗi khác, tiếp tục xử lý
             }
             
+            // Nếu không có file upload, lấy từ text input hoặc giữ nguyên ảnh cũ
             if (imageFileName == null) {
                 String imageParam = request.getParameter("image");
                 if (imageParam != null && !imageParam.trim().isEmpty()) {
@@ -382,7 +449,6 @@ public class FoodComboController extends HttpServlet {
 
             if (success) {
                 // Update combo items (delete old, insert new)
-                List<ComboItem> items = parseComboItems(request, id);
                 foodComboDAO.updateComboItems(id, items);
 
                 response.sendRedirect(request.getContextPath() + "/staff/food-combos?success=update");
@@ -468,8 +534,8 @@ public class FoodComboController extends HttpServlet {
             throw new ServletException("Chỉ được phép tải lên file ảnh (JPG, PNG, GIF, etc.)");
         }
 
-        // Tạo thư mục upload nếu chưa tồn tại
-        String uploadPath = getServletContext().getRealPath("/assets/user/img");
+        // Tạo thư mục upload nếu chưa tồn tại (phân chia thư mục combo)
+        String uploadPath = getServletContext().getRealPath("/assets/user/img/combo");
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
@@ -478,6 +544,12 @@ public class FoodComboController extends HttpServlet {
         // Tạo tên file duy nhất
         String submittedFileName = imagePart.getSubmittedFileName();
         String fileExtension = getFileExtension(submittedFileName);
+        
+        // Kiểm tra extension hợp lệ để tránh upload file độc
+        if (fileExtension == null || !fileExtension.toLowerCase().matches("\\.(jpg|jpeg|png|gif)$")) {
+            throw new ServletException("Chỉ cho phép upload file ảnh (.jpg, .jpeg, .png, .gif)");
+        }
+        
         String fileName = "foodcombo_" + System.currentTimeMillis() + "_" + 
                          (int)(Math.random() * 10000) + fileExtension;
 
@@ -485,15 +557,33 @@ public class FoodComboController extends HttpServlet {
         String filePath = uploadPath + File.separator + fileName;
         imagePart.write(filePath);
 
-        return fileName;
+        // Trả về đường dẫn tương đối từ web root
+        return "combo/" + fileName;
     }
 
     private void deleteOldImage(HttpServletRequest request, String imageFileName) {
         try {
-            String uploadPath = getServletContext().getRealPath("/assets/user/img");
-            File oldFile = new File(uploadPath + File.separator + imageFileName);
+            // Xử lý đường dẫn (có thể là "combo/filename.jpg" hoặc chỉ "filename.jpg")
+            String relativePath = imageFileName;
+            if (!relativePath.startsWith("combo/") && !relativePath.startsWith("item/")) {
+                // Nếu là file cũ (chưa có prefix), xóa từ thư mục combo
+                relativePath = "combo/" + relativePath;
+            }
+            
+            String uploadBasePath = getServletContext().getRealPath("/assets/user/img");
+            File uploadDir = new File(uploadBasePath);
+            File oldFile = new File(uploadBasePath + File.separator + relativePath.replace("/", File.separator));
+            
+            // Kiểm tra path injection: đảm bảo file nằm trong thư mục upload
             if (oldFile.exists() && oldFile.isFile()) {
-                oldFile.delete();
+                String canonicalOldPath = oldFile.getCanonicalPath();
+                String canonicalUploadPath = uploadDir.getCanonicalPath();
+                
+                if (canonicalOldPath.startsWith(canonicalUploadPath)) {
+                    oldFile.delete();
+                } else {
+                    System.err.println("Lỗi bảo mật: Đường dẫn file nằm ngoài thư mục upload: " + canonicalOldPath);
+                }
             }
         } catch (Exception e) {
             System.err.println("Lỗi khi xóa file hình ảnh cũ: " + e.getMessage());
@@ -502,7 +592,7 @@ public class FoodComboController extends HttpServlet {
 
     private String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf(".") == -1) {
-            return ".jpg";
+            return null;
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
@@ -533,6 +623,11 @@ public class FoodComboController extends HttpServlet {
         }
         
         return items;
+    }
+    
+    // Helper method để lấy upload path cho combo images
+    private String getComboImageUploadPath() {
+        return getServletContext().getRealPath("/assets/user/img/combo");
     }
 }
 

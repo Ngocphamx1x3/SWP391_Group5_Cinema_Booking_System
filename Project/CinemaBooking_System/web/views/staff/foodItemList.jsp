@@ -385,10 +385,21 @@
                         <tr>
                             <td>#<%= item.getItemID() %></td>
                             <td class="image-cell">
-                                <% if (item.getImage() != null && !item.getImage().isEmpty()) { %>
+                                <% 
+                                    String itemImage = item.getImage();
+                                    boolean hasValidImage = itemImage != null && !itemImage.isEmpty();
+                                    // Check if image has a valid extension
+                                    if (hasValidImage) {
+                                        String lowerImage = itemImage.toLowerCase();
+                                        hasValidImage = lowerImage.endsWith(".jpg") || lowerImage.endsWith(".jpeg") || 
+                                                       lowerImage.endsWith(".png") || lowerImage.endsWith(".gif") || 
+                                                       lowerImage.endsWith(".webp") || lowerImage.endsWith(".svg");
+                                    }
+                                %>
+                                <% if (hasValidImage) { %>
                                 <div style="position: relative; width: 50px; height: 50px;">
-                                    <img src="${pageContext.request.contextPath}/assets/user/img/<%= item.getImage() %>" 
-                                         alt="<%= item.getName() %>" 
+                                    <img src="<%= request.getContextPath() %>/assets/user/img/<%= itemImage %>" 
+                                         alt="<%= item.getName() != null ? item.getName() : "" %>" 
                                          class="image-preview"
                                          id="itemImage_<%= item.getItemID() %>"
                                          onerror="handleItemImageError(this);">
@@ -423,11 +434,17 @@
                             <td class="price-cell"><%= item.getFormattedPrice() %></td>
                             <td>
                                 <small style="color: #6b7280;">
-                                    <%= item.getDescription() != null && !item.getDescription().isEmpty() 
-                                        ? (item.getDescription().length() > 50 
-                                            ? item.getDescription().substring(0, 50) + "..." 
-                                            : item.getDescription()) 
-                                        : "Không có mô tả" %>
+                                    <% 
+                                        String description = item.getDescription();
+                                        if (description != null && !description.trim().isEmpty()) {
+                                            String displayDesc = description.length() > 50 
+                                                ? description.substring(0, 50) + "..." 
+                                                : description;
+                                            out.print(displayDesc);
+                                        } else {
+                                            out.print("Không có mô tả");
+                                        }
+                                    %>
                                 </small>
                             </td>
                             <td>
@@ -489,20 +506,35 @@
                 img.onerror = null;
             }
 
-            document.getElementById('typeFilter').addEventListener('change', function () {
-                document.getElementById('searchForm').submit();
-            });
+            const typeFilter = document.getElementById('typeFilter');
+            if (typeFilter) {
+                typeFilter.addEventListener('change', function () {
+                    const searchForm = document.getElementById('searchForm');
+                    if (searchForm) {
+                        searchForm.submit();
+                    }
+                });
+            }
 
-            document.querySelector('.btn-secondary').addEventListener('click', function (e) {
-                e.preventDefault();
-                window.location.href = '${pageContext.request.contextPath}/staff/food-items';
-            });
+            const resetBtn = document.querySelector('.btn-secondary');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = '<%= request.getContextPath() %>/staff/food-items';
+                });
+            }
 
-            document.querySelector('input[name="keyword"]').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('searchForm').submit();
-                }
-            });
+            const keywordInput = document.querySelector('input[name="keyword"]');
+            if (keywordInput) {
+                keywordInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        const searchForm = document.getElementById('searchForm');
+                        if (searchForm) {
+                            searchForm.submit();
+                        }
+                    }
+                });
+            }
         </script>
         <jsp:include page="../layout/StaffFooter.jsp"/>
 

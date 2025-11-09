@@ -217,18 +217,29 @@ public class FoodItemController extends HttpServlet {
 
             boolean status = "on".equals(statusStr);
 
-            // Xử lý hình ảnh: ưu tiên upload file, nếu không có thì lấy từ text input
+            // Xử lý hình ảnh: servlet đã có @MultipartConfig nên có thể xử lý trực tiếp
             String imageFileName = null;
-            
-            // Kiểm tra có file upload không
             try {
                 Part imagePart = request.getPart("imageFile");
                 if (imagePart != null && imagePart.getSize() > 0) {
-                    // Có file upload mới
                     imageFileName = handleImageUpload(request);
                 }
             } catch (Exception e) {
-                // Không có file upload, xử lý bình thường
+                // Nếu lỗi validation file, báo lỗi và hiển thị lại form
+                if (e instanceof ServletException && e.getMessage().contains("Chỉ cho phép")) {
+                    request.setAttribute("error", e.getMessage());
+                    // Lưu lại dữ liệu đã nhập
+                    FoodItem previousItem = new FoodItem();
+                    previousItem.setName(name != null ? name.trim() : "");
+                    previousItem.setType(type != null ? type.trim() : "");
+                    previousItem.setPrice(price);
+                    previousItem.setDescription(description != null ? description.trim() : null);
+                    previousItem.setStatus(status);
+                    request.setAttribute("previousData", previousItem);
+                    showAddForm(request, response, user);
+                    return;
+                }
+                // Không có file upload hoặc lỗi khác, tiếp tục xử lý
             }
             
             // Nếu không có file upload, lấy từ text input
@@ -254,6 +265,8 @@ public class FoodItemController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/staff/food-items?success=create");
             } else {
                 request.setAttribute("error", "Lỗi khi thêm món lẻ");
+                // Lưu lại dữ liệu đã nhập
+                request.setAttribute("previousData", item);
                 showAddForm(request, response, user);
             }
 
@@ -318,24 +331,33 @@ public class FoodItemController extends HttpServlet {
 
             boolean status = "on".equals(statusStr);
 
-            // Xử lý hình ảnh: ưu tiên upload file, nếu không có thì lấy từ text input
+            // Xử lý hình ảnh: servlet đã có @MultipartConfig nên có thể xử lý trực tiếp
             String imageFileName = null;
-            
-            // Kiểm tra có file upload không
             try {
                 Part imagePart = request.getPart("imageFile");
                 if (imagePart != null && imagePart.getSize() > 0) {
-                    // Có file upload mới
                     imageFileName = handleImageUpload(request);
                     if (imageFileName != null) {
-                        // Xóa file cũ nếu có
+                        // Xóa file cũ nếu có (có path injection protection)
                         if (existingItem.getImage() != null && !existingItem.getImage().isEmpty()) {
                             deleteOldImage(request, existingItem.getImage());
                         }
                     }
                 }
             } catch (Exception e) {
-                // Không có file upload, xử lý bình thường
+                // Nếu lỗi validation file, báo lỗi và hiển thị lại form
+                if (e instanceof ServletException && e.getMessage().contains("Chỉ cho phép")) {
+                    request.setAttribute("error", e.getMessage());
+                    existingItem.setName(name != null ? name.trim() : existingItem.getName());
+                    existingItem.setType(type != null ? type.trim() : existingItem.getType());
+                    existingItem.setPrice(price);
+                    existingItem.setDescription(description != null ? description.trim() : existingItem.getDescription());
+                    existingItem.setStatus(status);
+                    request.setAttribute("foodItem", existingItem);
+                    showEditForm(request, response, user);
+                    return;
+                }
+                // Không có file upload hoặc lỗi khác, tiếp tục xử lý
             }
             
             // Nếu không có file upload, lấy từ text input
@@ -443,8 +465,8 @@ public class FoodItemController extends HttpServlet {
             throw new ServletException("Chỉ được phép tải lên file ảnh (JPG, PNG, GIF, etc.)");
         }
 
-        // Tạo thư mục upload nếu chưa tồn tại
-        String uploadPath = getServletContext().getRealPath("/assets/user/img");
+        // Tạo thư mục upload nếu chưa tồn tại (phân chia thư mục item)
+        String uploadPath = getServletContext().getRealPath("/assets/user/img/item");
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
@@ -453,6 +475,12 @@ public class FoodItemController extends HttpServlet {
         // Tạo tên file duy nhất
         String submittedFileName = imagePart.getSubmittedFileName();
         String fileExtension = getFileExtension(submittedFileName);
+        
+        // Kiểm tra extension hợp lệ để tránh upload file độc
+        if (fileExtension == null || !fileExtension.toLowerCase().matches("\\.(jpg|jpeg|png|gif)$")) {
+            throw new ServletException("Chỉ cho phép upload file ảnh (.jpg, .jpeg, .png, .gif)");
+        }
+        
         String fileName = "fooditem_" + System.currentTimeMillis() + "_" + 
                          (int)(Math.random() * 10000) + fileExtension;
 
@@ -460,15 +488,33 @@ public class FoodItemController extends HttpServlet {
         String filePath = uploadPath + File.separator + fileName;
         imagePart.write(filePath);
 
-        return fileName;
+        // Trả về đường dẫn tương đối từ web root
+        return "item/" + fileName;
     }
 
     private void deleteOldImage(HttpServletRequest request, String imageFileName) {
         try {
-            String uploadPath = getServletContext().getRealPath("/assets/user/img");
-            File oldFile = new File(uploadPath + File.separator + imageFileName);
+            // Xử lý đường dẫn (có thể là "item/filename.jpg", "combo/filename.jpg" hoặc chỉ "filename.jpg")
+            String relativePath = imageFileName;
+            if (!relativePath.startsWith("combo/") && !relativePath.startsWith("item/")) {
+                // Nếu là file cũ (chưa có prefix), xóa từ thư mục item
+                relativePath = "item/" + relativePath;
+            }
+            
+            String uploadBasePath = getServletContext().getRealPath("/assets/user/img");
+            File uploadDir = new File(uploadBasePath);
+            File oldFile = new File(uploadBasePath + File.separator + relativePath.replace("/", File.separator));
+            
+            // Kiểm tra path injection: đảm bảo file nằm trong thư mục upload
             if (oldFile.exists() && oldFile.isFile()) {
-                oldFile.delete();
+                String canonicalOldPath = oldFile.getCanonicalPath();
+                String canonicalUploadPath = uploadDir.getCanonicalPath();
+                
+                if (canonicalOldPath.startsWith(canonicalUploadPath)) {
+                    oldFile.delete();
+                } else {
+                    System.err.println("Lỗi bảo mật: Đường dẫn file nằm ngoài thư mục upload: " + canonicalOldPath);
+                }
             }
         } catch (Exception e) {
             // Log error nhưng không throw để không ảnh hưởng đến quá trình update
@@ -478,7 +524,7 @@ public class FoodItemController extends HttpServlet {
 
     private String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf(".") == -1) {
-            return ".jpg";
+            return null;
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }

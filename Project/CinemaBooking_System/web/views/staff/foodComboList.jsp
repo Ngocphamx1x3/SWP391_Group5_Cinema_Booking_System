@@ -1,12 +1,22 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.FoodCombo, java.util.List"%>
+<%!
+    private boolean isValidImageFile(String imageName) {
+        if (imageName == null || imageName.trim().isEmpty()) {
+            return false;
+        }
+        String lower = imageName.toLowerCase();
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || 
+               lower.endsWith(".png") || lower.endsWith(".gif") || 
+               lower.endsWith(".webp") || lower.endsWith(".svg");
+    }
+%>
 <%
     List<FoodCombo> foodCombos = (List<FoodCombo>) request.getAttribute("foodCombos");
     String success = request.getParameter("success");
     String error = request.getParameter("error");
     String searchKeyword = (String) request.getAttribute("searchKeyword");
     
-    // Set active page for sidebar highlighting
     request.setAttribute("activePage", "food-combos");
     request.setAttribute("pageTitle", "🍔 Quản lý Combo");
 %>
@@ -16,211 +26,7 @@
         <meta charset="UTF-8">
         <title>Quản lý Combo | Cinema Booking</title>
         <jsp:include page="../layout/StaffStyles.jsp"/>
-        <style>
-            .toolbar {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 20px;
-                padding: 25px 30px;
-                margin-bottom: 30px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 20px;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            }
-
-            .search-box {
-                display: flex;
-                gap: 15px;
-                flex: 1;
-                min-width: 300px;
-                align-items: center;
-            }
-
-            .search-box form {
-                display: flex;
-                gap: 15px;
-                width: 100%;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-
-            .search-box input {
-                flex: 1;
-                min-width: 150px;
-                background: #ffffff;
-                border: 1px solid #ced4da;
-                border-radius: 12px;
-                padding: 12px 20px;
-                color: #2d3748;
-                font-size: 14px;
-                outline: none;
-                transition: all 0.3s ease;
-                font-family: 'Inter', sans-serif;
-            }
-
-            .search-box input:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-            }
-
-            .btn {
-                background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-                color: white;
-                border: none;
-                border-radius: 12px;
-                padding: 12px 28px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                text-decoration: none;
-            }
-
-            .btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
-            }
-
-            .btn-secondary {
-                background: #6c757d;
-                color: #ffffff;
-            }
-
-            .table-container {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 20px;
-                padding: 30px;
-                overflow-x: auto;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            th {
-                background: #f8f9fa;
-                color: #4a5568;
-                font-weight: 600;
-                text-transform: uppercase;
-                font-size: 12px;
-                letter-spacing: 1px;
-                padding: 15px;
-                text-align: left;
-                border-bottom: 2px solid #dee2e6;
-            }
-
-            td {
-                padding: 18px 15px;
-                border-bottom: 1px solid #e2e8f0;
-                color: #2d3748;
-                font-size: 14px;
-            }
-
-            tr:hover td {
-                background: #f8f9fa;
-            }
-
-            .status-badge {
-                padding: 6px 14px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-                display: inline-block;
-            }
-
-            .status-active {
-                background: rgba(16, 185, 129, 0.2);
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.3);
-            }
-
-            .status-inactive {
-                background: rgba(239, 68, 68, 0.2);
-                color: #ef4444;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 8px;
-                flex-wrap: wrap;
-            }
-
-            .btn-small {
-                padding: 8px 16px;
-                font-size: 12px;
-                border-radius: 8px;
-                border: none;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-weight: 600;
-                text-decoration: none;
-                display: inline-block;
-            }
-
-            .btn-edit {
-                background: rgba(0, 123, 255, 0.2);
-                color: #007bff;
-                border: 1px solid rgba(0, 123, 255, 0.3);
-            }
-
-            .btn-detail {
-                background: rgba(139, 92, 246, 0.2);
-                color: #8b5cf6;
-                border: 1px solid rgba(139, 92, 246, 0.3);
-            }
-
-            .btn-toggle {
-                background: rgba(245, 158, 11, 0.2);
-                color: #f59e0b;
-                border: 1px solid rgba(245, 158, 11, 0.3);
-            }
-
-            .btn-delete {
-                background: rgba(239, 68, 68, 0.2);
-                color: #ef4444;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-
-            .price-cell {
-                font-weight: 700;
-                color: #10b981;
-                font-size: 15px;
-            }
-
-            .items-count {
-                color: #6b7280;
-                font-size: 12px;
-            }
-
-            .alert {
-                padding: 15px 20px;
-                border-radius: 12px;
-                margin-bottom: 20px;
-                font-weight: 600;
-            }
-
-            .alert-success {
-                background: rgba(16, 185, 129, 0.2);
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.3);
-            }
-
-            .alert-error {
-                background: rgba(239, 68, 68, 0.2);
-                color: #ef4444;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-        </style>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/staff/css/foodCombo.css">
     </head>
     <body>
 
@@ -261,6 +67,7 @@
                     <input type="text" name="keyword" 
                            placeholder="🔍 Tìm kiếm theo tên, mô tả..." 
                            value="<%= searchKeyword != null ? searchKeyword : "" %>">
+
                     <button type="submit" class="btn">Tìm kiếm</button>
                     <a href="${pageContext.request.contextPath}/staff/food-combos" class="btn btn-secondary">🔄 Reset</a>
                 </form>
@@ -289,38 +96,42 @@
                         <tr>
                             <td>#<%= combo.getComboID() %></td>
                             <td>
-                                <% if (combo.getImage() != null && !combo.getImage().isEmpty()) { %>
+                                <% if (isValidImageFile(combo.getImage())) { %>
                                 <div style="position: relative; width: 50px; height: 50px;">
-                                    <img src="${pageContext.request.contextPath}/assets/user/img/<%= combo.getImage() %>" 
-                                         alt="<%= combo.getName() %>" 
+                                    <img src="<%= request.getContextPath() %>/assets/user/img/<%= combo.getImage() %>" 
+                                         alt="<%= combo.getName() != null ? combo.getName() : "" %>" 
                                          style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;"
                                          id="comboImage_<%= combo.getComboID() %>"
                                          onerror="handleComboImageError(this);">
                                     <div id="comboPlaceholder_<%= combo.getComboID() %>" 
-                                         style="display: none; width: 50px; height: 50px; background: #e2e8f0; border-radius: 8px; color: #6b7280; font-size: 9px; text-align: center; padding: 2px; border: 1px solid #e2e8f0; position: absolute; top: 0; left: 0;">
+                                         class="image-placeholder" style="display: none; position: absolute; top: 0; left: 0; width: 50px; height: 50px;">
                                         <div style="display: flex; align-items: center; justify-content: center; height: 100%;">Không có ảnh</div>
                                     </div>
                                 </div>
                                 <% } else { %>
-                                <div style="width: 50px; height: 50px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 9px; text-align: center; padding: 2px; border: 1px solid #e2e8f0;">
-                                    Không có ảnh
-                                </div>
+                                <div class="image-placeholder" style="width: 50px; height: 50px;">Không có ảnh</div>
                                 <% } %>
                             </td>
                             <td><strong><%= combo.getName() %></strong></td>
                             <td class="price-cell"><%= combo.getFormattedPrice() %></td>
                             <td>
                                 <span class="items-count">
-                                    <%= combo.getItems() != null ? combo.getTotalItemsCount() : 0 %> món
+                                    <%= (combo.getItems() != null) ? combo.getTotalItemsCount() : 0 %> món
                                 </span>
                             </td>
                             <td>
                                 <small style="color: #6b7280;">
-                                    <%= combo.getDescription() != null && !combo.getDescription().isEmpty() 
-                                        ? (combo.getDescription().length() > 50 
-                                            ? combo.getDescription().substring(0, 50) + "..." 
-                                            : combo.getDescription()) 
-                                        : "Không có mô tả" %>
+                                    <% 
+                                        String description = combo.getDescription();
+                                        if (description != null && !description.trim().isEmpty()) {
+                                            String displayDesc = description.length() > 50 
+                                                ? description.substring(0, 50) + "..." 
+                                                : description;
+                                            out.print(displayDesc);
+                                        } else {
+                                            out.print("Không có mô tả");
+                                        }
+                                    %>
                                 </small>
                             </td>
                             <td>
@@ -379,11 +190,26 @@
                 img.onerror = null;
             }
 
-            document.querySelector('input[name="keyword"]').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('searchForm').submit();
-                }
-            });
+            const keywordInput = document.querySelector('input[name="keyword"]');
+            if (keywordInput) {
+                keywordInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const searchForm = document.getElementById('searchForm');
+                        if (searchForm) {
+                            searchForm.submit();
+                        }
+                    }
+                });
+            }
+            
+            const resetBtn = document.querySelector('.btn-secondary');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = '<%= request.getContextPath() %>/staff/food-combos';
+                });
+            }
         </script>
         <jsp:include page="../layout/StaffFooter.jsp"/>
 

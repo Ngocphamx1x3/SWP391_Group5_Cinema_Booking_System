@@ -1,9 +1,18 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.FoodCombo, model.ComboItem"%>
+<%!
+    private boolean isValidImageFile(String imageName) {
+        if (imageName == null || imageName.trim().isEmpty()) {
+            return false;
+        }
+        String lower = imageName.toLowerCase();
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || 
+               lower.endsWith(".png") || lower.endsWith(".gif") || 
+               lower.endsWith(".webp") || lower.endsWith(".svg");
+    }
+%>
 <%
     FoodCombo combo = (FoodCombo) request.getAttribute("foodCombo");
-    
-    // Set active page for sidebar highlighting
     request.setAttribute("activePage", "food-combos");
     request.setAttribute("pageTitle", "👁️ Chi tiết Combo");
 %>
@@ -13,194 +22,7 @@
         <meta charset="UTF-8">
         <title>Chi tiết Combo | Cinema Booking</title>
         <jsp:include page="../layout/StaffStyles.jsp"/>
-        <style>
-            .detail-container {
-                background: #ffffff; 
-                border: 1px solid #e2e8f0; 
-                border-radius: 20px;
-                padding: 40px;
-                max-width: 900px;
-                margin: 0 auto;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); 
-            }
-
-            .detail-header {
-                text-align: center;
-                margin-bottom: 40px;
-                padding-bottom: 20px;
-                border-bottom: 2px solid #e2e8f0;
-            }
-
-            .detail-header h2 {
-                font-size: 28px;
-                font-weight: 700;
-                color: #1a202c; 
-                margin-bottom: 10px;
-            }
-
-            .combo-image {
-                width: 200px;
-                height: 200px;
-                object-fit: cover;
-                border-radius: 16px;
-                border: 2px solid #e2e8f0;
-                margin: 20px auto;
-                display: block;
-            }
-
-            .detail-section {
-                margin-bottom: 30px;
-            }
-
-            .detail-section h3 {
-                font-size: 18px;
-                font-weight: 600;
-                color: #4a5568;
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
-            .info-row {
-                display: flex;
-                padding: 12px 0;
-                border-bottom: 1px solid #f0f0f0;
-            }
-
-            .info-label {
-                font-weight: 600;
-                color: #4a5568;
-                min-width: 150px;
-            }
-
-            .info-value {
-                color: #2d3748;
-                flex: 1;
-            }
-
-            .status-badge {
-                padding: 6px 14px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-                display: inline-block;
-            }
-
-            .status-active {
-                background: rgba(16, 185, 129, 0.2);
-                color: #10b981;
-                border: 1px solid rgba(16, 185, 129, 0.3);
-            }
-
-            .status-inactive {
-                background: rgba(239, 68, 68, 0.2);
-                color: #ef4444;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-
-            .items-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-            }
-
-            .items-table th {
-                background: #f8f9fa;
-                color: #4a5568;
-                font-weight: 600;
-                padding: 12px;
-                text-align: left;
-                border-bottom: 2px solid #dee2e6;
-                font-size: 12px;
-                text-transform: uppercase;
-            }
-
-            .items-table td {
-                padding: 15px 12px;
-                border-bottom: 1px solid #e2e8f0;
-                color: #2d3748;
-            }
-
-            .items-table tr:hover td {
-                background: #f8f9fa;
-            }
-
-            .item-image {
-                width: 50px;
-                height: 50px;
-                object-fit: cover;
-                border-radius: 8px;
-                border: 1px solid #e2e8f0;
-            }
-
-            .price-value {
-                font-weight: 700;
-                color: #10b981;
-            }
-
-            .summary-box {
-                background: #e3f2fd;
-                border-radius: 12px;
-                padding: 20px;
-                margin-top: 20px;
-            }
-
-            .summary-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px 0;
-                font-size: 16px;
-            }
-
-            .summary-total {
-                font-weight: 700;
-                font-size: 20px;
-                color: #007bff;
-                border-top: 2px solid #90caf9;
-                padding-top: 10px;
-                margin-top: 10px;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 15px;
-                margin-top: 30px;
-                padding-top: 30px;
-                border-top: 2px solid #e2e8f0;
-            }
-
-            .btn {
-                flex: 1;
-                padding: 14px 28px;
-                border: none;
-                border-radius: 12px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-
-            .btn-primary {
-                background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-                color: white;
-            }
-
-            .btn-secondary {
-                background: #6c757d; 
-                color: #ffffff; 
-            }
-
-            .btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
-            }
-        </style>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/staff/css/foodCombo.css">
     </head>
     <body>
 
@@ -211,22 +33,20 @@
             <div class="detail-container">
                 <div class="detail-header">
                     <h2><%= combo.getName() %></h2>
-                    <% if (combo.getImage() != null && !combo.getImage().isEmpty()) { %>
+                    <% if (isValidImageFile(combo.getImage())) { %>
                     <div style="position: relative; width: 200px; height: 200px; margin: 20px auto;">
-                        <img src="${pageContext.request.contextPath}/assets/user/img/<%= combo.getImage() %>" 
-                             alt="<%= combo.getName() %>" 
+                        <img src="<%= request.getContextPath() %>/assets/user/img/<%= combo.getImage() %>" 
+                             alt="<%= combo.getName() != null ? combo.getName() : "" %>" 
                              class="combo-image"
                              id="detailComboImage"
                              onerror="handleDetailImageError(this);">
                         <div id="detailComboPlaceholder" 
-                             style="display: none; width: 200px; height: 200px; background: #e2e8f0; border-radius: 16px; color: #6b7280; font-size: 14px; text-align: center; border: 2px solid #e2e8f0; position: absolute; top: 0; left: 0;">
+                             class="image-placeholder image-placeholder-large" style="display: none; position: absolute; top: 0; left: 0;">
                             <div style="display: flex; align-items: center; justify-content: center; height: 100%;">Không có ảnh</div>
                         </div>
                     </div>
                     <% } else { %>
-                    <div style="width: 200px; height: 200px; background: #e2e8f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 14px; text-align: center; border: 2px solid #e2e8f0; margin: 20px auto;">
-                        Không có ảnh
-                    </div>
+                    <div class="image-placeholder image-placeholder-large" style="margin: 20px auto;">Không có ảnh</div>
                     <% } %>
                 </div>
 
@@ -243,9 +63,14 @@
                     <div class="info-row">
                         <div class="info-label">Mô tả:</div>
                         <div class="info-value">
-                            <%= combo.getDescription() != null && !combo.getDescription().isEmpty() 
-                                ? combo.getDescription() 
-                                : "Không có mô tả" %>
+                            <% 
+                                String description = combo.getDescription();
+                                if (description != null && !description.trim().isEmpty()) {
+                                    out.print(description);
+                                } else {
+                                    out.print("Không có mô tả");
+                                }
+                            %>
                         </div>
                     </div>
                     <div class="info-row">
@@ -290,25 +115,38 @@
                             <% 
                                 double totalOriginalPrice = 0;
                                 for (ComboItem ci : combo.getItems()) {
-                                    if (ci.getFoodItem() != null) {
-                                        double itemTotal = ci.getFoodItem().getPrice() * ci.getQuantity();
+                                    if (ci != null && ci.getFoodItem() != null) {
+                                        model.FoodItem foodItem = ci.getFoodItem();
+                                        double itemPrice = foodItem.getPrice();
+                                        int quantity = ci.getQuantity();
+                                        double itemTotal = itemPrice * quantity;
                                         totalOriginalPrice += itemTotal;
+                                        String itemImage = foodItem.getImage();
+                                        String itemName = foodItem.getName();
+                                        int itemID = foodItem.getItemID();
                             %>
                             <tr>
                                 <td>
-                                    <% if (ci.getFoodItem().getImage() != null && !ci.getFoodItem().getImage().isEmpty()) { %>
-                                    <img src="${pageContext.request.contextPath}/assets/user/img/<%= ci.getFoodItem().getImage() %>" 
-                                         alt="<%= ci.getFoodItem().getName() %>" 
-                                         class="item-image"
-                                         onerror="this.style.display='none'">
+                                    <% if (itemImage != null && isValidImageFile(itemImage)) { %>
+                                    <div style="position: relative; width: 50px; height: 50px;">
+                                        <img src="<%= request.getContextPath() %>/assets/user/img/<%= itemImage %>" 
+                                             alt="<%= itemName != null ? itemName : "" %>" 
+                                             class="item-image"
+                                             id="itemImage_<%= itemID %>"
+                                             onerror="handleItemImageErrorInDetail(this);">
+                                        <div id="itemPlaceholder_<%= itemID %>" 
+                                             class="image-placeholder" style="display: none; position: absolute; top: 0; left: 0; width: 50px; height: 50px;">
+                                            <div style="display: flex; align-items: center; justify-content: center; height: 100%;">No img</div>
+                                        </div>
+                                    </div>
                                     <% } else { %>
-                                    <div style="width: 50px; height: 50px; background: #e2e8f0; border-radius: 8px;"></div>
+                                    <div class="image-placeholder" style="width: 50px; height: 50px;">No img</div>
                                     <% } %>
                                 </td>
-                                <td><strong><%= ci.getFoodItem().getName() %></strong></td>
-                                <td><%= ci.getFoodItem().getTypeDisplayName() %></td>
+                                <td><strong><%= itemName != null ? itemName : "N/A" %></strong></td>
+                                <td><%= foodItem.getTypeDisplayName() != null ? foodItem.getTypeDisplayName() : "N/A" %></td>
                                 <td><%= ci.getFormattedItemPrice() %></td>
-                                <td><%= ci.getQuantity() %></td>
+                                <td><%= quantity %></td>
                                 <td class="price-value"><%= ci.getFormattedSubTotal() %></td>
                             </tr>
                             <% 
@@ -367,6 +205,20 @@
             // Handle image error for detail page combo image
             function handleDetailImageError(img) {
                 const placeholder = document.getElementById('detailComboPlaceholder');
+                
+                if (placeholder) {
+                    img.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+                
+                // Prevent infinite loop
+                img.onerror = null;
+            }
+
+            // Handle image error for food item images in combo detail
+            function handleItemImageErrorInDetail(img) {
+                const itemId = img.id.replace('itemImage_', '');
+                const placeholder = document.getElementById('itemPlaceholder_' + itemId);
                 
                 if (placeholder) {
                     img.style.display = 'none';

@@ -568,9 +568,9 @@
 
                     // Lấy ngày được chọn
                     const selectedDate = $(this).data('date');
-                    const movieId = ${movie.id};
+                    const movieId = '${movie.id}';
 
-                    // Hiển thị loading
+                    // Hiển thị loading`
                     $('#scheduleContent').html(`
                         <div class="text-center py-4">
                             <div class="spinner-border text-primary" role="status">
@@ -587,7 +587,7 @@
                 // Tự động load lịch chiếu cho ngày đầu tiên
                 const firstDate = $('.date-item.active').data('date');
                 if (firstDate) {
-                    loadSchedule(${movie.id}, firstDate);
+                    loadSchedule('${movie.id}', firstDate);
                 }
 
                 // Smooth scroll khi click nút "Đặt vé ngay"

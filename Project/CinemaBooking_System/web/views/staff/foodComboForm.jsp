@@ -1,5 +1,16 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.FoodCombo, model.FoodItem, model.ComboItem, java.util.List"%>
+<%!
+    private boolean isValidImageFile(String imageName) {
+        if (imageName == null || imageName.trim().isEmpty()) {
+            return false;
+        }
+        String lower = imageName.toLowerCase();
+        return lower.endsWith(".jpg") || lower.endsWith(".jpeg") || 
+               lower.endsWith(".png") || lower.endsWith(".gif") || 
+               lower.endsWith(".webp") || lower.endsWith(".svg");
+    }
+%>
 <%
     FoodCombo combo = (FoodCombo) request.getAttribute("foodCombo");
     List<FoodItem> foodItems = (List<FoodItem>) request.getAttribute("foodItems");
@@ -8,19 +19,16 @@
     
     // Calculate initial discount for edit mode
     double initialDiscount = 0;
-    if (isEdit && combo != null) {
+    if (isEdit && combo != null && combo.getItems() != null && !combo.getItems().isEmpty()) {
         double totalOriginal = 0;
-        if (combo.getItems() != null && !combo.getItems().isEmpty()) {
-            for (ComboItem ci : combo.getItems()) {
-                if (ci.getFoodItem() != null) {
-                    totalOriginal += ci.getFoodItem().getPrice() * ci.getQuantity();
-                }
+        for (ComboItem ci : combo.getItems()) {
+            if (ci.getFoodItem() != null) {
+                totalOriginal += ci.getFoodItem().getPrice() * ci.getQuantity();
             }
         }
         initialDiscount = Math.max(0, totalOriginal - combo.getPrice());
     }
     
-    // Set active page for sidebar highlighting
     request.setAttribute("activePage", "food-combos");
     request.setAttribute("pageTitle", isEdit ? "✏️ Chỉnh sửa Combo" : "➕ Thêm Combo Mới");
 %>
@@ -30,227 +38,7 @@
         <meta charset="UTF-8">
         <title><%= isEdit ? "Chỉnh sửa" : "Thêm mới" %> Combo | Cinema Booking</title>
         <jsp:include page="../layout/StaffStyles.jsp"/>
-        <style>
-            .form-container {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 20px;
-                padding: 40px;
-                max-width: 900px;
-                margin: 0 auto;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            }
-
-            .form-header {
-                text-align: center;
-                margin-bottom: 40px;
-            }
-
-            .form-header h2 {
-                font-size: 24px;
-                font-weight: 700;
-                color: #1a202c;
-                margin-bottom: 10px;
-            }
-
-            .form-group {
-                margin-bottom: 25px;
-            }
-
-            .form-group label {
-                display: block;
-                color: #4a5568;
-                font-size: 13px;
-                font-weight: 600;
-                margin-bottom: 8px;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-            }
-
-            .form-group input,
-            .form-group textarea {
-                width: 100%;
-                background: #ffffff;
-                border: 1px solid #ced4da;
-                border-radius: 12px;
-                padding: 14px 16px;
-                color: #2d3748;
-                font-size: 14px;
-                outline: none;
-                transition: all 0.3s ease;
-                font-family: 'Inter', sans-serif;
-            }
-
-            .form-group input:focus,
-            .form-group textarea:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-            }
-
-            .form-group textarea {
-                resize: vertical;
-                min-height: 100px;
-            }
-
-            .form-row {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
-
-            .checkbox-group {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin-top: 10px;
-            }
-
-            .checkbox-group input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                accent-color: #007bff;
-            }
-
-            .items-selection {
-                border: 1px solid #e2e8f0;
-                border-radius: 12px;
-                padding: 20px;
-                background: #f8f9fa;
-            }
-
-            .items-list {
-                max-height: 400px;
-                overflow-y: auto;
-                margin-top: 15px;
-            }
-
-            .item-row {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 12px;
-                background: white;
-                border-radius: 8px;
-                margin-bottom: 10px;
-                border: 1px solid #e2e8f0;
-            }
-
-            .item-checkbox {
-                width: 20px;
-                height: 20px;
-            }
-
-            .item-info {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .item-image {
-                width: 50px;
-                height: 50px;
-                object-fit: cover;
-                border-radius: 8px;
-                border: 1px solid #e2e8f0;
-            }
-
-            .item-details {
-                flex: 1;
-            }
-
-            .item-name {
-                font-weight: 600;
-                color: #1a202c;
-                margin-bottom: 4px;
-            }
-
-            .item-meta {
-                font-size: 12px;
-                color: #6b7280;
-            }
-
-            .item-price {
-                font-weight: 600;
-                color: #10b981;
-                min-width: 100px;
-                text-align: right;
-            }
-
-            .quantity-input {
-                width: 80px;
-                padding: 8px;
-                border: 1px solid #ced4da;
-                border-radius: 8px;
-                text-align: center;
-            }
-
-            .form-actions {
-                display: flex;
-                gap: 15px;
-                margin-top: 40px;
-                padding-top: 30px;
-                border-top: 1px solid #e2e8f0;
-            }
-
-            .btn {
-                flex: 1;
-                padding: 14px 28px;
-                border: none;
-                border-radius: 12px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-                text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-
-            .btn-primary {
-                background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
-                color: white;
-            }
-
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
-            }
-
-            .btn-secondary {
-                background: #6c757d;
-                color: #ffffff;
-            }
-
-            .alert {
-                padding: 15px 20px;
-                border-radius: 12px;
-                margin-bottom: 25px;
-                font-weight: 600;
-            }
-
-            .alert-error {
-                background: rgba(239, 68, 68, 0.2);
-                color: #ef4444;
-                border: 1px solid rgba(239, 68, 68, 0.3);
-            }
-
-            .required::after {
-                content: " *";
-                color: #ef4444;
-            }
-
-            .total-summary {
-                background: #e3f2fd;
-                padding: 15px;
-                border-radius: 12px;
-                margin-top: 15px;
-                font-weight: 600;
-            }
-        </style>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/staff/css/foodCombo.css">
     </head>
     <body>
 
@@ -270,7 +58,7 @@
                 </div>
                 <% } %>
 
-                <form action="${pageContext.request.contextPath}/staff/food-combos" method="post" id="foodComboForm" enctype="multipart/form-data">
+                <form action="${pageContext.request.contextPath}/staff/food-combos" method="post" id="foodComboForm">
                     <% if (isEdit) { %>
                     <input type="hidden" name="id" value="<%= combo.getComboID() %>">
                     <% } %>
@@ -363,7 +151,7 @@
                                            <%= isSelected ? "checked" : "" %>
                                            onchange="toggleQuantityInput(this)">
                                     <div class="item-info">
-                                        <% if (item.getImage() != null && !item.getImage().isEmpty()) { %>
+                                        <% if (isValidImageFile(item.getImage())) { %>
                                         <img src="${pageContext.request.contextPath}/assets/user/img/<%= item.getImage() %>" 
                                              alt="<%= item.getName() %>" 
                                              class="item-image"
@@ -410,10 +198,10 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
                             <%= isEdit ? "💾 Cập nhật" : "➕ Thêm mới" %>
                         </button>
-                        <a href="${pageContext.request.contextPath}/staff/food-combos" class="btn btn-secondary">
+                        <a href="${pageContext.request.contextPath}/staff/food-combos" class="btn btn-secondary" id="backBtn" onclick="return handleBackClick();">
                             ↩️ Quay lại
                         </a>
                     </div>
@@ -492,53 +280,93 @@
                 }, 100);
             });
 
-            // Form validation
-            document.getElementById('foodComboForm').addEventListener('submit', function (e) {
-                // Recalculate price before submit to ensure accuracy
-                calculateComboPrice();
-
-                const name = document.getElementById('name').value.trim();
-                const price = parseFloat(document.getElementById('price').value);
-                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-
-                let errors = [];
-
-                if (!name) {
-                    errors.push("Tên combo không được để trống");
-                }
-
-                if (checkedItems.length === 0) {
-                    errors.push("Vui lòng chọn ít nhất một món cho combo");
-                }
-
-                if (isNaN(price) || price <= 0) {
-                    errors.push("Giá combo phải lớn hơn 0. Vui lòng chọn ít nhất một món và kiểm tra lại giảm giá");
-                }
-
-                // Validate quantities
-                checkedItems.forEach(checkbox => {
-                    const row = checkbox.closest('.item-row');
-                    const quantityInput = row.querySelector('.quantity-input');
-                    const quantity = parseInt(quantityInput.value);
-                    if (quantity < 1 || quantity > 10) {
-                        errors.push("Số lượng mỗi món phải từ 1-10");
+            // Form validation and submission handling
+            const foodComboForm = document.getElementById('foodComboForm');
+            let isSubmitting = false;
+            
+            if (foodComboForm) {
+                foodComboForm.addEventListener('submit', function (e) {
+                    // Prevent multiple submissions
+                    if (isSubmitting) {
+                        e.preventDefault();
+                        return false;
                     }
-                });
+                    
+                    // Recalculate price before submit to ensure accuracy
+                    calculateComboPrice();
 
-                if (errors.length > 0) {
-                    e.preventDefault();
-                    alert("Lỗi:\n• " + errors.join("\n• "));
-                    return false;
-                }
+                    const name = document.getElementById('name').value.trim();
+                    const price = parseFloat(document.getElementById('price').value);
+                    const checkedItems = document.querySelectorAll('.item-checkbox:checked');
 
-                // Set quantities for unchecked items to 0 (or don't send them)
-                document.querySelectorAll('.item-checkbox').forEach(checkbox => {
-                    if (!checkbox.checked) {
+                    let errors = [];
+
+                    if (!name) {
+                        errors.push("Tên combo không được để trống");
+                    }
+
+                    if (checkedItems.length === 0) {
+                        errors.push("Vui lòng chọn ít nhất một món cho combo");
+                    }
+
+                    if (isNaN(price) || price <= 0) {
+                        errors.push("Giá combo phải lớn hơn 0. Vui lòng chọn ít nhất một món và kiểm tra lại giảm giá");
+                    }
+
+                    // Validate quantities
+                    checkedItems.forEach(checkbox => {
                         const row = checkbox.closest('.item-row');
                         const quantityInput = row.querySelector('.quantity-input');
-                        quantityInput.disabled = true;
+                        const quantity = parseInt(quantityInput.value);
+                        if (quantity < 1 || quantity > 10) {
+                            errors.push("Số lượng mỗi món phải từ 1-10");
+                        }
+                    });
+
+                    if (errors.length > 0) {
+                        e.preventDefault();
+                        alert("Lỗi:\n• " + errors.join("\n• "));
+                        return false;
                     }
+
+                    // Set quantities for unchecked items to disabled
+                    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                        if (!checkbox.checked) {
+                            const row = checkbox.closest('.item-row');
+                            const quantityInput = row.querySelector('.quantity-input');
+                            quantityInput.disabled = true;
+                        }
+                    });
+                    
+                    // Mark as submitting and disable submit button
+                    isSubmitting = true;
+                    const submitBtn = foodComboForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '⏳ Đang xử lý...';
+                    }
+                    
+                    // Allow form to submit normally
+                    return true;
                 });
+            }
+            
+            // Handle back button click
+            function handleBackClick() {
+                if (isSubmitting) {
+                    const confirmLeave = confirm('Form đang được xử lý. Bạn có chắc muốn rời khỏi trang?');
+                    return confirmLeave;
+                }
+                return true;
+            }
+            
+            // Prevent navigation away if form is submitting (but allow if user confirms)
+            window.addEventListener('beforeunload', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    e.returnValue = 'Form đang được xử lý. Bạn có chắc muốn rời khỏi trang?';
+                    return e.returnValue;
+                }
             });
         </script>
 

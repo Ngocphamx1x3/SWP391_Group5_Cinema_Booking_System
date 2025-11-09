@@ -68,13 +68,27 @@ public class FoodComboDAO extends DBContext {
 
     // CREATE FOOD COMBO
     public int addFoodCombo(FoodCombo combo) {
+        // Validation
+        if (combo == null) {
+            System.err.println("Error: FoodCombo object is null");
+            return -1;
+        }
+        if (combo.getName() == null || combo.getName().trim().isEmpty()) {
+            System.err.println("Error: FoodCombo name cannot be null or empty");
+            return -1;
+        }
+        if (combo.getPrice() < 0) {
+            System.err.println("Error: FoodCombo price cannot be negative");
+            return -1;
+        }
+        
         String sql = "INSERT INTO FoodCombo (Name, Description, Price, Image, CreatedBy, CreatedDate, Status) "
                 + "VALUES (?, ?, ?, ?, ?, GETDATE(), ?)";
 
         try (Connection conn = getConnection(); 
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, combo.getName());
+            ps.setString(1, combo.getName().trim());
             ps.setString(2, combo.getDescription());
             ps.setDouble(3, combo.getPrice());
             ps.setString(4, combo.getImage());
@@ -98,12 +112,30 @@ public class FoodComboDAO extends DBContext {
 
     // UPDATE FOOD COMBO
     public boolean updateFoodCombo(FoodCombo combo) {
+        // Validation
+        if (combo == null) {
+            System.err.println("Error: FoodCombo object is null");
+            return false;
+        }
+        if (combo.getComboID() <= 0) {
+            System.err.println("Error: FoodCombo ID is invalid");
+            return false;
+        }
+        if (combo.getName() == null || combo.getName().trim().isEmpty()) {
+            System.err.println("Error: FoodCombo name cannot be null or empty");
+            return false;
+        }
+        if (combo.getPrice() < 0) {
+            System.err.println("Error: FoodCombo price cannot be negative");
+            return false;
+        }
+        
         String sql = "UPDATE FoodCombo SET Name = ?, Description = ?, Price = ?, Image = ?, "
                 + "UpdatedDate = GETDATE(), UpdatedBy = ?, Status = ? WHERE ComboID = ?";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, combo.getName());
+            ps.setString(1, combo.getName().trim());
             ps.setString(2, combo.getDescription());
             ps.setDouble(3, combo.getPrice());
             ps.setString(4, combo.getImage());
@@ -145,20 +177,13 @@ public class FoodComboDAO extends DBContext {
         return false;
     }
 
-    // TOGGLE STATUS (Active/Inactive)
+    // TOGGLE STATUS (Active/Inactive) - optimized: single SQL query
     public boolean toggleFoodComboStatus(int id) {
-        // First get current status, then toggle it
-        FoodCombo combo = getFoodComboById(id);
-        if (combo == null) {
-            return false;
-        }
-        
-        String sql = "UPDATE FoodCombo SET Status = ?, UpdatedDate = GETDATE() WHERE ComboID = ?";
+        String sql = "UPDATE FoodCombo SET Status = CASE WHEN Status = 1 THEN 0 ELSE 1 END, " +
+                     "UpdatedDate = GETDATE() WHERE ComboID = ?";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setBoolean(1, !combo.getStatus());
-            ps.setInt(2, id);
+            ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,16 +225,29 @@ public class FoodComboDAO extends DBContext {
         return list;
     }
 
-    // ADD COMBO ITEMS
+    // ADD COMBO ITEMS (public method - creates own connection)
     public boolean addComboItems(int comboID, List<ComboItem> items) {
+        if (items == null || items.isEmpty()) {
+            return true; // No items to add
+        }
+
+        try (Connection conn = getConnection()) {
+            return addComboItems(conn, comboID, items);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // ADD COMBO ITEMS (private method - uses existing connection for transaction)
+    private boolean addComboItems(Connection conn, int comboID, List<ComboItem> items) throws SQLException {
         if (items == null || items.isEmpty()) {
             return true; // No items to add
         }
 
         String sql = "INSERT INTO Combo_Item (ComboID, ItemID, Quantity) VALUES (?, ?, ?)";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             for (ComboItem item : items) {
                 ps.setInt(1, comboID);
                 ps.setInt(2, item.getItemID());
@@ -219,10 +257,7 @@ public class FoodComboDAO extends DBContext {
 
             ps.executeBatch();
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return false;
     }
 
     // DELETE ALL COMBO ITEMS
@@ -259,15 +294,16 @@ public class FoodComboDAO extends DBContext {
                 // Delete old items
                 deleteComboItems(comboID, conn);
                 
-                // Insert new items
+                // Insert new items (sử dụng cùng connection để đảm bảo transaction)
                 if (items != null && !items.isEmpty()) {
-                    addComboItems(comboID, items);
+                    addComboItems(conn, comboID, items);
                 }
                 
                 conn.commit();
                 return true;
             } catch (Exception e) {
                 conn.rollback();
+                e.printStackTrace();
                 throw e;
             }
         } catch (Exception e) {
