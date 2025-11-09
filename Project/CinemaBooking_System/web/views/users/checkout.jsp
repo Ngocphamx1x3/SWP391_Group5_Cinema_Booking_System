@@ -11,6 +11,7 @@
   <style>
     .qr-wrap{display:flex;gap:24px;align-items:center;justify-content:center;margin-top:18px}
     .qr-box{padding:16px;border:1px solid #eee;border-radius:12px;background:#fff;min-width:270px}
+    .discount-info {background: #f8fff9; border: 1px solid #28a745; border-radius: 8px; padding: 10px; margin: 10px 0;}
   </style>
 </head>
 <body class="bg-light">
@@ -18,8 +19,29 @@
   <div class="mx-auto bg-white rounded-4 shadow p-4" style="max-width:760px">
     <h4 class="mb-3">Quét mã thanh toán</h4>
     <p class="mb-1">Mã đơn: <strong>${orderCode}</strong></p>
-    <p class="mb-3">Số tiền: <strong><fmt:formatNumber value="${amount}" type="number"/> VND</strong></p>
+    
+    <!-- Hiển thị thông tin giảm giá -->
+<c:if test="${not empty discountAmount && discountAmount > 0}">
+  <div class="discount-info">
+    <div class="row">
+      <c:if test="${not empty originalAmount}">
+        <div class="col-6">
+          <small class="text-muted">Tổng gốc:</small>
+          <div class="text-decoration-line-through"><fmt:formatNumber value="${originalAmount}" type="number"/> VND</div>
+        </div>
+      </c:if>
+      <div class="col-6">
+        <small class="text-muted">Giảm giá:</small>
+        <div class="text-success">-<fmt:formatNumber value="${discountAmount}" type="number"/> VND</div>
+      </div>
+    </div>
+    <c:if test="${not empty voucherCode}">
+      <small class="text-muted">Mã khuyến mãi: ${voucherCode}</small>
+    </c:if>
+  </div>
+</c:if>
 
+<p class="mb-3">Số tiền thanh toán: <strong><fmt:formatNumber value="${amount}" type="number"/> VND</strong></p>
     <div class="qr-wrap">
       <div class="qr-box text-center">
         <c:choose>
@@ -33,7 +55,7 @@
           </c:when>
 
           <c:otherwise>
-            <div class="text-danger small">Không tạo được QR — vui lòng bấm “Mở trang thanh toán”.</div>
+            <div class="text-danger small">Không tạo được QR — vui lòng bấm "Mở trang thanh toán".</div>
           </c:otherwise>
         </c:choose>
         <div class="small text-muted mt-2">Quét QR bằng app ngân hàng</div>
@@ -70,13 +92,9 @@
   </div>
 </div>
 
-<!-- JS đặt cuối body -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- qrcode.min.js local -->
 <script src="${pageContext.request.contextPath}/assets/admin/js/qrcode.min.js"></script>
 
-<!-- Vẽ QR nếu có qrPlain -->
 <c:if test="${empty qrDataUri && not empty qrPlain}">
   <script>
     (function(){

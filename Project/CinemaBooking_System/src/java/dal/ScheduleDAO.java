@@ -44,6 +44,33 @@ public class ScheduleDAO extends DBContext {
         return list;
     }
 
+    // Lấy tất cả lịch chiếu (Admin)
+public List<Schedule> getAllSchedules() {
+    List<Schedule> list = new ArrayList<>();
+    String sql = "SELECT s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
+               + "FROM Schedule s "
+               + "INNER JOIN Movie m ON s.MovieId = m.Id "
+               + "INNER JOIN Room r ON s.RoomId = r.Id "
+               + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
+               + "ORDER BY s.StartAt DESC";
+
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            Schedule schedule = mapResultSetToSchedule(rs);
+            schedule.setMovieName(rs.getString("movie_name"));
+            schedule.setRoomName(rs.getString("room_name"));
+            schedule.setCinemaName(rs.getString("cinema_name"));
+            list.add(schedule);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
     // GET SCHEDULE BY ID WITH STAFF VALIDATION
     public Schedule getScheduleById(int scheduleId, int staffId) {
         String sql = "SELECT s.*, m.Name as movie_name, m.MovieDuration, r.Name as room_name, "
@@ -451,6 +478,35 @@ public class ScheduleDAO extends DBContext {
 
         return schedules;
     }
+    
+    
+public List<Schedule> getRecentSchedules(int limit) {
+    List<Schedule> list = new ArrayList<>();
+    String sql = "SELECT TOP (?) s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
+               + "FROM Schedule s "
+               + "INNER JOIN Movie m ON s.MovieId = m.Id "
+               + "INNER JOIN Room r ON s.RoomId = r.Id "
+               + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
+               + "ORDER BY s.Id DESC"; // <-- ID lớn nhất = mới nhất
+
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, limit);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Schedule schedule = mapResultSetToSchedule(rs);
+                schedule.setMovieName(rs.getString("movie_name"));
+                schedule.setRoomName(rs.getString("room_name"));
+                schedule.setCinemaName(rs.getString("cinema_name"));
+                list.add(schedule);
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+
 
     private String generateScheduleCode() {
         return "SCH" + System.currentTimeMillis();
