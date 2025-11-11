@@ -98,6 +98,34 @@ public List<Schedule> getAllSchedules() {
         }
         return null;
     }
+    
+    // GET SCHEDULE BY ID (for checkout validation - no staff validation)
+    public Schedule getScheduleById(int scheduleId) {
+        String sql = "SELECT s.*, m.Name as movie_name, m.MovieDuration, r.Name as room_name, "
+                + "c.Name as cinema_name "
+                + "FROM Schedule s "
+                + "INNER JOIN Movie m ON s.MovieId = m.Id "
+                + "INNER JOIN Room r ON s.RoomId = r.Id "
+                + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
+                + "WHERE s.Id = ? AND s.Status = N'Đang hoạt động'";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, scheduleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Schedule schedule = mapResultSetToSchedule(rs);
+                    schedule.setMovieName(rs.getString("movie_name"));
+                    schedule.setRoomName(rs.getString("room_name"));
+                    schedule.setCinemaName(rs.getString("cinema_name"));
+                    return schedule;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error getting schedule by ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     // GET ACTIVE MOVIES FOR SCHEDULING (chỉ phim đang chiếu)
     public List<model.Movie> getActiveMoviesForScheduling() {
