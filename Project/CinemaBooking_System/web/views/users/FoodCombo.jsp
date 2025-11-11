@@ -11,6 +11,16 @@
     }
 %>
 <%
+    // Nhận thông tin vé từ URL params (từ seat-modal.js)
+    String scheduleId = request.getParameter("scheduleId");
+    String seatIds = request.getParameter("seatIds");
+    String totalAmount = request.getParameter("totalAmount");
+    
+    // Lưu vào request attribute để JavaScript có thể truy cập
+    if (scheduleId != null) request.setAttribute("scheduleId", scheduleId);
+    if (seatIds != null) request.setAttribute("seatIds", seatIds);
+    if (totalAmount != null) request.setAttribute("totalAmount", totalAmount);
+    
     List<FoodCombo> foodCombos = (List<FoodCombo>) request.getAttribute("foodCombos");
     if (foodCombos == null) {
         FoodComboDAO fcDao = new FoodComboDAO();
@@ -274,10 +284,60 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+            min-width: 0;
         }
 
-        .cart-item-title { font-weight: 600; font-size: 14px; }
-        .cart-item-sub { font-size: 12px; color: #6b7280; }
+        .cart-item-title { 
+            font-weight: 600; 
+            font-size: 14px; 
+            color: #0f172a;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+        
+        .cart-item-sub { 
+            font-size: 12px; 
+            color: #6b7280; 
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            color: #16a34a;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .btn-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn-remove:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        
+        .btn-remove:active {
+            transform: scale(0.95);
+        }
 
         .cart-total {
             display: flex;
@@ -377,30 +437,36 @@
             <div id="comboGrid" class="grid">
                 <% if (foodCombos != null && !foodCombos.isEmpty()) { 
                     for (int i = startIndex; i < endIndex; i++) { 
-                        FoodCombo c = foodCombos.get(i); %>
-                    <div class="combo-item" data-name="<%= c.getName() %>"
-                         data-price="<%= c.getPrice() %>" data-id="<%= c.getComboID() %>">
+                        FoodCombo c = foodCombos.get(i);
+                        String comboName = c.getName() != null ? c.getName().replace("\"", "&quot;").replace("'", "&#39;") : "Combo";
+                        double comboPrice = c.getPrice();
+                        int comboId = c.getComboID();
+                %>
+                    <div class="combo-item" 
+                         data-name="<%= comboName %>"
+                         data-price="<%= String.format("%.0f", comboPrice) %>" 
+                         data-id="<%= comboId %>">
                         <% if (isValidImageFile(c.getImage())) { %>
                             <img class="combo-thumb"
                                  src="${pageContext.request.contextPath}/assets/user/img/<%= c.getImage() %>"
-                                 alt="<%= c.getName() %>"
+                                 alt="<%= comboName %>"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="combo-thumb" style="display:none;align-items:center;justify-content:center;color:#64748b;">Không có ảnh</div>
                         <% } else { %>
                             <div class="combo-thumb" style="display:flex;align-items:center;justify-content:center;color:#64748b;">Không có ảnh</div>
                         <% } %>
                         <div class="combo-body">
-                            <div class="combo-title"><%= c.getName() %></div>
+                            <div class="combo-title"><%= comboName %></div>
                             <div class="combo-desc"><%= c.getDescription() != null ? c.getDescription() : "Combo đồ ăn/uống" %></div>
                             <div class="combo-actions">
                                 <div class="combo-price"><%= c.getFormattedPrice() %></div>
                                 <div style="display:flex;align-items:center;gap:8px;">
                                     <div class="qty">
-                                        <button class="btnDec">-</button>
-                                        <input type="text" class="qtyInput" value="1" inputmode="numeric">
-                                        <button class="btnInc">+</button>
+                                        <button class="btnDec" type="button">-</button>
+                                        <input type="number" class="qtyInput" value="1" min="1" inputmode="numeric">
+                                        <button class="btnInc" type="button">+</button>
                                     </div>
-                                    <button class="btn btnAdd">Thêm</button>
+                                    <button class="btn btnAdd" type="button">Thêm</button>
                                 </div>
                             </div>
                         </div>
@@ -446,7 +512,307 @@
 <jsp:include page="/views/layout/Footer.jsp"/>
 
 <script>
-// Placeholder JS giữ nguyên
+// Lưu thông tin vé từ server-side vào JavaScript
+const seatBookingData = {
+    scheduleId: '<%= scheduleId != null ? scheduleId : "" %>',
+    seatIds: '<%= seatIds != null ? seatIds : "" %>',
+    totalAmount: '<%= totalAmount != null ? totalAmount : "0" %>'
+};
+
+// Giỏ hàng combo
+let cart = [];
+
+// Khởi tạo
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartDisplay();
+    
+    // Xử lý tăng/giảm số lượng
+    document.querySelectorAll('.btnInc').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.qtyInput');
+            let val = parseInt(input.value) || 0;
+            input.value = Math.max(1, val + 1);
+        });
+    });
+    
+    document.querySelectorAll('.btnDec').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('.qtyInput');
+            let val = parseInt(input.value) || 0;
+            input.value = Math.max(1, val - 1);
+        });
+    });
+    
+    // Xử lý thêm vào giỏ
+    document.querySelectorAll('.btnAdd').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const item = this.closest('.combo-item');
+            const comboId = parseInt(item.dataset.id);
+            const name = item.dataset.name || 'Combo';
+            const price = parseFloat(item.dataset.price) || 0;
+            const qtyInput = item.querySelector('.qtyInput');
+            const quantity = parseInt(qtyInput.value) || 1;
+            
+            // Validate dữ liệu
+            if (!comboId || comboId <= 0) {
+                alert('Lỗi: Không tìm thấy thông tin combo');
+                return;
+            }
+            
+            if (!name || name.trim() === '') {
+                alert('Lỗi: Tên combo không hợp lệ');
+                return;
+            }
+            
+            if (price <= 0) {
+                alert('Lỗi: Giá combo không hợp lệ');
+                return;
+            }
+            
+            if (quantity <= 0) {
+                alert('Số lượng phải lớn hơn 0');
+                return;
+            }
+            
+            // Kiểm tra đã có trong giỏ chưa
+            const existingIndex = cart.findIndex(c => c.comboId === comboId);
+            if (existingIndex >= 0) {
+                // Nếu đã có, cộng thêm số lượng
+                cart[existingIndex].quantity += quantity;
+            } else {
+                // Nếu chưa có, thêm mới
+                cart.push({ 
+                    comboId: comboId, 
+                    name: name.trim(), 
+                    price: price, 
+                    quantity: quantity 
+                });
+            }
+            
+            // Reset quantity về 1
+            qtyInput.value = 1;
+            
+            // Cập nhật hiển thị
+            updateCartDisplay();
+            
+            // Hiển thị thông báo
+            console.log('Đã thêm vào giỏ:', name, 'x', quantity);
+        });
+    });
+    
+    // Xử lý xóa hết giỏ
+    document.getElementById('btnClear')?.addEventListener('click', function() {
+        cart = [];
+        updateCartDisplay();
+    });
+    
+    // Xử lý thanh toán
+    document.getElementById('btnCheckout')?.addEventListener('click', function() {
+        if (!seatBookingData.scheduleId || !seatBookingData.seatIds) {
+            alert('Lỗi: Thiếu thông tin đặt vé. Vui lòng quay lại trang chọn ghế.');
+            return;
+        }
+        
+        // Disable button để tránh double submit
+        this.disabled = true;
+        
+        // Tính tổng giá combo
+        const comboTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        // Tính tổng giá vé (từ seatBookingData.totalAmount)
+        const seatTotal = parseInt(seatBookingData.totalAmount) || 0;
+        
+        // Tổng cuối cùng (vé + combo, chưa có discount - discount sẽ được tính ở server nếu có voucher)
+        const finalTotal = seatTotal + comboTotal;
+        
+        // Tạo form POST tới /checkout
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '${pageContext.request.contextPath}/checkout';
+        
+        // Thông tin vé
+        const f1 = document.createElement('input');
+        f1.type = 'hidden';
+        f1.name = 'scheduleId';
+        f1.value = seatBookingData.scheduleId;
+        form.appendChild(f1);
+        
+        const f2 = document.createElement('input');
+        f2.type = 'hidden';
+        f2.name = 'seatIds';
+        f2.value = seatBookingData.seatIds;
+        form.appendChild(f2);
+        
+        // Gửi totalAmount (tổng vé + combo)
+        const f3 = document.createElement('input');
+        f3.type = 'hidden';
+        f3.name = 'totalAmount';
+        f3.value = String(finalTotal);
+        form.appendChild(f3);
+        
+        // Gửi originalAmount (giá vé gốc, để server tính discount đúng)
+        const f3a = document.createElement('input');
+        f3a.type = 'hidden';
+        f3a.name = 'originalAmount';
+        f3a.value = String(seatTotal);
+        form.appendChild(f3a);
+        
+        // Thông tin combo (nếu có)
+        if (cart.length > 0) {
+            const comboIds = cart.map(c => c.comboId).join(',');
+            const comboQuantities = cart.map(c => c.quantity).join(',');
+            
+            const f4 = document.createElement('input');
+            f4.type = 'hidden';
+            f4.name = 'comboIds';
+            f4.value = comboIds;
+            form.appendChild(f4);
+            
+            const f5 = document.createElement('input');
+            f5.type = 'hidden';
+            f5.name = 'comboQuantities';
+            f5.value = comboQuantities;
+            form.appendChild(f5);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    });
+    
+    // Xử lý tìm kiếm
+    document.getElementById('btnSearch')?.addEventListener('click', function() {
+        const keyword = document.getElementById('keyword').value.trim().toLowerCase();
+        const items = document.querySelectorAll('.combo-item');
+        
+        items.forEach(item => {
+            const name = item.dataset.name.toLowerCase();
+            if (keyword === '' || name.includes(keyword)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Reset tìm kiếm
+    document.getElementById('btnReset')?.addEventListener('click', function() {
+        document.getElementById('keyword').value = '';
+        document.querySelectorAll('.combo-item').forEach(item => {
+            item.style.display = '';
+        });
+    });
+});
+
+function updateCartDisplay() {
+    const cartList = document.getElementById('cartList');
+    const cartTotal = document.getElementById('cartTotal');
+    const btnCheckout = document.getElementById('btnCheckout');
+    
+    // Luôn hiển thị nút thanh toán nếu có thông tin vé (cho phép thanh toán chỉ với vé, không cần combo)
+    if (cart.length === 0) {
+        cartList.innerHTML = '<div class="empty">Chưa có sản phẩm nào</div>';
+        const seatTotal = parseInt(seatBookingData.totalAmount) || 0;
+        if (seatTotal > 0) {
+            const formattedSeatTotal = seatTotal.toLocaleString('vi-VN');
+            cartTotal.innerHTML = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
+                '<div style="font-size:12px;color:#64748b;">Vé: ' + formattedSeatTotal + ' &#x20AB;</div>' +
+                '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + formattedSeatTotal + ' &#x20AB;</div>' +
+                '</div>';
+            if (btnCheckout) btnCheckout.disabled = false;
+        } else {
+            cartTotal.textContent = '0 ₫';
+            if (btnCheckout) btnCheckout.disabled = true;
+        }
+        return;
+    }
+    
+    // Hiển thị danh sách combo với nút xóa
+    let html = '';
+    cart.forEach((item, index) => {
+        // Đảm bảo item có đầy đủ thông tin
+        const itemName = item.name || 'Combo';
+        const itemPrice = parseFloat(item.price) || 0;
+        const itemQuantity = parseInt(item.quantity) || 1;
+        const itemTotal = itemPrice * itemQuantity;
+        
+        // Escape HTML để tránh XSS
+        const escapedName = escapeHtml(itemName);
+        const formattedPrice = itemPrice.toLocaleString('vi-VN');
+        const formattedTotal = itemTotal.toLocaleString('vi-VN');
+        
+        // Sử dụng string concatenation thay vì template literals để tránh JSP parse
+        html += '<div class="cart-item" data-cart-index="' + index + '">';
+        html += '<div class="cart-item-info">';
+        html += '<div class="cart-item-title">' + escapedName + '</div>';
+        html += '<div class="cart-item-sub">' + itemQuantity + ' x ' + formattedPrice + ' &#x20AB;</div>';
+        html += '</div>';
+        html += '<div class="cart-item-actions">';
+        html += '<div class="cart-item-price">' + formattedTotal + ' &#x20AB;</div>';
+        html += '<button class="btn-remove" data-cart-index="' + index + '" title="Xóa item này">🗑️</button>';
+        html += '</div>';
+        html += '</div>';
+    });
+    cartList.innerHTML = html;
+    
+    // Attach event listeners cho các nút xóa (sử dụng event delegation)
+    cartList.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-cart-index'));
+            removeFromCart(index);
+        });
+    });
+    
+    // Tính tổng giá combo
+    const comboTotal = cart.reduce((sum, item) => {
+        const price = parseFloat(item.price) || 0;
+        const quantity = parseInt(item.quantity) || 1;
+        return sum + (price * quantity);
+    }, 0);
+    
+    // Tính tổng giá vé (nếu có)
+    const seatTotal = parseInt(seatBookingData.totalAmount) || 0;
+    
+    // Hiển thị tổng
+    if (seatTotal > 0) {
+        const finalTotal = seatTotal + comboTotal;
+        const formattedSeatTotal = seatTotal.toLocaleString('vi-VN');
+        const formattedComboTotal = comboTotal.toLocaleString('vi-VN');
+        const formattedFinalTotal = finalTotal.toLocaleString('vi-VN');
+        cartTotal.innerHTML = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
+            '<div style="font-size:12px;color:#64748b;">Vé: ' + formattedSeatTotal + ' &#x20AB;</div>' +
+            '<div style="font-size:12px;color:#64748b;">Combo: ' + formattedComboTotal + ' &#x20AB;</div>' +
+            '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + formattedFinalTotal + ' &#x20AB;</div>' +
+            '</div>';
+    } else {
+        cartTotal.textContent = comboTotal.toLocaleString('vi-VN') + ' &#x20AB;';
+    }
+    
+    if (btnCheckout) btnCheckout.disabled = false;
+}
+
+// Hàm xóa item khỏi giỏ hàng
+function removeFromCart(index) {
+    if (index >= 0 && index < cart.length) {
+        const item = cart[index];
+        const itemName = item.name || 'Combo';
+        if (confirm('Bạn có chắc muốn xóa "' + itemName + '" khỏi giỏ hàng?')) {
+            cart.splice(index, 1);
+            updateCartDisplay();
+        }
+    }
+}
+
+// Hàm escape HTML để tránh XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+}
 </script>
 </body>
 </html>
