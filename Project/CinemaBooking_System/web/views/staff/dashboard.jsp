@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -345,46 +346,6 @@
                 font-weight: 600;
             }
 
-            /* ===== Notifications ===== */
-            .notifications {
-                background: #ffffff;
-                border: 1px solid #e2e8f0;
-                border-radius: 20px;
-                padding: 30px;
-                margin-bottom: 40px;
-            }
-
-            .notifications h2 {
-                font-size: 20px;
-                font-weight: 600;
-                margin-bottom: 20px;
-                color: #1a202c;
-            }
-
-            .notifications ul {
-                list-style: none;
-            }
-
-            .notifications li {
-                padding: 15px;
-                background: #e6f7ff;
-                border-left: 3px solid #007bff;
-                border-radius: 8px;
-                margin-bottom: 12px;
-                color: #2d3748;
-                font-size: 14px;
-                transition: all 0.3s ease;
-            }
-            .toolbar select option {
-                color: #333;
-                background-color: #fff;
-            }
-
-            .notifications li:hover {
-                background: #d0ebf9; /* Nền xanh đậm hơn khi hover */
-                transform: translateX(5px);
-            }
-
             /* ===== Footer ===== */
             footer {
                 background: #ffffff; /* Nền trắng */
@@ -402,7 +363,7 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-logo">
-                <h2>🎬 CINEMA STAFF</h2>
+                <h2>🎬 CINEMA PRO</h2>
                 <p>Staff Panel</p>
             </div>
             <nav>
@@ -411,7 +372,6 @@
                 <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
                 <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
                 <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
         </div>
@@ -436,34 +396,45 @@
             <!-- Stats Cards -->
             <div class="stats-container">
                 <div class="stat-box">
-                    <h3>🎟️ Vé đã bán hôm nay</h3>
-                    <div class="stat-value">342</div>
-                    <div class="stat-change">↑ 15% so với hôm qua</div>
+                    <h3>🎟️ Vé đã bán tháng này</h3>
+                    <div class="stat-value">
+                        ${ticketsSoldToday}
+                    </div>
+                    <div class="stat-change">
+                        ↑ ${ticketsChangePercent}% so với hôm qua
+                    </div>
                 </div>
+
                 <div class="stat-box">
-                    <h3>💰 Doanh thu ca</h3>
-                    <div class="stat-value">42.5M</div>
-                    <div class="stat-change">↑ 8.3% so với ca trước</div>
+                    <h3>💰 Doanh thu tháng này</h3>
+                    <div class="stat-value" style="font-size: 1.6em;">
+                        <fmt:formatNumber value="${revenueCurrentShift}" type="number" groupingUsed="true" /> VNĐ
+                    </div>
+                    <div class="stat-change">↑ 8.3% so với hôm qua</div>
                 </div>
+
                 <div class="stat-box">
-                    <h3>👥 Khách hàng mới</h3>
-                    <div class="stat-value">28</div>
-                    <div class="stat-change">↑ 12% so với tuần trước</div>
+                    <h3>🎬 Phòng đang hoạt động</h3>
+                    <div class="stat-value">
+                        ${activeRooms} / ${totalRooms}
+                    </div>
+                    <div class="stat-change">
+                        Cập nhật theo trạng thái phòng
+                    </div>
                 </div>
+
                 <div class="stat-box">
                     <h3>⏰ Suất chiếu hôm nay</h3>
-                    <div class="stat-value">18</div>
-                    <div class="stat-change">3 suất sắp bắt đầu</div>
+                    <div class="stat-value">
+                        ${todaySchedules}
+                    </div>
+                    <div class="stat-change">Tổng số suất chiếu trong ngày</div>
                 </div>
+
                 <div class="stat-box">
-                    <h3>✅ Vé đã kiểm tra</h3>
-                    <div class="stat-value">156</div>
-                    <div class="stat-change">Còn 42 vé chưa check-in</div>
-                </div>
-                <div class="stat-box">
-                    <h3>⚠️ Yêu cầu hỗ trợ</h3>
+                    <h3>✅ Vé đã kiểm tra hôm nay</h3>
                     <div class="stat-value">3</div>
-                    <div class="stat-change negative">Cần xử lý ngay</div>
+                    <div class="stat-change">Còn 1 vé chưa check-in</div>
                 </div>
             </div>
 
@@ -483,32 +454,32 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Deadpool & Wolverine</strong></td>
-                            <td>Phòng 1</td>
-                            <td>14:00 - 16:15</td>
+                            <td><strong>CHÂU BÁU ĐỜI TÔI</strong></td>
+                            <td>Phòng 3 - IMAX Lotte Hòa Lạc</td>
+                            <td>18:00 - 20:00</td>
                             <td>12/120</td>
                             <td class="status-success">✅ Đang chiếu</td>
                             <td><button style="background:#ffc107;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">Check-in</button></td>
                         </tr>
                         <tr>
-                            <td><strong>Inside Out 2</strong></td>
-                            <td>Phòng 3</td>
-                            <td>15:30 - 17:20</td>
+                            <td><strong>NGHỆ THUẬT SĂN QUỶ VÀ NẤU MÌ 2</strong></td>
+                            <td>Phòng 3 - IMAX Lotte Hòa Lạc</td>
+                            <td>14:30 - 16:20</td>
                             <td>45/100</td>
                             <td class="status-pending">⏳ Sắp chiếu</td>
                             <td><button style="background:#ffc107;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">Check-in</button></td>
                         </tr>
                         <tr>
-                            <td><strong>Venom 3</strong></td>
-                            <td>Phòng 2</td>
+                            <td><strong>Shin Cậu Bé Bút Chì Movie 31: Đại Chiến Siêu Năng Lực Sushi Bay</strong></td>
+                            <td>Phòng 3 - IMAX Lotte Hòa Lạc</td>
                             <td>16:45 - 19:00</td>
                             <td>28/150</td>
                             <td class="status-pending">⏳ Sắp chiếu</td>
                             <td><button style="background:#ffc107;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">Check-in</button></td>
                         </tr>
                         <tr>
-                            <td><strong>Joker: Folie à Deux</strong></td>
-                            <td>Phòng 4</td>
+                            <td><strong>NHỮNG KỶ NGUYÊN CỦA TAYLOR SWIFT</strong></td>
+                            <td>Phòng 3 - IMAX Lotte Hòa Lạc</td>
                             <td>18:15 - 20:30</td>
                             <td>67/120</td>
                             <td class="status-pending">⏳ Sắp chiếu</td>
@@ -536,8 +507,8 @@
                     <tbody>
                         <tr>
                             <td>#TK1001</td>
-                            <td>Nguyễn Văn A</td>
-                            <td>Deadpool & Wolverine</td>
+                            <td>ngocphamx1x3</td>
+                            <td>CHÂU BÁU ĐỜI TÔI</td>
                             <td>14:00 07/10</td>
                             <td>A1, A2, A3</td>
                             <td>360,000₫</td>
@@ -545,8 +516,8 @@
                         </tr>
                         <tr>
                             <td>#TK1002</td>
-                            <td>Trần Thị B</td>
-                            <td>Inside Out 2</td>
+                            <td>ngocphamquang30</td>
+                            <td>NHỮNG KỶ NGUYÊN CỦA TAYLOR SWIFT</td>
                             <td>15:30 07/10</td>
                             <td>B5, B6</td>
                             <td>240,000₫</td>
@@ -554,8 +525,8 @@
                         </tr>
                         <tr>
                             <td>#TK1003</td>
-                            <td>Lê Văn C</td>
-                            <td>Venom 3</td>
+                            <td>ngocphamx1x32</td>
+                            <td>Shin Cậu Bé Bút Chì Movie 31: Đại Chiến Siêu Năng Lực Sushi Bay</td>
                             <td>16:45 07/10</td>
                             <td>C8, C9</td>
                             <td>240,000₫</td>
@@ -563,8 +534,8 @@
                         </tr>
                         <tr>
                             <td>#TK1004</td>
-                            <td>Phạm Thị D</td>
-                            <td>Joker: Folie à Deux</td>
+                            <td>ngocphamx1x223</td>
+                            <td>NGHỆ THUẬT SĂN QUỶ VÀ NẤU MÌ 2</td>
                             <td>18:15 07/10</td>
                             <td>D12</td>
                             <td>120,000₫</td>
@@ -574,22 +545,10 @@
                 </table>
             </div>
 
-            <!-- Notifications -->
-            <h2 class="section-title">🔔 Thông báo ca làm</h2>
-            <div class="notifications">
-                <ul>
-                    <li><strong>[10:20]</strong> Kiểm tra hệ thống máy chiếu phòng 2 trước suất 16:45.</li>
-                    <li><strong>[09:45]</strong> Khách hàng Nguyễn Văn X yêu cầu đổi vé suất 15:30.</li>
-                    <li><strong>[08:30]</strong> Cập nhật danh sách vé đặt trước cho các suất chiếu hôm nay.</li>
-                    <li><strong>[07:15]</strong> Họp đầu ca: Nhắc nhở về quy trình check-in và an toàn.</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer>
-            © 2025 Cinema Booking System - Staff Panel | Ca làm: 07:00 - 15:00
-        </footer>
+            <!-- Footer -->
+            <footer>
+                © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
+            </footer>
 
     </body>
 </html>

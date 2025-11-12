@@ -399,12 +399,11 @@
                 <p>Staff Panel</p>
             </div>
             <nav>
-                <a href="${pageContext.request.contextPath}/staffdashboard">📊 Bảng điều khiển</a>
-                <a href="${pageContext.request.contextPath}/staff/rooms">🏢 Quản lý phòng chiếu</a>
+                <a href="${pageContext.request.contextPath}/staffdashboard">🏢 Thông tin rạp của tôi</a>
+                <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
                 <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
-                <a href="${pageContext.request.contextPath}/staff/schedules" class="active">🎭 Quản lý lịch chiếu</a>
+               <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
                 <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/staff/reports">📈 Báo cáo doanh thu</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
         </div>

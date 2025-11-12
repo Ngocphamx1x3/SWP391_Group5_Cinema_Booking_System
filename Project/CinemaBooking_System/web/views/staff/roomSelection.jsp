@@ -403,7 +403,6 @@
                 <a href="${pageContext.request.contextPath}/staff/seat-design" class="active">💺 Thiết kế ghế trong phòng</a>
                 <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
                 <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/staff/reports">📈 Báo cáo rạp của tôi</a>
             </nav>
             <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
         </div>

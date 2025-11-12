@@ -6,6 +6,7 @@ import model.Director;
 import model.Language;
 
 import jakarta.servlet.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
@@ -13,6 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 @WebServlet(urlPatterns = {"/admin/movies"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50) // 50MB
 public class MovieController extends HttpServlet {
 
     private MovieDAO movieDAO;
@@ -137,27 +141,58 @@ public class MovieController extends HttpServlet {
     }
 
     // ======================= Helper: Build Movie from Request =======================
-    private Movie buildMovieFromRequest(HttpServletRequest request, boolean isUpdate) throws Exception {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Movie m = new Movie();
+private Movie buildMovieFromRequest(HttpServletRequest request, boolean isUpdate) throws Exception {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    Movie m = new Movie();
 
-        if (isUpdate) {
-            m.setId(Integer.parseInt(request.getParameter("id")));
-        } else {
-            m.setCode("mv" + (int) (Math.random() * 100000));
-            m.setTrailer(null);
-            m.setRatedId(1);
-        }
-
-        m.setName(request.getParameter("movieTitle"));
-        m.setDescription(request.getParameter("movieDescription"));
-        m.setImage(request.getParameter("posterUrl"));
-        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
-        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
-        m.setStatus(normalizeMovieStatus(request.getParameter("movieStatus")));
-
-        return m;
+    if (isUpdate) {
+        m.setId(Integer.parseInt(request.getParameter("id")));
+    } else {
+        m.setCode("mv" + (int) (Math.random() * 100000));
+        m.setTrailer(null);
+        m.setRatedId(1);
     }
+
+    m.setName(request.getParameter("movieTitle"));
+    m.setDescription(request.getParameter("movieDescription"));
+
+    // === XỬ LÝ ẢNH POSTER ===
+    String imageUrl = request.getParameter("posterUrl"); // nếu người dùng nhập link
+    Part filePart = null;
+    try {
+        filePart = request.getPart("posterFile"); // nếu người dùng upload file
+    } catch (IllegalStateException ex) {
+        // không có file, bỏ qua
+    }
+
+    if (filePart != null && filePart.getSize() > 0) {
+        String fileName = java.nio.file.Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        String uploadPath = request.getServletContext().getRealPath("") + "uploads";
+        java.io.File uploadDir = new java.io.File(uploadPath);
+        if (!uploadDir.exists()) uploadDir.mkdir();
+        filePart.write(uploadPath + java.io.File.separator + fileName);
+        imageUrl = "uploads/" + fileName;
+    }
+
+    m.setImage(imageUrl);
+
+    // === CÁC TRƯỜNG KHÁC ===
+    String durationStr = request.getParameter("movieDuration");
+    if (durationStr == null || durationStr.isEmpty())
+        throw new IllegalArgumentException("Thời lượng phim không được để trống");
+
+    m.setMovieDuration(Integer.parseInt(durationStr));
+
+    String releaseDateStr = request.getParameter("releaseDate");
+    if (releaseDateStr == null || releaseDateStr.isEmpty())
+        throw new IllegalArgumentException("Ngày khởi chiếu không được để trống");
+
+    m.setPremiereDate(sdf.parse(releaseDateStr));
+    m.setStatus(normalizeMovieStatus(request.getParameter("movieStatus")));
+
+    return m;
+}
+
 
     // ======================= DANH SÁCH PHIM =======================
     private void listMovies(HttpServletRequest request, HttpServletResponse response)

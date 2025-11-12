@@ -7,134 +7,178 @@
     <meta charset="UTF-8">
     <title>Thêm phim mới</title>
     <style>
-        body { font-family: Arial; background: #0f1419; color: #e4e9f0; }
-        form { width: 600px; margin: 50px auto; background: #1a1f2e; padding: 30px; border-radius: 12px; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, textarea, select {
-            width: 100%; padding: 10px; border: none; border-radius: 6px; margin-top: 5px;
-            background: #0f1419; color: #e4e9f0;
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
         }
+        form {
+            width: 650px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-top: 5px;
+            background: #fff;
+            color: #222;
+            font-size: 14px;
+        }
+        textarea { resize: vertical; }
+
         button {
-            margin-top: 25px; padding: 12px 20px; border: none; border-radius: 10px;
-            background: linear-gradient(135deg, #00d4ff, #0099ff); color: #0f1419; font-weight: bold; cursor: pointer;
+            margin-top: 25px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #007bff, #0056d2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover { background: linear-gradient(135deg, #0069d9, #004bb5); }
+
+        .btn-green {
+            background: #28a745;
+        }
+        .btn-green:hover {
+            background: #218838;
+        }
+
+        .btn-gray {
+            background: #6c757d;
+        }
+        .btn-gray:hover {
+            background: #5a6268;
+        }
+
+        .sub-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f1f3f6;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        h4 {
+            margin-top: 0;
+            color: #007bff;
         }
     </style>
 </head>
 <body>
-    <form action="${pageContext.request.contextPath}/admin/movies?action=add" method="post">
-        <h2>🎬 Thêm phim mới</h2>
+    <form action="${pageContext.request.contextPath}/admin/movies?action=add"
+      method="post"
+      enctype="multipart/form-data">
 
-        <label>Tên phim</label>
-        <input type="text" name="movieTitle" required>
+    <h2>🎬 Thêm phim mới</h2>
 
-        <label>Mô tả</label>
-        <textarea name="movieDescription" rows="4"></textarea>
+    <label>Tên phim</label>
+    <input type="text" name="movieTitle" required>
 
-        <label>Poster URL</label>
-        <input type="text" name="posterUrl">
+    <label>Mô tả</label>
+    <textarea name="movieDescription" rows="4"></textarea>
 
-        <label>Trailer URL</label>
-        <input type="text" name="trailerUrl">
+    <label>Poster (chọn file hoặc nhập link):</label>
+    <input type="file" name="posterFile" accept="image/*">
+    <input type="text" name="posterUrl" placeholder="Hoặc nhập link ảnh...">
+    <img id="posterPreview" style="max-width:150px;display:none;margin-top:10px;" alt="Preview Poster">
 
-        <label>Thời lượng (phút)</label>
-        <input type="number" name="movieDuration" min="1" required>
+    <label>Trailer URL</label>
+    <input type="text" name="trailerUrl" placeholder="https://...">
 
-        <label>Ngày phát hành</label>
-        <input type="date" name="releaseDate" required>
+    <label>Thời lượng (phút)</label>
+    <input type="number" name="movieDuration" min="1" required>
 
-        <label>Trạng thái</label>
-        <select name="movieStatus">
-            <option value="Đang chiếu">Đang chiếu</option>
-            <option value="Sắp chiếu">Sắp chiếu</option>
-        </select>
+    <label>Ngày phát hành</label>
+    <input type="date" name="releaseDate" required>
 
-        <label>Đạo diễn</label>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <select name="directors" multiple size="3" style="flex: 1;">
-                <c:forEach var="d" items="${directorList}">
-                    <option value="${d.id}">${d.name}</option>
-                </c:forEach>
-            </select>
-        </div>
-        <button type="button" onclick="toggleDirectorForm()" style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;">
-            ➕ Thêm mới
-        </button>
-        </div>
-        
-        <!-- Form thêm đạo diễn mới (ẩn ban đầu) -->
-        <div id="directorForm" style="display: none; margin-top: 15px; padding: 15px; background: #2a2f3e; border-radius: 8px; border: 1px solid #444;">
-            <h4 style="margin-top: 0; color: #00d4ff;">🎬 Thêm đạo diễn mới</h4>
-            
-            <label style="margin-top: 10px;">Mã đạo diễn</label>
-            <input type="text" name="directorCode" placeholder="VD: DIR001">
-            
-            <label style="margin-top: 10px;">Tên đạo diễn</label>
-            <input type="text" name="directorName" placeholder="Nhập tên đạo diễn">
-            
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button type="button" onclick="addDirector()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-                    💾 Lưu đạo diễn
-                </button>
-                <button type="button" onclick="toggleDirectorForm()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-                    ❌ Hủy
-                </button>
-            </div>
-        </div>
+    <label>Trạng thái</label>
+    <select name="movieStatus">
+        <option value="Đang chiếu">Đang chiếu</option>
+        <option value="Sắp chiếu">Sắp chiếu</option>
+    </select>
 
-        <label>Ngôn ngữ</label>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <select name="languages" multiple size="3" style="flex: 1;">
-                <c:forEach var="l" items="${languageList}">
-                    <option value="${l.id}">${l.name}</option>
-                </c:forEach>
-            </select>
-        </div>
-        <button type="button" onclick="toggleLanguageForm()" style="padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px;">
-            ➕ Thêm mới
-        </button>
-        </div>
-        
-        <!-- Form thêm ngôn ngữ mới (ẩn ban đầu) -->
-        <div id="languageForm" style="display: none; margin-top: 15px; padding: 15px; background: #2a2f3e; border-radius: 8px; border: 1px solid #444;">
-            <h4 style="margin-top: 0; color: #00d4ff;">🌐 Thêm ngôn ngữ mới</h4>
-            
-            <label style="margin-top: 10px;">Mã ngôn ngữ</label>
-            <input type="text" name="languageCode" placeholder="VD: LANG001">
-            
-            <label style="margin-top: 10px;">Tên ngôn ngữ</label>
-            <input type="text" name="languageName" placeholder="Nhập tên ngôn ngữ">
-            
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button type="button" onclick="addLanguage()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-                    💾 Lưu ngôn ngữ
-                </button>
-                <button type="button" onclick="toggleLanguageForm()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
-                    ❌ Hủy
-                </button>
-            </div>
-        </div>
-
-        <label>Thể loại</label>
-        <select name="movieTypes" multiple size="3">
-            <c:forEach var="t" items="${movieTypeList}">
-                <option value="${t.id}">${t.name}</option>
+    <!-- Đạo diễn -->
+    <label>Đạo diễn</label>
+    <div style="display:flex;gap:10px;align-items:center;">
+        <select name="directors[]" multiple size="3" style="flex:1;">
+            <c:forEach var="d" items="${directorList}">
+                <option value="${d.id}">${d.name}</option>
             </c:forEach>
         </select>
+    </div>
+    <button type="button" onclick="toggleDirectorForm()" class="btn-green" style="margin-top:10px;">➕ Thêm đạo diễn</button>
 
-        <button type="submit">💾 Lưu phim</button>
-    </form>
+    <div id="directorForm" class="sub-form">
+        <h4>🎬 Thêm đạo diễn mới</h4>
+        <label>Mã đạo diễn</label>
+        <input type="text" name="directorCode" placeholder="VD: DIR001">
+        <label>Tên đạo diễn</label>
+        <input type="text" name="directorName" placeholder="Nhập tên đạo diễn">
+        <div style="margin-top:15px;display:flex;gap:10px;">
+            <button type="button" onclick="addDirector()" class="btn-green">💾 Lưu</button>
+            <button type="button" onclick="toggleDirectorForm()" class="btn-gray">❌ Hủy</button>
+        </div>
+    </div>
+
+    <!-- Ngôn ngữ -->
+    <label>Ngôn ngữ</label>
+    <div style="display:flex;gap:10px;align-items:center;">
+        <select name="languages[]" multiple size="3" style="flex:1;">
+            <c:forEach var="l" items="${languageList}">
+                <option value="${l.id}">${l.name}</option>
+            </c:forEach>
+        </select>
+    </div>
+    <button type="button" onclick="toggleLanguageForm()" class="btn-green" style="margin-top:10px;">➕ Thêm ngôn ngữ</button>
+
+    <div id="languageForm" class="sub-form">
+        <h4>🌐 Thêm ngôn ngữ mới</h4>
+        <label>Mã ngôn ngữ</label>
+        <input type="text" name="languageCode" placeholder="VD: LANG001">
+        <label>Tên ngôn ngữ</label>
+        <input type="text" name="languageName" placeholder="Nhập tên ngôn ngữ">
+        <div style="margin-top:15px;display:flex;gap:10px;">
+            <button type="button" onclick="addLanguage()" class="btn-green">💾 Lưu</button>
+            <button type="button" onclick="toggleLanguageForm()" class="btn-gray">❌ Hủy</button>
+        </div>
+    </div>
+
+    <!-- Thể loại -->
+    <label>Thể loại</label>
+    <select name="movieTypes[]" multiple size="4">
+        <c:forEach var="t" items="${movieTypeList}">
+            <option value="${t.id}">${t.name}</option>
+        </c:forEach>
+    </select>
+
+    <button type="submit">💾 Lưu phim</button>
+</form>
+
 
     <script>
         function toggleDirectorForm() {
             const form = document.getElementById('directorForm');
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-                // Reset form
-                document.querySelector('input[name="directorCode"]').value = '';
-                document.querySelector('input[name="directorName"]').value = '';
-            }
+            form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
         }
 
         function addDirector() {
@@ -146,37 +190,29 @@
                 return;
             }
 
-            // Tạo form để gửi request
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '${pageContext.request.contextPath}/admin/movies?action=addDirector';
             
-            const codeInput = document.createElement('input');
-            codeInput.type = 'hidden';
-            codeInput.name = 'directorCode';
-            codeInput.value = directorCode;
+            const code = document.createElement('input');
+            code.type = 'hidden';
+            code.name = 'directorCode';
+            code.value = directorCode;
             
-            const nameInput = document.createElement('input');
-            nameInput.type = 'hidden';
-            nameInput.name = 'directorName';
-            nameInput.value = directorName;
+            const name = document.createElement('input');
+            name.type = 'hidden';
+            name.name = 'directorName';
+            name.value = directorName;
             
-            form.appendChild(codeInput);
-            form.appendChild(nameInput);
+            form.appendChild(code);
+            form.appendChild(name);
             document.body.appendChild(form);
             form.submit();
         }
 
         function toggleLanguageForm() {
             const form = document.getElementById('languageForm');
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-            } else {
-                form.style.display = 'none';
-                // Reset form
-                document.querySelector('input[name="languageCode"]').value = '';
-                document.querySelector('input[name="languageName"]').value = '';
-            }
+            form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
         }
 
         function addLanguage() {
@@ -188,28 +224,39 @@
                 return;
             }
 
-            // Tạo form để gửi request
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = '${pageContext.request.contextPath}/admin/movies?action=addLanguage';
             
-            const codeInput = document.createElement('input');
-            codeInput.type = 'hidden';
-            codeInput.name = 'languageCode';
-            codeInput.value = languageCode;
+            const code = document.createElement('input');
+            code.type = 'hidden';
+            code.name = 'languageCode';
+            code.value = languageCode;
             
-            const nameInput = document.createElement('input');
-            nameInput.type = 'hidden';
-            nameInput.name = 'languageName';
-            nameInput.value = languageName;
+            const name = document.createElement('input');
+            name.type = 'hidden';
+            name.name = 'languageName';
+            name.value = languageName;
             
-            form.appendChild(codeInput);
-            form.appendChild(nameInput);
+            form.appendChild(code);
+            form.appendChild(name);
             document.body.appendChild(form);
             form.submit();
         }
 
-        // Hiển thị thông báo lỗi/thành công nếu có
+        document.querySelector('form').addEventListener('submit', function (e) {
+    const dateInput = document.querySelector('input[name="releaseDate"]');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // bỏ phần giờ phút
+    const selectedDate = new Date(dateInput.value);
+
+    if (selectedDate < today) {
+        e.preventDefault(); // chặn gửi form
+        alert("❌ Ngày phát hành không được là ngày trong quá khứ!");
+        dateInput.focus();
+    }
+});
+
         <c:choose>
             <c:when test="${not empty error}">
                 alert('Lỗi: ${error}');

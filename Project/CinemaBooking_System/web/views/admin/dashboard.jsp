@@ -597,9 +597,9 @@
             </div>
         </div>
 
-        <footer>
-            © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
-        </footer>
+                    <footer>
+                        © 2025 Cinema Booking System - Admin Panel | Powered by Modern Technology
+                    </footer>
 
     </body>
 </html>
