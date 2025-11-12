@@ -1,6 +1,10 @@
 (function () {
-    console.log("🎬 seat-modal.js loaded");
+    console.log("🎬 seat-modal.js loaded - FIXED VERSION");
     const MAX_SELECTED = 8;
+    
+    // ========== GLOBAL VARIABLES ==========
+    window.selectedVoucher = null;
+    window.appliedDiscount = 0;
     
     window.calculateBaseTotal = function() {
         const modalEl = document.querySelector('.seat-modal-content');
@@ -16,8 +20,7 @@
     
     function showToast(msg) {
         const existing = document.querySelector('.occupied-alert');
-        if (existing)
-            existing.remove();
+        if (existing) existing.remove();
         const el = document.createElement('div');
         el.className = 'occupied-alert';
         el.innerHTML = `<strong>${msg}</strong>`;
@@ -30,13 +33,12 @@
     }
 
     // ---- Single-gap helpers ----
-    function buildRowState(modalEl, extraSelection /* {row, col} | null */) {
+    function buildRowState(modalEl, extraSelection) {
         const rows = new Map();
         modalEl.querySelectorAll('.seat').forEach(el => {
             const row = el.dataset.row;
             const col = parseInt(el.dataset.col || '0', 10);
-            if (!row || !col)
-                return;
+            if (!row || !col) return;
             if (!rows.has(row))
                 rows.set(row, {present: new Set(), occupied: new Set(), selected: new Set(), minCol: col, maxCol: col});
             const r = rows.get(row);
@@ -54,16 +56,14 @@
         return rows;
     }
 
-    function violatesSingleGap(modalEl, extraSelection /* {row, col} | null */) {
+    function violatesSingleGap(modalEl, extraSelection) {
         const rows = buildRowState(modalEl, extraSelection);
         for (const [, data] of rows.entries()) {
             const {present, occupied, selected, minCol, maxCol} = data;
             const isTaken = (c) => occupied.has(c) || selected.has(c);
             for (let c = minCol; c <= maxCol; c++) {
-                if (!present.has(c))
-                    continue;
-                if (isTaken(c))
-                    continue;
+                if (!present.has(c)) continue;
+                if (isTaken(c)) continue;
                 const hasLeft = present.has(c - 1);
                 const hasRight = present.has(c + 1);
                 if (hasLeft && hasRight) {
@@ -74,7 +74,6 @@
         }
         return false;
     }
-    // ---- /Single-gap helpers ----
 
     function recalcAndRender(modalEl) {
         const selectedEls = [...modalEl.querySelectorAll('.seat.selected')];
@@ -83,15 +82,15 @@
         const confirmBtn = modalEl.querySelector('#confirmBtn');
 
         const seatData = selectedEls.map(el => ({
-                id: el.dataset.seatId,
-                code: el.dataset.seatCode,
-                price: parseInt(el.dataset.seatPrice || '0', 10) || 0
-            }));
+            id: el.dataset.seatId,
+            code: el.dataset.seatCode,
+            price: parseInt(el.dataset.seatPrice || '0', 10) || 0
+        }));
         const total = seatData.reduce((s, x) => s + x.price, 0);
 
         selectedSeatsContainer.innerHTML = seatData.length === 0
-                ? '<div class="no-selection">Chưa chọn ghế</div>'
-                : seatData.map(s => `<div class="selected-seat-badge">${s.code} - ${s.price.toLocaleString()}₫</div>`).join('');
+            ? '<div class="no-selection">Chưa chọn ghế</div>'
+            : seatData.map(s => `<div class="selected-seat-badge">${s.code} - ${s.price.toLocaleString()}₫</div>`).join('');
 
         totalAmountElement.textContent = total.toLocaleString();
         confirmBtn.disabled = seatData.length === 0;
@@ -103,14 +102,11 @@
     // Chọn / bỏ chọn ghế
     document.addEventListener('click', function (e) {
         const seat = e.target.closest('.seat');
-        if (!seat)
-            return;
+        if (!seat) return;
 
         const modalEl = seat.closest('.seat-modal-content');
-        if (!modalEl)
-            return;
+        if (!modalEl) return;
 
-        // 🔒 CHẶN GHẾ BẬN (từ server)
         if (seat.classList.contains('occupied') || seat.dataset.seatOccupied === 'true') {
             showOccupiedSeatMessage(seat.dataset.seatCode);
             return;
@@ -135,7 +131,6 @@
             return;
         }
 
-        // Bỏ chọn: không để tạo ghế lẻ
         seat.classList.remove('selected');
         if (violatesSingleGap(modalEl, null)) {
             seat.classList.add('selected');
@@ -145,114 +140,116 @@
         recalcAndRender(modalEl);
     });
 
-   // Xác nhận: POST tới /checkout
-document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.confirm-btn#confirmBtn');
-    if (!btn) return;
-
-    const modalEl = btn.closest('.seat-modal-content');
-    if (!modalEl) return;
-
-    // Kiểm tra ghế lẻ
-    if (violatesSingleGap(modalEl, null)) {
-        showToast('⚠️ Không được để trống 1 ghế lẻ ở giữa trong hàng.');
-        return;
-    }
-
-    const seatIds = modalEl.dataset.selectedSeatIds || '';
-    let totalAmount = modalEl.dataset.totalAmount || '0';
-    const scheduleId = modalEl.dataset.scheduleId;
-    const contextPath = modalEl.dataset.contextPath || '';
-
-    console.log('🔍 [CHECKOUT] Starting checkout process:');
-    console.log(' - Schedule ID:', scheduleId);
-    console.log(' - Seat IDs:', seatIds);
-    console.log(' - Total Amount from dataset:', totalAmount);
-
-    // DEBUG: Kiểm tra giá trị hiển thị trên giao diện
-    const displayTotalElement = document.getElementById('totalAmount');
-    if (displayTotalElement) {
-        const displayTotal = displayTotalElement.textContent.replace(/[^\d]/g, '');
-        console.log(' - Total Amount from display:', displayTotal);
+    // ========== XÁC NHẬN VÀ CHUYỂN SANG FOODCOMBO ==========
+    // CRITICAL: Use capture phase and stop propagation to override all other handlers
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.confirm-btn#confirmBtn');
+        if (!btn) return;
         
-        // Ưu tiên sử dụng giá trị từ hiển thị nếu khác với dataset
-        if (displayTotal !== totalAmount.replace(/[^\d]/g, '')) {
-            console.log('⚠️ [CHECKOUT] Dataset and display mismatch, using display value');
-            totalAmount = displayTotal;
+        // STOP ALL OTHER HANDLERS
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        const modalEl = btn.closest('.seat-modal-content');
+        if (!modalEl) return;
+
+        if (violatesSingleGap(modalEl, null)) {
+            showToast('⚠️ Không được để trống 1 ghế lẻ ở giữa trong hàng.');
+            return;
         }
-    }
 
-    if (!scheduleId) {
-        alert('Lỗi: Không tìm thấy thông tin lịch chiếu!');
-        return;
-    }
-    if (!seatIds) {
-        alert('Vui lòng chọn ít nhất một ghế!');
-        return;
-    }
+        const seatIds = modalEl.dataset.selectedSeatIds || '';
+        const scheduleId = modalEl.dataset.scheduleId;
+        const contextPath = modalEl.dataset.contextPath || '';
 
-    // Disable để tránh double submit
-    btn.disabled = true;
-    btn.textContent = 'Đang xử lý...';
+        console.log('🚀 ========== CONFIRM BUTTON CLICKED ==========');
+        console.log('📋 Basic Info:');
+        console.log('  - scheduleId:', scheduleId);
+        console.log('  - seatIds:', seatIds);
 
-    // Tính tổng gốc từ các ghế được chọn
-    function calculateBaseTotal() {
-        let total = 0;
-        modalEl.querySelectorAll('.seat.selected').forEach(seat => {
-            total += parseFloat(seat.dataset.seatPrice) || 0;
-        });
-        console.log('💰 [BASE TOTAL] Calculated:', total);
-        return total;
-    }
+        if (!scheduleId) {
+            alert('Lỗi: Không tìm thấy thông tin lịch chiếu!');
+            return;
+        }
+        if (!seatIds) {
+            alert('Vui lòng chọn ít nhất một ghế!');
+            return;
+        }
 
-    const baseTotal = calculateBaseTotal();
-    const finalTotal = parseInt(totalAmount.replace(/[^\d]/g, '')) || 0;
-    const discountAmount = baseTotal - finalTotal;
+        // ========== TÍNH GIÁ ==========
+        const baseTotal = calculateBaseTotal();
+        
+        // Lấy finalTotal từ hiển thị (có thể đã có voucher)
+        const displayTotalElement = document.getElementById('totalAmount');
+        let finalTotal = baseTotal; // Mặc định = baseTotal
+        
+        if (displayTotalElement) {
+            const displayText = displayTotalElement.textContent.replace(/[^\d]/g, '');
+            const displayValue = parseInt(displayText) || 0;
+            if (displayValue > 0) {
+                finalTotal = displayValue;
+            }
+        }
 
-    console.log('💰 [PRICE BREAKDOWN] Base:', baseTotal, 'Final:', finalTotal, 'Discount:', discountAmount);
+        console.log('💰 Price Info:');
+        console.log('  - baseTotal (original):', baseTotal);
+        console.log('  - finalTotal (displayed):', finalTotal);
 
-    // Tạo form POST tới /checkout
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = contextPath + '/checkout';
+        // ========== KIỂM TRA VOUCHER ==========
+        console.log('🎫 Voucher Check:');
+        console.log('  - window.selectedVoucher:', window.selectedVoucher);
+        console.log('  - window.appliedDiscount:', window.appliedDiscount);
 
-    // Các trường bắt buộc
-    const fields = [
-        { name: 'scheduleId', value: scheduleId },
-        { name: 'seatIds', value: seatIds },
-        { name: 'totalAmount', value: String(finalTotal) },
-        { name: 'originalAmount', value: String(baseTotal) }
-    ];
+        const hasVoucher = window.selectedVoucher && window.appliedDiscount > 0;
+        
+        if (hasVoucher) {
+            console.log('✅ VOUCHER DETECTED!');
+            console.log('  - Voucher ID:', window.selectedVoucher.id);
+            console.log('  - Voucher Code:', window.selectedVoucher.code);
+            console.log('  - Discount Amount:', window.appliedDiscount);
+        } else {
+            console.log('❌ NO VOUCHER FOUND');
+            console.log('  - window.selectedVoucher is:', window.selectedVoucher);
+            console.log('  - window.appliedDiscount is:', window.appliedDiscount);
+        }
 
-    // Thêm thông tin voucher nếu có
-    if (window.selectedVoucher && window.appliedDiscount > 0) {
-        fields.push(
-            { name: 'voucherId', value: String(window.selectedVoucher.id) },
-            { name: 'voucherCode', value: String(window.selectedVoucher.code) },
-            { name: 'discountAmount', value: String(discountAmount) }
-        );
-        console.log('💳 [VOUCHER] Adding voucher to form:', window.selectedVoucher);
-    }
+        // ========== TẠO URL ==========
+        let comboUrl = contextPath + '/views/users/FoodCombo.jsp?' +
+                       'scheduleId=' + scheduleId +
+                       '&seatIds=' + encodeURIComponent(seatIds) +
+                       '&totalAmount=' + finalTotal +
+                       '&originalAmount=' + baseTotal;
 
-    console.log('📤 [FORM DATA] Fields to submit:', fields);
+        console.log('🔗 Base URL created:', comboUrl);
 
-    // Thêm tất cả các trường vào form
-    fields.forEach(field => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = field.name;
-        input.value = field.value;
-        form.appendChild(input);
-    });
+        // ========== THÊM VOUCHER VÀO URL ==========
+        if (hasVoucher) {
+            const voucherId = window.selectedVoucher.id;
+            const voucherCode = window.selectedVoucher.code;
+            const discountAmount = window.appliedDiscount;
+            
+            comboUrl += '&voucherId=' + voucherId +
+                       '&voucherCode=' + encodeURIComponent(voucherCode) +
+                       '&discountAmount=' + discountAmount;
+            
+            console.log('✅ VOUCHER ADDED TO URL:');
+            console.log('  - voucherId:', voucherId);
+            console.log('  - voucherCode:', voucherCode);
+            console.log('  - discountAmount:', discountAmount);
+        } else {
+            console.log('ℹ️ No voucher to add to URL');
+        }
 
-    // Thêm form vào DOM và submit
-    document.body.appendChild(form);
-    
-    console.log('🚀 [SUBMIT] Submitting form to:', form.action);
-    form.submit();
-});
+        console.log('🔗 FINAL URL:', comboUrl);
+        console.log('========== REDIRECTING ==========');
+        
+        // Chuyển hướng
+        window.location.href = comboUrl;
+        
+        return false; // Prevent default
+    }, true); // USE CAPTURE PHASE!
 
-    // Gọi sau khi load fragment để sync tổng tiền
     window.initSeatModalIfNeeded = function (container) {
         const modalEl = (typeof container === 'string') ? document.querySelector(container) : container;
         if (modalEl && modalEl.classList.contains('seat-modal-content')) {
@@ -261,50 +258,9 @@ document.addEventListener('click', function (e) {
     };
 })();
 
-// ========== VOUCHER SYSTEM (GLOBAL SCOPE) ==========
-console.log("🎫 VOUCHER SYSTEM - Global scope loaded");
+// ========== VOUCHER SYSTEM ==========
+console.log("🎫 VOUCHER SYSTEM - Initializing");
 
-// Biến toàn cục
-window.selectedVoucher = null;
-window.appliedDiscount = 0;
-
-// Hàm chính để khởi tạo voucher system
-window.initializeVoucherSystem = function() {
-    console.log('🎬 [VOUCHER] Initializing voucher system...');
-    
-    const modalEl = document.querySelector('.seat-modal-content');
-    if (!modalEl) {
-        console.log('❌ [VOUCHER] No modal found');
-        return;
-    }
-    
-    console.log('✅ [VOUCHER] Modal found, scheduleId:', modalEl.dataset.scheduleId);
-    
-    // Load voucher lần đầu
-    loadVouchers(0);
-    
-    // Theo dõi sự thay đổi ghế được chọn
-    modalEl.addEventListener('click', function(e) {
-        if (e.target.closest('.seat')) {
-            setTimeout(() => {
-                const total = calculateBaseTotal();
-                console.log('🔄 [VOUCHER] Seat change detected, new total:', total);
-                loadVouchers(total);
-                
-                // Reset voucher nếu tổng tiền thay đổi
-                if (window.selectedVoucher) {
-                    console.log('🔄 [VOUCHER] Resetting voucher due to seat change');
-                    document.querySelectorAll('.voucher-item').forEach(v => v.classList.remove('selected'));
-                    window.selectedVoucher = null;
-                    window.appliedDiscount = 0;
-                    updateTotalDisplay(total);
-                }
-            }, 100);
-        }
-    });
-};
-
-// Hàm tính tổng tiền gốc
 function calculateBaseTotal() {
     const modalEl = document.querySelector('.seat-modal-content');
     if (!modalEl) return 0;
@@ -316,7 +272,6 @@ function calculateBaseTotal() {
     return total;
 }
 
-// Hàm cập nhật hiển thị tổng tiền
 function updateTotalDisplay(total) {
     const modalEl = document.querySelector('.seat-modal-content');
     if (!modalEl) return;
@@ -325,9 +280,12 @@ function updateTotalDisplay(total) {
     if (totalAmountElement) {
         totalAmountElement.textContent = total.toLocaleString();
     }
+    
+    if (modalEl) {
+        modalEl.dataset.totalAmount = String(total);
+    }
 }
 
-// Hàm tải voucher
 function loadVouchers(totalAmount) {
     const modalEl = document.querySelector('.seat-modal-content');
     if (!modalEl) return;
@@ -335,7 +293,6 @@ function loadVouchers(totalAmount) {
     const voucherContainer = document.getElementById('voucherContainer');
     if (!voucherContainer) return;
 
-    // Lấy movieId từ URL
     const urlParams = new URLSearchParams(window.location.search);
     const movieId = urlParams.get('id');
     
@@ -349,7 +306,6 @@ function loadVouchers(totalAmount) {
     
     console.log('📡 [VOUCHER] Fetching vouchers for movieId:', movieId, 'total:', totalAmount);
 
-    // Hiển thị loading
     voucherContainer.innerHTML = '<div class="voucher-loading"><i class="fas fa-spinner fa-spin"></i> Đang tải khuyến mãi...</div>';
 
     fetch(url)
@@ -367,10 +323,13 @@ function loadVouchers(totalAmount) {
         });
 }
 
-// Gắn sự kiện cho voucher items
 function attachVoucherEvents() {
+    console.log('🎯 Attaching voucher events...');
+    
     document.querySelectorAll('.voucher-item').forEach(item => {
         item.addEventListener('click', function() {
+            console.log('🎫 Voucher item clicked');
+            
             // Bỏ chọn tất cả
             document.querySelectorAll('.voucher-item').forEach(v => v.classList.remove('selected'));
             
@@ -387,20 +346,25 @@ function attachVoucherEvents() {
                 minOrder: parseFloat(this.dataset.minOrder) || 0
             };
             
-            console.log('💳 [VOUCHER] Selected:', voucherData.code);
+            console.log('💳 [VOUCHER] Selected voucher:', voucherData);
             
-            // Cập nhật tổng tiền
+            // Áp dụng voucher
             updateTotalWithVoucher(voucherData);
         });
     });
 }
 
-// Cập nhật tổng tiền với voucher
 function updateTotalWithVoucher(voucher) {
+    console.log('💰 [VOUCHER] Applying voucher...');
+    
     const baseTotal = calculateBaseTotal();
     
+    console.log('  - Base total:', baseTotal);
+    console.log('  - Min order:', voucher.minOrder);
+    
     if (baseTotal < voucher.minOrder) {
-        showToast(`Voucher ${voucher.code} yêu cầu đơn tối thiểu ${voucher.minOrder.toLocaleString()}₫`);
+        console.log('❌ Order total too low for voucher');
+        alert(`Voucher ${voucher.code} yêu cầu đơn tối thiểu ${voucher.minOrder.toLocaleString()}₫`);
         document.querySelectorAll('.voucher-item').forEach(v => v.classList.remove('selected'));
         window.selectedVoucher = null;
         window.appliedDiscount = 0;
@@ -411,139 +375,124 @@ function updateTotalWithVoucher(voucher) {
     let discountAmount = 0;
     
     if (voucher.discountType === 1) {
+        // Phần trăm
         discountAmount = baseTotal * (voucher.discountValue / 100);
         if (voucher.maxDiscount > 0 && discountAmount > voucher.maxDiscount) {
             discountAmount = voucher.maxDiscount;
         }
     } else {
+        // Số tiền cố định
         discountAmount = voucher.discountValue;
     }
     
     const finalTotal = Math.max(0, baseTotal - discountAmount);
     
+    console.log('✅ [VOUCHER] Discount calculated:');
+    console.log('  - Discount amount:', discountAmount);
+    console.log('  - Final total:', finalTotal);
+    
+    // Cập nhật hiển thị
     updateTotalDisplay(finalTotal);
+    
+    // ========== QUAN TRỌNG: LƯU VÀO BIẾN TOÀN CỤC ==========
     window.selectedVoucher = voucher;
     window.appliedDiscount = discountAmount;
     
-    console.log('💰 [VOUCHER] Applied discount:', discountAmount, 'Final total:', finalTotal);
+    console.log('💾 [VOUCHER] SAVED TO GLOBAL:');
+    console.log('  - window.selectedVoucher:', window.selectedVoucher);
+    console.log('  - window.appliedDiscount:', window.appliedDiscount);
 }
 
-// Hàm debug
-window.debugVoucher = function() {
-    console.log('🔍 Voucher Debug:');
-    console.log('Selected:', window.selectedVoucher);
-    console.log('Discount:', window.appliedDiscount);
-    console.log('Total:', calculateBaseTotal());
-};
-
-// Hàm load voucher trực tiếp (fallback)
-window.loadVouchersDirectlyUltimate = function(totalAmount = 0) {
-    console.log('📥 [DIRECT] Loading vouchers directly...');
+function initializeVoucherSystem() {
+    console.log('🎬 [VOUCHER] Initializing voucher system...');
     
     const modalEl = document.querySelector('.seat-modal-content');
     if (!modalEl) {
-        console.log('❌ [DIRECT] No modal found');
+        console.log('❌ [VOUCHER] No modal found');
         return;
     }
-
-    const voucherContainer = document.getElementById('voucherContainer');
-    if (!voucherContainer) {
-        console.log('❌ [DIRECT] No voucher container found');
-        return;
-    }
-
-    // Lấy movieId từ URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get('id');
     
-    if (!movieId) {
-        console.log('❌ [DIRECT] No movieId found');
-        voucherContainer.innerHTML = '<div class="no-vouchers">Không thể xác định phim</div>';
-        return;
-    }
-
-    const contextPath = modalEl.dataset.contextPath || '';
-    const url = contextPath + '/voucher-ajax?movieId=' + movieId + '&totalAmount=' + totalAmount;
+    console.log('✅ [VOUCHER] Modal found, scheduleId:', modalEl.dataset.scheduleId);
     
-    console.log('📡 [DIRECT] Fetching vouchers from:', url);
-
-    // Hiển thị loading
-    voucherContainer.innerHTML = '<div class="voucher-loading"><i class="fas fa-spinner fa-spin"></i> Đang tải khuyến mãi...</div>';
-
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error('Network error: ' + response.status);
-            return response.text();
-        })
-        .then(html => {
-            console.log('✅ [DIRECT] Vouchers loaded successfully, length:', html.length);
-            voucherContainer.innerHTML = html;
-            attachVoucherEvents();
-        })
-        .catch(error => {
-            console.error('❌ [DIRECT] Error loading vouchers:', error);
-            voucherContainer.innerHTML = '<div class="no-vouchers">Lỗi tải khuyến mãi: ' + error.message + '</div>';
-        });
-};
-
-// ========== AUTO-INITIALIZATION ==========
-console.log("🚀 Voucher auto-initialization started");
-
-// Khởi tạo tự động khi modal được load
-function initializeVoucherWhenReady() {
-    console.log('🔍 Checking for modal...');
+    // Load vouchers ban đầu
+    loadVouchers(0);
     
-    const modalEl = document.querySelector('.seat-modal-content');
-    if (modalEl) {
-        console.log('✅ Modal found, initializing voucher system');
-        
-        // Sử dụng hàm nào có sẵn
-        if (typeof initializeVoucherSystem === 'function') {
-            setTimeout(initializeVoucherSystem, 300);
-        } else if (typeof loadVouchersDirectlyUltimate === 'function') {
-            setTimeout(() => loadVouchersDirectlyUltimate(0), 300);
-        } else {
-            console.log('❌ No voucher functions available');
+    // Theo dõi sự thay đổi ghế
+    modalEl.addEventListener('click', function(e) {
+        if (e.target.closest('.seat')) {
+            setTimeout(() => {
+                const total = calculateBaseTotal();
+                console.log('🔄 [VOUCHER] Seat change detected, new total:', total);
+                loadVouchers(total);
+                
+                // Reset voucher khi ghế thay đổi
+                if (window.selectedVoucher) {
+                    console.log('🔄 [VOUCHER] Resetting voucher due to seat change');
+                    document.querySelectorAll('.voucher-item').forEach(v => v.classList.remove('selected'));
+                    window.selectedVoucher = null;
+                    window.appliedDiscount = 0;
+                    updateTotalDisplay(total);
+                }
+            }, 100);
         }
-    } else {
-        console.log('👀 No modal yet, waiting...');
-        // Theo dõi sự xuất hiện của modal
-        const modalObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === 1) {
-                        const modal = node.classList && node.classList.contains('seat-modal-content') 
-                            ? node 
-                            : node.querySelector && node.querySelector('.seat-modal-content');
-                        
-                        if (modal) {
-                            console.log('🎯 Modal detected via MutationObserver');
-                            setTimeout(() => {
-                                if (typeof initializeVoucherSystem === 'function') {
-                                    initializeVoucherSystem();
-                                } else if (typeof loadVouchersDirectlyUltimate === 'function') {
-                                    loadVouchersDirectlyUltimate(0);
-                                }
-                            }, 300);
-                            modalObserver.disconnect();
-                        }
-                    }
-                });
-            });
-        });
-        
-        modalObserver.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
+    });
 }
 
-// Bắt đầu khởi tạo
+function initializeVoucherWhenReady() {
+    console.log('🔍 Waiting for modal...');
+    
+    const checkModal = () => {
+        const modalEl = document.querySelector('.seat-modal-content');
+        if (modalEl) {
+            console.log('✅ Modal found, initializing voucher system');
+            setTimeout(initializeVoucherSystem, 500);
+        } else {
+            console.log('👀 No modal yet, observing...');
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            const modal = node.classList && node.classList.contains('seat-modal-content') 
+                                ? node 
+                                : node.querySelector && node.querySelector('.seat-modal-content');
+                            
+                            if (modal) {
+                                console.log('🎯 Modal detected!');
+                                setTimeout(initializeVoucherSystem, 500);
+                                observer.disconnect();
+                            }
+                        }
+                    });
+                });
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+    };
+    
+    checkModal();
+}
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeVoucherWhenReady);
 } else {
     initializeVoucherWhenReady();
 }
 
-console.log('✅ Voucher system ready for initialization');
+// ========== DEBUG FUNCTIONS ==========
+window.debugVoucher = function() {
+    console.log('=== VOUCHER DEBUG ===');
+    console.log('selectedVoucher:', window.selectedVoucher);
+    console.log('appliedDiscount:', window.appliedDiscount);
+    console.log('baseTotal:', calculateBaseTotal());
+    
+    const displayElement = document.getElementById('totalAmount');
+    if (displayElement) {
+        console.log('displayTotal:', displayElement.textContent);
+    }
+};
+
+console.log('✅ Voucher system ready');

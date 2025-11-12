@@ -368,7 +368,7 @@ public class TicketDAO extends DBContext {
      * @param orderId Order ID to cancel
      * @return true if successful
      */
-    public boolean cancelOrderAndReleaseSeats(int orderId) {
+    public boolean cancelOrderAndReleaseSeats(int orderId)throws ClassNotFoundException  {
         Connection conn = null;
         try {
             conn = getConnection();

@@ -16,10 +16,28 @@
     String seatIds = request.getParameter("seatIds");
     String totalAmount = request.getParameter("totalAmount");
     
+    // THÊM: Nhận thông tin voucher
+    String voucherId = request.getParameter("voucherId");
+    String voucherCode = request.getParameter("voucherCode");
+    String discountAmount = request.getParameter("discountAmount");
+    String originalAmount = request.getParameter("originalAmount");
+    
     // Lưu vào request attribute để JavaScript có thể truy cập
     if (scheduleId != null) request.setAttribute("scheduleId", scheduleId);
     if (seatIds != null) request.setAttribute("seatIds", seatIds);
     if (totalAmount != null) request.setAttribute("totalAmount", totalAmount);
+    if (voucherId != null) request.setAttribute("voucherId", voucherId);
+    if (voucherCode != null) request.setAttribute("voucherCode", voucherCode);
+    if (discountAmount != null) request.setAttribute("discountAmount", discountAmount);
+    if (originalAmount != null) request.setAttribute("originalAmount", originalAmount);
+    
+    // DEBUG: In ra thông tin voucher
+    System.out.println("🎫 [FOOD COMBO DEBUG] Voucher info:");
+    System.out.println("  - voucherId: " + voucherId);
+    System.out.println("  - voucherCode: " + voucherCode);
+    System.out.println("  - discountAmount: " + discountAmount);
+    System.out.println("  - originalAmount: " + originalAmount);
+    System.out.println("  - totalAmount: " + totalAmount);
     
     List<FoodCombo> foodCombos = (List<FoodCombo>) request.getAttribute("foodCombos");
     if (foodCombos == null) {
@@ -516,8 +534,34 @@
 const seatBookingData = {
     scheduleId: '<%= scheduleId != null ? scheduleId : "" %>',
     seatIds: '<%= seatIds != null ? seatIds : "" %>',
-    totalAmount: '<%= totalAmount != null ? totalAmount : "0" %>'
+    totalAmount: '<%= totalAmount != null ? totalAmount : "0" %>',
+    voucherId: '<%= voucherId != null ? voucherId : "" %>',
+    voucherCode: '<%= voucherCode != null ? voucherCode : "" %>',
+    discountAmount: '<%= discountAmount != null ? discountAmount : "0" %>',
+    originalAmount: '<%= originalAmount != null ? originalAmount : totalAmount != null ? totalAmount : "0" %>'
 };
+
+// DEBUG: In ra tất cả thông tin nhận được
+console.log("🎯 DEBUG seatBookingData:", seatBookingData);
+console.log("📊 Breakdown:");
+console.log("  - scheduleId:", seatBookingData.scheduleId);
+console.log("  - seatIds:", seatBookingData.seatIds);
+console.log("  - totalAmount:", seatBookingData.totalAmount, "(Đây phải là giá ĐÃ GIẢM)");
+console.log("  - voucherId:", seatBookingData.voucherId);
+console.log("  - voucherCode:", seatBookingData.voucherCode);
+console.log("  - discountAmount:", seatBookingData.discountAmount);
+console.log("  - originalAmount:", seatBookingData.originalAmount);
+
+// Tính toán để kiểm tra
+const debugSeatTotal = parseInt(seatBookingData.totalAmount) || 0;
+const debugDiscount = parseInt(seatBookingData.discountAmount) || 0;
+const debugOriginalSeatAmount = parseInt(seatBookingData.originalAmount) || debugSeatTotal + debugDiscount;
+
+console.log("🧮 Tính toán:");
+console.log("  - seatTotal (đã giảm):", debugSeatTotal);
+console.log("  - discount:", debugDiscount);
+console.log("  - originalSeatAmount (từ URL):", debugOriginalSeatAmount);
+
 
 // Giỏ hàng combo
 let cart = [];
@@ -608,54 +652,123 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Xử lý thanh toán
     document.getElementById('btnCheckout')?.addEventListener('click', function() {
+        console.log("🚀 === BẮT ĐẦU XỬ LÝ THANH TOÁN ===");
+        
         if (!seatBookingData.scheduleId || !seatBookingData.seatIds) {
+            console.error("❌ Lỗi: Thiếu thông tin đặt vé");
             alert('Lỗi: Thiếu thông tin đặt vé. Vui lòng quay lại trang chọn ghế.');
             return;
         }
         
         // Disable button để tránh double submit
         this.disabled = true;
+        console.log("✅ Button disabled");
         
         // Tính tổng giá combo
-        const comboTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const comboTotal = cart.reduce((sum, item) => {
+            const price = parseFloat(item.price) || 0;
+            const quantity = parseInt(item.quantity) || 1;
+            return sum + (price * quantity);
+        }, 0);
         
-        // Tính tổng giá vé (từ seatBookingData.totalAmount)
-        const seatTotal = parseInt(seatBookingData.totalAmount) || 0;
+        console.log("🛒 Thông tin giỏ hàng:");
+        console.log("  - Số lượng combo:", cart.length);
+        console.log("  - Tổng combo:", comboTotal);
         
-        // Tổng cuối cùng (vé + combo, chưa có discount - discount sẽ được tính ở server nếu có voucher)
-        const finalTotal = seatTotal + comboTotal;
+        // Tính tổng giá vé - sử dụng giá đã giảm từ voucher
+        const checkoutSeatTotal = parseInt(seatBookingData.totalAmount) || 0;
+        const checkoutDiscountAmount = parseInt(seatBookingData.discountAmount) || 0;
+        const checkoutOriginalSeatAmount = parseInt(seatBookingData.originalAmount) || (checkoutSeatTotal + checkoutDiscountAmount);
+        
+        console.log("🎫 Thông tin vé:");
+        console.log("  - Vé gốc:", checkoutOriginalSeatAmount);
+        console.log("  - Discount:", checkoutDiscountAmount);
+        console.log("  - Vé sau discount:", checkoutSeatTotal);
+        
+        // Tổng cuối cùng (vé đã discount + combo)
+        const finalTotal = checkoutSeatTotal + comboTotal;
+        
+        console.log("💰 Tổng kết:");
+        console.log("  - Vé (đã giảm):", checkoutSeatTotal);
+        console.log("  - Combo:", comboTotal);
+        console.log("  - Tổng thanh toán:", finalTotal);
         
         // Tạo form POST tới /checkout
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '${pageContext.request.contextPath}/checkout';
-        
+
+        console.log("📝 Tạo form với các field:");
+
         // Thông tin vé
         const f1 = document.createElement('input');
         f1.type = 'hidden';
         f1.name = 'scheduleId';
         f1.value = seatBookingData.scheduleId;
         form.appendChild(f1);
-        
+        console.log("  - scheduleId:", seatBookingData.scheduleId);
+
         const f2 = document.createElement('input');
         f2.type = 'hidden';
         f2.name = 'seatIds';
         f2.value = seatBookingData.seatIds;
         form.appendChild(f2);
-        
-        // Gửi totalAmount (tổng vé + combo)
+        console.log("  - seatIds:", seatBookingData.seatIds);
+
+        // Gửi totalAmount (tổng vé đã discount + combo)
         const f3 = document.createElement('input');
         f3.type = 'hidden';
         f3.name = 'totalAmount';
         f3.value = String(finalTotal);
         form.appendChild(f3);
-        
-        // Gửi originalAmount (giá vé gốc, để server tính discount đúng)
+        console.log("  - totalAmount (finalTotal):", finalTotal);
+
+        // Gửi originalAmount (giá vé gốc CHƯA discount)
         const f3a = document.createElement('input');
         f3a.type = 'hidden';
         f3a.name = 'originalAmount';
-        f3a.value = String(seatTotal);
+        f3a.value = String(checkoutOriginalSeatAmount);
         form.appendChild(f3a);
+        console.log("  - originalAmount:", checkoutOriginalSeatAmount);
+
+        // QUAN TRỌNG: Thêm thông tin voucher vào form
+        if (seatBookingData.voucherId && seatBookingData.voucherId !== '') {
+    const fVoucherId = document.createElement('input');
+    fVoucherId.type = 'hidden';
+    fVoucherId.name = 'voucherId';
+    fVoucherId.value = seatBookingData.voucherId;
+    form.appendChild(fVoucherId);
+    console.log("  - voucherId:", seatBookingData.voucherId);
+    
+    const fVoucherCode = document.createElement('input');
+    fVoucherCode.type = 'hidden';
+    fVoucherCode.name = 'voucherCode';
+    fVoucherCode.value = seatBookingData.voucherCode;
+    form.appendChild(fVoucherCode);
+    console.log("  - voucherCode:", seatBookingData.voucherCode);
+    
+    const fDiscount = document.createElement('input');
+    fDiscount.type = 'hidden';
+    fDiscount.name = 'discountAmount';
+    fDiscount.value = seatBookingData.discountAmount || '0';
+    form.appendChild(fDiscount);
+    console.log("  - discountAmount:", seatBookingData.discountAmount);
+    
+    console.log("🎫 [DEBUG] Voucher data being submitted:");
+    console.log("  - voucherId:", seatBookingData.voucherId);
+    console.log("  - voucherCode:", seatBookingData.voucherCode);
+    console.log("  - discountAmount:", seatBookingData.discountAmount);
+} else {
+    console.log("  - Không có voucher");
+    
+    // THÊM: Gửi originalAmount ngay cả khi không có voucher
+    const fOriginal = document.createElement('input');
+    fOriginal.type = 'hidden';
+    fOriginal.name = 'originalAmount';
+    fOriginal.value = seatBookingData.originalAmount || seatBookingData.totalAmount;
+    form.appendChild(fOriginal);
+    console.log("  - originalAmount:", seatBookingData.originalAmount || seatBookingData.totalAmount);
+}
         
         // Thông tin combo (nếu có)
         if (cart.length > 0) {
@@ -667,16 +780,22 @@ document.addEventListener('DOMContentLoaded', function() {
             f4.name = 'comboIds';
             f4.value = comboIds;
             form.appendChild(f4);
+            console.log("  - comboIds:", comboIds);
             
             const f5 = document.createElement('input');
             f5.type = 'hidden';
             f5.name = 'comboQuantities';
             f5.value = comboQuantities;
             form.appendChild(f5);
+            console.log("  - comboQuantities:", comboQuantities);
+        } else {
+            console.log("  - Không có combo");
         }
         
+        console.log("✅ Form đã tạo xong, chuẩn bị submit...");
         document.body.appendChild(form);
         form.submit();
+        console.log("🎉 Form đã submit!");
     });
     
     // Xử lý tìm kiếm
@@ -704,43 +823,69 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateCartDisplay() {
+    console.log("🔄 === CẬP NHẬT HIỂN THỊ GIỎ HÀNG ===");
+    
     const cartList = document.getElementById('cartList');
     const cartTotal = document.getElementById('cartTotal');
     const btnCheckout = document.getElementById('btnCheckout');
     
-    // Luôn hiển thị nút thanh toán nếu có thông tin vé (cho phép thanh toán chỉ với vé, không cần combo)
+    const displaySeatTotal = parseInt(seatBookingData.totalAmount) || 0;
+    const displayDiscountAmount = parseInt(seatBookingData.discountAmount) || 0;
+    const displayOriginalSeatAmount = parseInt(seatBookingData.originalAmount) || (displaySeatTotal + displayDiscountAmount);
+    
+    console.log("📊 Dữ liệu hiển thị:");
+    console.log("  - seatTotal:", displaySeatTotal);
+    console.log("  - discountAmount:", displayDiscountAmount);
+    console.log("  - originalSeatAmount:", displayOriginalSeatAmount);
+    console.log("  - Số lượng combo:", cart.length);
+    
     if (cart.length === 0) {
         cartList.innerHTML = '<div class="empty">Chưa có sản phẩm nào</div>';
-        const seatTotal = parseInt(seatBookingData.totalAmount) || 0;
-        if (seatTotal > 0) {
-            const formattedSeatTotal = seatTotal.toLocaleString('vi-VN');
-            cartTotal.innerHTML = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
-                '<div style="font-size:12px;color:#64748b;">Vé: ' + formattedSeatTotal + ' &#x20AB;</div>' +
-                '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + formattedSeatTotal + ' &#x20AB;</div>' +
-                '</div>';
+        
+        if (displaySeatTotal > 0) {
+            let totalHtml = '';
+            
+            if (displayDiscountAmount > 0) {
+                totalHtml = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
+                    '<div style="font-size:12px;color:#64748b;text-decoration:line-through;">Vé gốc: ' + displayOriginalSeatAmount.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+                    '<div style="font-size:12px;color:#ef4444;">Giảm: -' + displayDiscountAmount.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+                    '<div style="font-size:12px;color:#64748b;">Vé: ' + displaySeatTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+                    '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + displaySeatTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+                    '</div>';
+            } else {
+                totalHtml = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
+                    '<div style="font-size:12px;color:#64748b;">Vé: ' + displaySeatTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+                    '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + displaySeatTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+                    '</div>';
+            }
+            
+            cartTotal.innerHTML = totalHtml;
             if (btnCheckout) btnCheckout.disabled = false;
         } else {
             cartTotal.textContent = '0 ₫';
             if (btnCheckout) btnCheckout.disabled = true;
         }
+        
+        // DEBUG: Kiểm tra HTML cuối cùng
+        setTimeout(() => {
+            console.log("🔍 HTML cuối cùng của cartTotal:");
+            console.log(cartTotal.innerHTML);
+        }, 100);
         return;
     }
     
     // Hiển thị danh sách combo với nút xóa
     let html = '';
     cart.forEach((item, index) => {
-        // Đảm bảo item có đầy đủ thông tin
         const itemName = item.name || 'Combo';
         const itemPrice = parseFloat(item.price) || 0;
         const itemQuantity = parseInt(item.quantity) || 1;
         const itemTotal = itemPrice * itemQuantity;
         
-        // Escape HTML để tránh XSS
         const escapedName = escapeHtml(itemName);
         const formattedPrice = itemPrice.toLocaleString('vi-VN');
         const formattedTotal = itemTotal.toLocaleString('vi-VN');
         
-        // Sử dụng string concatenation thay vì template literals để tránh JSP parse
         html += '<div class="cart-item" data-cart-index="' + index + '">';
         html += '<div class="cart-item-info">';
         html += '<div class="cart-item-title">' + escapedName + '</div>';
@@ -754,7 +899,7 @@ function updateCartDisplay() {
     });
     cartList.innerHTML = html;
     
-    // Attach event listeners cho các nút xóa (sử dụng event delegation)
+    // Attach event listeners cho các nút xóa
     cartList.querySelectorAll('.btn-remove').forEach(btn => {
         btn.addEventListener('click', function() {
             const index = parseInt(this.getAttribute('data-cart-index'));
@@ -762,32 +907,42 @@ function updateCartDisplay() {
         });
     });
     
-    // Tính tổng giá combo
+    // Tính tổng và hiển thị với discount
     const comboTotal = cart.reduce((sum, item) => {
         const price = parseFloat(item.price) || 0;
         const quantity = parseInt(item.quantity) || 1;
         return sum + (price * quantity);
     }, 0);
     
-    // Tính tổng giá vé (nếu có)
-    const seatTotal = parseInt(seatBookingData.totalAmount) || 0;
+    const finalTotal = displaySeatTotal + comboTotal;
+    const originalTotal = displayOriginalSeatAmount + comboTotal;
     
-    // Hiển thị tổng
-    if (seatTotal > 0) {
-        const finalTotal = seatTotal + comboTotal;
-        const formattedSeatTotal = seatTotal.toLocaleString('vi-VN');
-        const formattedComboTotal = comboTotal.toLocaleString('vi-VN');
-        const formattedFinalTotal = finalTotal.toLocaleString('vi-VN');
-        cartTotal.innerHTML = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
-            '<div style="font-size:12px;color:#64748b;">Vé: ' + formattedSeatTotal + ' &#x20AB;</div>' +
-            '<div style="font-size:12px;color:#64748b;">Combo: ' + formattedComboTotal + ' &#x20AB;</div>' +
-            '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + formattedFinalTotal + ' &#x20AB;</div>' +
+    let totalHtml = '';
+    
+    if (displayDiscountAmount > 0) {
+        totalHtml = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
+            '<div style="font-size:12px;color:#64748b;text-decoration:line-through;">Tổng gốc: ' + originalTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '<div style="font-size:12px;color:#ef4444;">Giảm: -' + displayDiscountAmount.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '<div style="font-size:12px;color:#64748b;">Vé: ' + displaySeatTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '<div style="font-size:12px;color:#64748b;">Combo: ' + comboTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + finalTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
             '</div>';
     } else {
-        cartTotal.textContent = comboTotal.toLocaleString('vi-VN') + ' &#x20AB;';
+        totalHtml = '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">' +
+            '<div style="font-size:12px;color:#64748b;">Vé: ' + displaySeatTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '<div style="font-size:12px;color:#64748b;">Combo: ' + comboTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '<div style="font-size:16px;color:#0f172a;font-weight:700;">Tổng: ' + finalTotal.toLocaleString('vi-VN') + ' &#x20AB;</div>' +
+            '</div>';
     }
     
+    cartTotal.innerHTML = totalHtml;
     if (btnCheckout) btnCheckout.disabled = false;
+    
+    // DEBUG: Kiểm tra HTML cuối cùng
+    setTimeout(() => {
+        console.log("🔍 HTML cuối cùng của cartTotal:");
+        console.log(cartTotal.innerHTML);
+    }, 100);
 }
 
 // Hàm xóa item khỏi giỏ hàng
