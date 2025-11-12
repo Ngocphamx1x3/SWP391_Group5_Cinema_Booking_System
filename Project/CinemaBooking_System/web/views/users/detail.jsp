@@ -635,6 +635,22 @@
                     }
                 });
             }
+            // FORCE OVERRIDE - Thêm vào CUỐI detail.jsp, SAU khi load seat-modal.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Đợi 2 giây để modal được load xong
+    setTimeout(() => {
+        console.log('🔧 FORCING button override after modal load');
+        
+        // Tìm và clone button để xóa tất cả event listeners cũ
+        const oldBtn = document.querySelector('#confirmBtn');
+        if (oldBtn) {
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+            console.log('✅ Button replaced, old handlers removed');
+        }
+    }, 2000);
+});
+
         </script>
     </body>
 </html>

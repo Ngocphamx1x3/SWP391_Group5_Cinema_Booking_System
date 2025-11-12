@@ -19,7 +19,23 @@
   <div class="mx-auto bg-white rounded-4 shadow p-4" style="max-width:760px">
     <h4 class="mb-3">Quét mã thanh toán</h4>
     <p class="mb-1">Mã đơn: <strong>${orderCode}</strong></p>
-    
+    <!-- Thêm vào đầu trang checkout.jsp -->
+<script>
+console.log("🔍 === CHECKOUT PAGE DEBUG ===");
+console.log("📊 JSP EL Values:");
+console.log("  - amount: ${amount}");
+console.log("  - originalAmount: ${originalAmount}");
+console.log("  - discountAmount: ${discountAmount}");
+console.log("  - voucherCode: ${voucherCode}");
+console.log("  - orderCode: ${orderCode}");
+
+// Kiểm tra xem có discount không
+console.log("💳 Discount Info:");
+console.log("  - Has discount: ${not empty discountAmount && discountAmount > 0}");
+console.log("  - Discount amount: ${discountAmount}");
+console.log("  - Original amount: ${originalAmount}");
+console.log("  - Final amount: ${amount}");
+</script>
     <!-- Hiển thị thông tin giảm giá -->
 <c:if test="${not empty discountAmount && discountAmount > 0}">
   <div class="discount-info">
