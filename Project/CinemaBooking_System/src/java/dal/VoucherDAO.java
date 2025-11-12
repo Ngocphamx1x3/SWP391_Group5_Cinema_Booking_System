@@ -96,6 +96,30 @@ public class VoucherDAO {
                 e.printStackTrace();
             }
         }
+        
+    }
+
+    // Lấy thông tin phim theo ID (cho voucher detail)
+    public MovieItem getMovieById(int movieId) {
+        String sql = "SELECT Id, Code, Name FROM Movie WHERE Id = ?";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, movieId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                MovieItem movie = new MovieItem();
+                movie.setId(rs.getInt("Id"));
+                movie.setCode(rs.getString("Code"));
+                movie.setName(rs.getString("Name"));
+                return movie;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     // Lấy danh sách tất cả phim (cho dropdown)
@@ -203,28 +227,7 @@ public class VoucherDAO {
         return movieIds;
     }
 
-    // Lấy thông tin phim theo ID (cho voucher detail)
-    public MovieItem getMovieById(int movieId) {
-        String sql = "SELECT Id, Code, Name FROM Movie WHERE Id = ?";
-
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, movieId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                MovieItem movie = new MovieItem();
-                movie.setId(rs.getInt("Id"));
-                movie.setCode(rs.getString("Code"));
-                movie.setName(rs.getString("Name"));
-                return movie;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+   
 
     // Kiểm tra code đã tồn tại chưa
     public boolean isCodeExists(String code) {

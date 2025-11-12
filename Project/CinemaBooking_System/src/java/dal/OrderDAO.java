@@ -23,6 +23,26 @@ public class OrderDAO extends DBContext {
         }
         return 0;
     }
+    
+    /**
+     * Create pending order using existing connection (for transaction)
+     */
+    public int createPendingOrder(Connection conn, int userId, long totalMoney, String orderCode, Timestamp expiredAt) throws SQLException {
+        String sql = "INSERT INTO Orders (UserId, OrderDate, Status, TotalMoney, OrderCode, ExpiredAt) "
+                + "VALUES (?, GETDATE(), N'PENDING', ?, ?, ?); SELECT SCOPE_IDENTITY();";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setLong(2, totalMoney);
+            ps.setString(3, orderCode);
+            ps.setTimestamp(4, expiredAt);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
 
     public int getOrderIdByCode(String orderCode) {
         String sql = "SELECT Id FROM Orders WHERE OrderCode = ?";

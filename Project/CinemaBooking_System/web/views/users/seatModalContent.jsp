@@ -428,6 +428,10 @@ function applyVoucherDiscount(voucher) {
         alert(message);
         document.querySelectorAll('.voucher-item').forEach(v => v.classList.remove('selected'));
         updateTotalDisplaySimple(baseTotal);
+        
+        // Reset biến toàn cục
+        window.selectedVoucher = null;
+        window.appliedDiscount = 0;
         return;
     }
     
@@ -448,7 +452,7 @@ function applyVoucherDiscount(voucher) {
     updateTotalDisplaySimple(finalTotal);
     
     // QUAN TRỌNG: Cập nhật dataset.totalAmount để checkout sử dụng
-    const modalEl = document.querySelector('.seat-modal-content');
+   const modalEl = document.querySelector('.seat-modal-content');
     if (modalEl) {
         modalEl.dataset.totalAmount = String(finalTotal);
         console.log('💾 [SIMPLE] Updated modal dataset.totalAmount:', modalEl.dataset.totalAmount);
@@ -457,6 +461,11 @@ function applyVoucherDiscount(voucher) {
     // Lưu vào biến toàn cục để checkout sử dụng
     window.selectedVoucher = voucher;
     window.appliedDiscount = discountAmount;
+    
+    console.log('💾 [SIMPLE] Global vars updated:', {
+        selectedVoucher: window.selectedVoucher,
+        appliedDiscount: window.appliedDiscount
+    });
 }
 
 // Tính tổng tiền đơn giản
@@ -486,6 +495,23 @@ function updateTotalDisplaySimple(total) {
         modalEl.dataset.totalAmount = String(total);
         console.log('💾 [SIMPLE] Updated modal dataset.totalAmount:', modalEl.dataset.totalAmount);
     }
+}
+
+// Trong file seat selection (seat-modal.js hoặc tương tự)
+function proceedToCombo() {
+    const selectedVoucher = document.querySelector('.voucher-item.selected');
+    let voucherParams = '';
+    
+    if (selectedVoucher) {
+        const voucherId = selectedVoucher.dataset.voucherId;
+        const voucherCode = selectedVoucher.dataset.voucherCode;
+        const discountAmount = calculateDiscount(selectedVoucher, totalAmount);
+        
+        voucherParams = `&voucherId=${voucherId}&voucherCode=${voucherCode}&discountAmount=${discountAmount}`;
+    }
+    
+    // Chuyển đến trang combo với thông tin voucher
+   window.location.href = `${contextPath}/views/users/FoodCombo.jsp?scheduleId=${scheduleId}&seatIds=${selectedSeatIds}&totalAmount=${modalEl.dataset.totalAmount || totalAmount}`;
 }
 
 // Khởi tạo tự động
