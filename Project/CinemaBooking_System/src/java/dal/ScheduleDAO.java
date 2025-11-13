@@ -45,31 +45,30 @@ public class ScheduleDAO extends DBContext {
     }
 
     // Lấy tất cả lịch chiếu (Admin)
-public List<Schedule> getAllSchedules() {
-    List<Schedule> list = new ArrayList<>();
-    String sql = "SELECT s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
-               + "FROM Schedule s "
-               + "INNER JOIN Movie m ON s.MovieId = m.Id "
-               + "INNER JOIN Room r ON s.RoomId = r.Id "
-               + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
-               + "ORDER BY s.StartAt DESC";
+    public List<Schedule> getAllSchedules() {
+        List<Schedule> list = new ArrayList<>();
+        String sql = "SELECT s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
+                + "FROM Schedule s "
+                + "INNER JOIN Movie m ON s.MovieId = m.Id "
+                + "INNER JOIN Room r ON s.RoomId = r.Id "
+                + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
+                + "ORDER BY s.StartAt DESC";
 
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            Schedule schedule = mapResultSetToSchedule(rs);
-            schedule.setMovieName(rs.getString("movie_name"));
-            schedule.setRoomName(rs.getString("room_name"));
-            schedule.setCinemaName(rs.getString("cinema_name"));
-            list.add(schedule);
+            while (rs.next()) {
+                Schedule schedule = mapResultSetToSchedule(rs);
+                schedule.setMovieName(rs.getString("movie_name"));
+                schedule.setRoomName(rs.getString("room_name"));
+                schedule.setCinemaName(rs.getString("cinema_name"));
+                list.add(schedule);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
 
     // GET SCHEDULE BY ID WITH STAFF VALIDATION
     public Schedule getScheduleById(int scheduleId, int staffId) {
@@ -506,35 +505,137 @@ public List<Schedule> getAllSchedules() {
 
         return schedules;
     }
-    
-    
-public List<Schedule> getRecentSchedules(int limit) {
-    List<Schedule> list = new ArrayList<>();
-    String sql = "SELECT TOP (?) s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
-               + "FROM Schedule s "
-               + "INNER JOIN Movie m ON s.MovieId = m.Id "
-               + "INNER JOIN Room r ON s.RoomId = r.Id "
-               + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
-               + "ORDER BY s.Id DESC"; // <-- ID lớn nhất = mới nhất
 
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, limit);
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Schedule schedule = mapResultSetToSchedule(rs);
-                schedule.setMovieName(rs.getString("movie_name"));
-                schedule.setRoomName(rs.getString("room_name"));
-                schedule.setCinemaName(rs.getString("cinema_name"));
-                list.add(schedule);
+    public List<Schedule> getRecentSchedules(int limit) {
+        List<Schedule> list = new ArrayList<>();
+        String sql = "SELECT TOP (?) s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
+                + "FROM Schedule s "
+                + "INNER JOIN Movie m ON s.MovieId = m.Id "
+                + "INNER JOIN Room r ON s.RoomId = r.Id "
+                + "INNER JOIN Cinema c ON r.CinemaId = c.Id "
+                + "ORDER BY s.Id DESC"; // <-- ID lớn nhất = mới nhất
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Schedule schedule = mapResultSetToSchedule(rs);
+                    schedule.setMovieName(rs.getString("movie_name"));
+                    schedule.setRoomName(rs.getString("room_name"));
+                    schedule.setCinemaName(rs.getString("cinema_name"));
+                    list.add(schedule);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
 
+// ===== Lấy danh sách schedule chỉ của rạp staff quản lý =====
+    public List<Schedule> getSchedulesByStaffWithCinema(int staffId) {
+        List<Schedule> list = new ArrayList<>();
+        String sql = "SELECT s.*, m.Name as movie_name, r.Name as room_name, c.Name as cinema_name "
+                + "FROM Schedule s "
+                + "JOIN Room r ON s.RoomId = r.Id "
+                + "JOIN Cinema c ON r.CinemaId = c.Id "
+                + "JOIN Cinema_Staff cs ON c.Id = cs.cinema_id "
+                + "JOIN Movie m ON s.MovieId = m.Id "
+                + "WHERE cs.staff_id = ? AND cs.status = 1 "
+                + "ORDER BY s.StartAt DESC";
 
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Schedule schedule = mapResultSetToSchedule(rs);
+                    schedule.setMovieName(rs.getString("movie_name"));
+                    schedule.setRoomName(rs.getString("room_name"));
+                    schedule.setCinemaName(rs.getString("cinema_name"));
+                    list.add(schedule);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ===== Lấy tổng số vé đã bán cho rạp của staff =====
+    public int getTotalTicketsByStaff(int staffId) {
+        String sql = "SELECT COUNT(*) AS TotalTickets "
+                + "FROM Schedule s "
+                + "JOIN Room r ON s.RoomId = r.Id "
+                + "JOIN Cinema c ON r.CinemaId = c.Id "
+                + "JOIN Cinema_Staff cs ON c.Id = cs.cinema_id "
+                + "WHERE cs.staff_id = ? AND cs.status = 1 "
+                + "AND s.Status = N'Đang hoạt động'";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("TotalTickets");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+// ===== Tính tổng doanh thu theo staff =====
+    public double getTotalRevenueByStaff(int staffId) {
+        String sql = "SELECT SUM(s.Price) AS TotalRevenue "
+                + "FROM Schedule s "
+                + "JOIN Room r ON s.RoomId = r.Id "
+                + "JOIN Cinema c ON r.CinemaId = c.Id "
+                + "JOIN Cinema_Staff cs ON c.Id = cs.cinema_id "
+                + "WHERE cs.staff_id = ? AND cs.status = 1 "
+                + "AND s.Status = N'Đang hoạt động'";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, staffId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("TotalRevenue");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // ===== Lấy tổng số suất chiếu hôm nay theo staff =====
+    public int getTodaySchedulesByStaff(int staffId) {
+        String sql = """
+        SELECT COUNT(*) AS TodayCount
+        FROM Schedule s
+        JOIN Room r ON s.RoomId = r.Id
+        JOIN Cinema c ON r.CinemaId = c.Id
+        JOIN Cinema_Staff cs ON c.Id = cs.cinema_id
+        WHERE cs.staff_id = ? 
+          AND cs.status = 1
+          AND CAST(s.StartAt AS DATE) = CAST(GETDATE() AS DATE)
+    """;
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, staffId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("TodayCount");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     private String generateScheduleCode() {
         return "SCH" + System.currentTimeMillis();

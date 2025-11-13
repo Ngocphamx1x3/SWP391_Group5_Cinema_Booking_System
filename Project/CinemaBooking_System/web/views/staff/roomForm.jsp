@@ -265,8 +265,28 @@
     </head>
     <body>
 
-        <jsp:include page="../layout/StaffSidebar.jsp"/>
-        <jsp:include page="../layout/StaffHeader.jsp"/>
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <h2>🎬 CINEMA PRO</h2>
+                <p>Staff Panel</p>
+            </div>
+            <nav>
+                <a href="${pageContext.request.contextPath}/staffdashboard">🏢 Thông tin rạp của tôi</a>
+                <a href="${pageContext.request.contextPath}/staff/rooms" class="active">🎭 Quản lý phòng chiếu</a>
+                <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
+                <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
+                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
+            </nav>
+            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        </div>
+
+        <header>
+            <h1><%= isEdit ? "✏️ Chỉnh sửa Phòng Chiếu" : "➕ Thêm Phòng Chiếu Mới" %></h1>
+            <div class="header-right">
+                <span>👤 Staff: <%= session.getAttribute("staffName") != null ? session.getAttribute("staffName") : "Nhân viên" %></span>
+                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+            </div>
+        </header>
 
         <div class="content">
             <div class="form-container">
