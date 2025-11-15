@@ -84,8 +84,8 @@
     <div class="result-container ${success ? 'success' : 'error'}">
         <div class="icon">
             <c:choose>
-                <c:when test="${success}">✅</c:when>
-                <c:otherwise>❌</c:otherwise>
+                <c:when test="${success}">Thành công</c:when>
+                <c:otherwise>Thất bại</c:otherwise>
             </c:choose>
         </div>
         

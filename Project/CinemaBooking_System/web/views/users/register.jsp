@@ -263,7 +263,7 @@
                 
                 <!-- Form xác thực mã code (chỉ hiển thị khi đăng ký thành công) -->
                 <div class="verification-section">
-                    <h3 style="color: #ff6b35; margin-top: 0;">🔐 Xác thực tài khoản</h3>
+                    <h3 style="color: #ff6b35; margin-top: 0;">Xác thực tài khoản</h3>
                     <p>Vui lòng nhập mã xác thực 6 số đã được gửi đến email của bạn:</p>
                     
                     <form method="get" action="${pageContext.request.contextPath}/verify">

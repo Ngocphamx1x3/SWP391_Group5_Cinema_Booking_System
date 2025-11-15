@@ -440,29 +440,29 @@
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2>CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp" class="active">💳 Quản lý thanh toán</a>
-            <a href="${pageContext.request.contextPath}/admin/vouchers">🎫 Quản lý Voucher</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp" class="active">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
         <h1>Quản lý thanh toán</h1>
         <div class="header-right">
-            <span>👤 Admin: Nguyễn Văn A</span>
-            <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+            <span>Admin: Nguyễn Văn A</span>
+            <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
             <div class="notification-badge">
-                <span>🔔</span>
+                <span>Thông báo</span>
                 <span class="badge">3</span>
             </div>
         </div>
@@ -470,7 +470,7 @@
 
     <div class="content">
 
-        <h2 class="section-title">🔍 Lọc và tìm kiếm giao dịch</h2>
+        <h2 class="section-title">Lọc và tìm kiếm giao dịch</h2>
         <div class="filter-container">
             <div class="filter-group">
                 <label for="transactionId">Mã Giao Dịch</label>
@@ -507,7 +507,7 @@
         </div>
 
 
-        <h2 class="section-title">📑 Danh sách Giao dịch</h2>
+        <h2 class="section-title">Danh sách Giao dịch</h2>
         <div class="table-container">
             <table>
                 <thead>

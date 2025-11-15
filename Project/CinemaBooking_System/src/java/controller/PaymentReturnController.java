@@ -2,6 +2,7 @@ package controller;
 
 import dal.OrderDAO;
 import dal.TicketDAO;
+import dal.VoucherDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -68,6 +69,9 @@ public class PaymentReturnController extends HttpServlet {
                     boolean confirmed = false;
                     try {
                         confirmed = ticketDAO.confirmTicketsByOrder(orderId);
+                        if (confirmed) {
+                confirmVoucherUsage(orderId);
+            }
                     } catch (Exception ee) {
                         System.out.println(TAG + "EX while confirmTicketsByOrder: " + ee.getMessage());
                         ee.printStackTrace();
@@ -149,13 +153,29 @@ public class PaymentReturnController extends HttpServlet {
             return false;
         }
 
-        String subject = " YOUR TICKET - "
-                + (info.movieName != null ? info.movieName : "Cinema Booking")
-                + " (" + info.orderCode + ")";
+        String subject = "YOUR TICKET - Thank you for your booking (" + info.orderCode + ")";
 
         String html = EmailTemplates.ticketSuccess(info);
         boolean ok = EmailUtil.sendHtmlEmail(info.userEmail, subject, html);
         System.out.println(TAG + "[Mail] sent=" + ok + " to=" + info.userEmail);
         return ok;
+    }
+    
+    
+    
+    private void confirmVoucherUsage(int orderId) {
+        try {
+            // Xác nhận và trừ số lượng voucher khi thanh toán thành công
+            VoucherDAO voucherDAO = new VoucherDAO();
+            boolean confirmed = voucherDAO.confirmVoucherUsage(orderId);
+            if (confirmed) {
+                System.out.println(TAG + "✅ Voucher usage confirmed and quantity deducted for order: " + orderId);
+            } else {
+                System.out.println(TAG + "⚠️ No voucher to confirm for order: " + orderId);
+            }
+        } catch (Exception e) {
+            System.err.println(TAG + "❌ Error confirming voucher usage: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

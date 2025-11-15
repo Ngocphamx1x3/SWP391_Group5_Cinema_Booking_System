@@ -508,27 +508,27 @@
 
         <div class="sidebar">
             <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
+                <h2>CINEMA PRO</h2>
                 <p>Admin Panel</p>
             </div>
             <nav>
-                <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-                <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-                <a href="${pageContext.request.contextPath}/admin/staff" class="active">🧑‍💼 Quản lý nhân viên</a>
-                <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-                <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-                <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-                <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
-                <a href="${pageContext.request.contextPath}/admin/vouchers">🎫 Quản lý Voucher</a>
+                <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+                <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+                <a href="${pageContext.request.contextPath}/admin/staff" class="active">Quản lý nhân viên</a>
+                <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+                <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+                <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+                <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+                <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
             </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
         </div>
 
         <header>
-            <h1>🧑‍💼 Quản lý nhân viên</h1>
+            <h1>Quản lý nhân viên</h1>
             <div class="header-right">
-                <span>👤 Admin: Nguyễn Văn A</span>
-                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+                <span>Admin: Nguyễn Văn A</span>
+                <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
             </div>
         </header>
 
@@ -536,11 +536,11 @@
 
             <div class="stats-container">
                 <div class="stat-box">
-                    <h3>👥 Tổng nhân viên</h3>
+                    <h3>Tổng nhân viên</h3>
                     <div class="stat-value">${fn:length(staffList)}</div> <%-- Use fn:length for list size --%>
                 </div>
                 <div class="stat-box">
-                    <h3>✅ Đang làm việc</h3>
+                    <h3>Đang làm việc</h3>
                     <div class="stat-value">
                         <c:set var="activeCount" value="0" />
                         <c:forEach var="staff" items="${staffList}">
@@ -552,7 +552,7 @@
                     </div>
                 </div>
                 <div class="stat-box">
-                    <h3>🏢 Có phân công</h3>
+                    <h3>Có phân công</h3>
                     <div class="stat-value">
                         <c:set var="assignedCount" value="0" />
                         <c:forEach var="staff" items="${staffList}">
@@ -564,7 +564,7 @@
                     </div>
                 </div>
                 <div class="stat-box">
-                    <h3>🆕 Mới tháng này</h3>
+                    <h3>Mới tháng này</h3>
                     <div class="stat-value">
                          <c:set var="newThisMonth" value="0" />
                          <c:set var="currentMonth" value="<%= java.time.LocalDate.now().getMonthValue() %>" />
@@ -592,13 +592,13 @@
             <c:if test="${not empty param.success}">
                 <div class="alert alert-success">
                     <c:choose>
-                        <c:when test="${param.success == 'create'}">✅ Thêm nhân viên thành công!</c:when>
-                        <c:when test="${param.success == 'update'}">✅ Cập nhật nhân viên thành công!</c:when>
-                        <c:when test="${param.success == 'delete'}">✅ Xóa nhân viên thành công!</c:when>
-                        <c:when test="${param.success == 'status'}">✅ Cập nhật trạng thái thành công!</c:when>
-                        <c:when test="${param.success == 'assign'}">✅ Phân công rạp thành công!</c:when>
-                        <c:when test="${param.success == 'update-assignment'}">✅ Cập nhật phân công thành công!</c:when>
-                         <c:otherwise>✅ Thao tác thành công!</c:otherwise> <%-- Generic success --%>
+                        <c:when test="${param.success == 'create'}">Thêm nhân viên thành công!</c:when>
+                        <c:when test="${param.success == 'update'}">Cập nhật nhân viên thành công!</c:when>
+                        <c:when test="${param.success == 'delete'}">Xóa nhân viên thành công!</c:when>
+                        <c:when test="${param.success == 'status'}">Cập nhật trạng thái thành công!</c:when>
+                        <c:when test="${param.success == 'assign'}">Phân công rạp thành công!</c:when>
+                        <c:when test="${param.success == 'update-assignment'}">Cập nhật phân công thành công!</c:when>
+                         <c:otherwise>Thao tác thành công!</c:otherwise> <%-- Generic success --%>
                     </c:choose>
                 </div>
             </c:if>
@@ -606,11 +606,11 @@
             <c:if test="${not empty param.error}">
                 <div class="alert alert-error">
                     <c:choose>
-                        <c:when test="${param.error == 'create'}">❌ Lỗi khi thêm nhân viên!</c:when>
-                        <c:when test="${param.error == 'update'}">❌ Lỗi khi cập nhật nhân viên!</c:when>
-                        <c:when test="${param.error == 'delete'}">❌ Lỗi khi xóa nhân viên!</c:when>
-                        <c:when test="${param.error == 'status'}">❌ Lỗi khi cập nhật trạng thái!</c:when>
-                        <c:otherwise>❌ Có lỗi xảy ra: ${param.error}</c:otherwise> <%-- Display specific error if provided --%>
+                        <c:when test="${param.error == 'create'}">Lỗi khi thêm nhân viên!</c:when>
+                        <c:when test="${param.error == 'update'}">Lỗi khi cập nhật nhân viên!</c:when>
+                        <c:when test="${param.error == 'delete'}">Lỗi khi xóa nhân viên!</c:when>
+                        <c:when test="${param.error == 'status'}">Lỗi khi cập nhật trạng thái!</c:when>
+                        <c:otherwise>Có lỗi xảy ra: ${param.error}</c:otherwise> <%-- Display specific error if provided --%>
                     </c:choose>
                 </div>
             </c:if>
@@ -618,7 +618,7 @@
 
             <div class="toolbar">
                 <form method="get" action="${pageContext.request.contextPath}/admin/staff" class="search-box">
-                    <input type="text" name="search" placeholder="🔍 Tìm kiếm theo tên, email..."
+                    <input type="text" name="search" placeholder="Tìm kiếm theo tên, email..."
                            value="${param.search}">
                     <select name="roleFilter">
                         <option value="">Tất cả vị trí</option>
@@ -633,8 +633,8 @@
                         <option value="active" ${param.statusFilter == 'active' ? 'selected' : ''}>Đang làm việc</option>
                         <option value="inactive" ${param.statusFilter == 'inactive' ? 'selected' : ''}>Đã nghỉ việc</option>
                     </select>
-                    <button type="submit" class="btn">🔍 Tìm kiếm</button>
-                    <a href="${pageContext.request.contextPath}/admin/staff" class="btn btn-secondary">🔄 Reset</a>
+                    <button type="submit" class="btn">Tìm kiếm</button>
+                    <a href="${pageContext.request.contextPath}/admin/staff" class="btn btn-secondary">Reset</a>
                 </form>
                 <a href="${pageContext.request.contextPath}/admin/staff?action=add" class="btn">➕ Thêm nhân viên</a>
             </div>
@@ -694,10 +694,10 @@
                                 <td>
                                     <div class="action-buttons">
                                         <a href="${pageContext.request.contextPath}/admin/staff?action=view&id=${staff.id}"
-                                           class="btn-small btn-view" title="Xem chi tiết">👁️</a>
+                                           class="btn-small btn-view" title="Xem chi tiết">Xem</a>
 
                                         <a href="${pageContext.request.contextPath}/admin/staff?action=edit&id=${staff.id}"
-                                           class="btn-small btn-edit" title="Chỉnh sửa">✏️</a>
+                                           class="btn-small btn-edit" title="Chỉnh sửa">Sửa</a>
 
                                         <c:choose>
                                             <c:when test="${staff.status}">
@@ -708,18 +708,18 @@
                                             <c:otherwise>
                                                 <a href="${pageContext.request.contextPath}/admin/staff?action=toggle-status&id=${staff.id}&status=true"
                                                    class="btn-small btn-success" title="Kích hoạt"
-                                                    onclick="return confirm('Kích hoạt lại nhân viên ${fn:escapeXml(staff.username)}?')">✅</a>
+                                                    onclick="return confirm('Kích hoạt lại nhân viên ${fn:escapeXml(staff.username)}?')">Kích hoạt</a>
                                             </c:otherwise>
                                         </c:choose>
 
                                         <a href="${pageContext.request.contextPath}/admin/staff?action=delete&id=${staff.id}"
                                            class="btn-small btn-delete" title="Xóa"
-                                           onclick="return confirm('Bạn có chắc muốn xóa nhân viên ${fn:escapeXml(staff.username)}? Hành động này không thể hoàn tác.')">🗑️</a>
+                                           onclick="return confirm('Bạn có chắc muốn xóa nhân viên ${fn:escapeXml(staff.username)}? Hành động này không thể hoàn tác.')">Xóa</a>
 
                                         <%-- Replaced with link on cinema info or dedicated management page --%>
                                         <%--
                                         <a href="${pageContext.request.contextPath}/admin/staff?action=assign-cinema&staffId=${staff.id}"
-                                           class="btn-small btn-primary" title="Phân công">🏢</a>
+                                           class="btn-small btn-primary" title="Phân công">Phân công</a>
                                         --%>
                                     </div>
                                 </td>
@@ -730,7 +730,7 @@
 
                 <c:if test="${empty staffList}">
                     <div style="text-align: center; padding: 40px; color: #6b7280;">
-                        <p>📭 Không có nhân viên nào được tìm thấy khớp với tiêu chí tìm kiếm.</p>
+                        <p>Không có nhân viên nào được tìm thấy khớp với tiêu chí tìm kiếm.</p>
                     </div>
                 </c:if>
             </div>

@@ -16,175 +16,19 @@
     if (pageSize == null) pageSize = 10;
     if (totalPages == null) totalPages = 1;
     if (totalRecords == null) totalRecords = 0;
+    
+    // Set active page for sidebar highlighting
+    request.setAttribute("activePage", "schedules");
+    request.setAttribute("pageTitle", "Quản lý Lịch Chiếu");
 %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Quản lý Lịch Chiếu | Cinema Booking</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <jsp:include page="../layout/StaffStyles.jsp"/>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: #f4f7fa;
-                color: #2d3748;
-                min-height: 100vh;
-            }
-
-            /* ===== Sidebar ===== */
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 280px;
-                height: 100vh;
-                background: #ffffff;
-                border-right: 1px solid #e2e8f0;
-                display: flex;
-                flex-direction: column;
-                padding: 30px 0;
-                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
-                z-index: 1000;
-            }
-
-            .sidebar-logo {
-                text-align: center;
-                margin-bottom: 50px;
-                padding: 0 25px;
-            }
-
-            .sidebar-logo h2 {
-                font-size: 26px;
-                font-weight: 700;
-                color: #1a202c;
-                background: none;
-                -webkit-background-clip: unset;
-                -webkit-text-fill-color: unset;
-                letter-spacing: 1px;
-            }
-
-            .sidebar-logo p {
-                font-size: 11px;
-                color: #6b7280;
-                margin-top: 5px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }
-
-            .sidebar nav {
-                flex: 1;
-                overflow-y: auto;
-            }
-
-            .sidebar a {
-                color: #4a5568;
-                text-decoration: none;
-                padding: 16px 30px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                font-size: 15px;
-                font-weight: 500;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                position: relative;
-            }
-
-            .sidebar a::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 4px;
-                background: linear-gradient(180deg, #00d4ff 0%, #0099ff 100%);
-                transform: scaleY(0);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar a:hover {
-                background: #e6f7ff;
-                color: #007bff;
-                padding-left: 35px;
-            }
-
-            .sidebar a:hover::before {
-                transform: scaleY(1);
-            }
-
-            .sidebar a.active {
-                background: #e6f7ff;
-                color: #007bff;
-                padding-left: 35px;
-            }
-
-            .sidebar a.active::before {
-                transform: scaleY(1);
-            }
-
-            .sidebar a.logout {
-                margin-top: auto;
-                background: rgba(239, 68, 68, 0.1);
-                color: #ef4444;
-                margin: 20px 20px 0;
-                border-radius: 12px;
-                justify-content: center;
-            }
-
-            .sidebar a.logout:hover {
-                background: rgba(239, 68, 68, 0.2);
-                padding-left: 30px;
-            }
-
-            /* ===== Header ===== */
-            header {
-                margin-left: 280px;
-                background: rgba(255, 255, 255, 0.8);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid #e2e8f0;
-                padding: 20px 40px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-
-            header h1 {
-                font-size: 28px;
-                font-weight: 700;
-                color: #1a202c;
-                background: none;
-                -webkit-background-clip: unset;
-                -webkit-text-fill-color: unset;
-            }
-
-            .header-right {
-                display: flex;
-                align-items: center;
-                gap: 35px;
-            }
-
-            .header-right span {
-                font-weight: 500;
-                color: #4a5568;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            /* ===== Content ===== */
-            .content {
-                margin-left: 280px;
-                padding: 40px;
-            }
+            /* ===== Content-specific styles ===== */
 
             /* ===== Toolbar ===== */
             .toolbar {
@@ -478,29 +322,8 @@
     </head>
     <body>
 
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
-                <p>Staff Panel</p>
-            </div>
-            <nav>
-                <a href="${pageContext.request.contextPath}/staffdashboard">📊 Bảng điều khiển</a>
-                <a href="${pageContext.request.contextPath}/staff/rooms">🏢 Quản lý phòng chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/seat-design">💺 Thiết kế ghế trong phòng</a>
-                <a href="${pageContext.request.contextPath}/staff/schedules" class="active">🎭 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/staff/reports">📈 Báo cáo doanh thu</a>
-            </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
-        </div>
-
-        <header>
-            <h1>🎭 Quản lý Lịch Chiếu</h1>
-            <div class="header-right">
-                <span>👤 Staff: Nguyễn Văn B</span>
-                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
-            </div>
-        </header>
+        <jsp:include page="../layout/StaffSidebar.jsp"/>
+        <jsp:include page="../layout/StaffHeader.jsp"/>
 
         <div class="content">
 
@@ -509,13 +332,13 @@
                 <% 
                     switch(success) {
                         case "create": 
-                            out.print("✅ Thêm lịch chiếu thành công!");
+                            out.print("Thêm lịch chiếu thành công!");
                             break;
                         case "update":
-                            out.print("✅ Cập nhật lịch chiếu thành công!");
+                            out.print("Cập nhật lịch chiếu thành công!");
                             break;
                         case "delete":
-                            out.print("✅ Xóa lịch chiếu thành công!");
+                            out.print("Xóa lịch chiếu thành công!");
                             break;
                     }
                 %>
@@ -524,21 +347,21 @@
 
             <% if (error != null) { %>
             <div class="alert alert-error">
-                ❌ Có lỗi xảy ra khi xử lý!
+                Có lỗi xảy ra khi xử lý!
             </div>
             <% } %>
 
             <div class="toolbar">
                 <div class="search-box">
-                    <input type="text" placeholder="🔍 Tìm kiếm theo tên lịch chiếu...">
+                    <input type="text" placeholder="Tìm kiếm theo tên lịch chiếu...">
                     <button type="button" class="btn">Tìm kiếm</button>
                     <a href="${pageContext.request.contextPath}/staff/schedules" class="btn" style="
                        background: #6c757d;
                        color: #ffffff;
                        border: 1px solid #6c757d;
-                       ">🔄 Reset</a>
+                       ">Reset</a>
                 </div>
-                <a href="${pageContext.request.contextPath}/staff/schedules?action=add" class="btn">➕ Thêm lịch chiếu</a>
+                <a href="${pageContext.request.contextPath}/staff/schedules?action=add" class="btn">Thêm lịch chiếu</a>
             </div>
 
             <div class="table-container">
@@ -585,12 +408,12 @@
                                 <div class="action-buttons">
                                     <% if (schedule.canBeEdited()) { %>
                                     <a href="${pageContext.request.contextPath}/staff/schedules?action=edit&id=<%= schedule.getId() %>" 
-                                       class="btn-small btn-edit" title="Chỉnh sửa">✏️</a>
+                                       class="btn-small btn-edit" title="Chỉnh sửa">Sửa</a>
                                     <% } %>
                                     <a href="${pageContext.request.contextPath}/staff/schedules?action=delete&id=<%= schedule.getId() %>" 
                                        class="btn-small btn-delete" 
                                        onclick="return confirm('Bạn có chắc chắn muốn xóa lịch chiếu này?')"
-                                       title="Xóa">🗑️</a>
+                                       title="Xóa">Xóa</a>
                                 </div>
                             </td>
                         </tr>
@@ -598,7 +421,7 @@
                         } else { %>
                         <tr>
                             <td colspan="8" style="text-align: center; color: #6b7280; padding: 40px;">
-                                📝 Chưa có lịch chiếu nào. Hãy thêm lịch chiếu đầu tiên!
+                                Chưa có lịch chiếu nào. Hãy thêm lịch chiếu đầu tiên!
                             </td>
                         </tr>
                         <% } %>
@@ -622,14 +445,14 @@
                         <a href="${pageContext.request.contextPath}/staff/schedules?page=1&pageSize=<%= pageSize %>" 
                            class="btn-small <%= currentPage == 1 ? "btn-disabled" : "btn-edit" %>"
                            <%= currentPage == 1 ? "onclick=\"return false;\"" : "" %>>
-                            ⏮️
+                            Đầu
                         </a>
                         
                         <!-- Nút trang trước -->
                         <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= currentPage - 1 %>&pageSize=<%= pageSize %>" 
                            class="btn-small <%= currentPage == 1 ? "btn-disabled" : "btn-edit" %>"
                            <%= currentPage == 1 ? "onclick=\"return false;\"" : "" %>>
-                            ◀️
+                            Trước
                         </a>
                         
                         <!-- Các trang -->
@@ -652,14 +475,14 @@
                         <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= currentPage + 1 %>&pageSize=<%= pageSize %>" 
                            class="btn-small <%= currentPage == totalPages ? "btn-disabled" : "btn-edit" %>"
                            <%= currentPage == totalPages ? "onclick=\"return false;\"" : "" %>>
-                            ▶️
+                            Sau
                         </a>
                         
                         <!-- Nút cuối trang -->
                         <a href="${pageContext.request.contextPath}/staff/schedules?page=<%= totalPages %>&pageSize=<%= pageSize %>" 
                            class="btn-small <%= currentPage == totalPages ? "btn-disabled" : "btn-edit" %>"
                            <%= currentPage == totalPages ? "onclick=\"return false;\"" : "" %>>
-                            ⏭️
+                            Cuối
                         </a>
                         
                     </div>
@@ -679,9 +502,7 @@
             </div>
         </div>
         
-        <footer>
-            © 2025 Cinema Booking System - Staff Panel | Powered by Modern Technology
-        </footer>
+        <jsp:include page="../layout/StaffFooter.jsp"/>
 
         <script>
         function changePageSize(pageSize) {

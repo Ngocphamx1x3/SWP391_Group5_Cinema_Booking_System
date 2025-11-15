@@ -5,7 +5,7 @@
 </head><body class="bg-light">
 <div class="container py-5">
   <div class="bg-white rounded-4 shadow p-4 mx-auto" style="max-width:680px">
-    <h4>Thanh toán thành công 🎉</h4>
+    <h4>Thanh toán thành công</h4>
     <p>Mã đơn: <strong>${orderCode}</strong></p>
     <p>Vé đã được xuất. Vui lòng kiểm tra email/mục đơn hàng.</p>
     <a href="${pageContext.request.contextPath}/home" class="btn btn-primary">Về trang chủ</a>

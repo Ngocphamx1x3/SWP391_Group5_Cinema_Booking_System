@@ -240,26 +240,26 @@
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2> CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/admin/vouchers" class="active">🎫 Quản lý Voucher</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers" class="active">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
         <h1>Chi tiết Voucher</h1>
         <div class="header-right">
-            <span>👤 Admin: 
+            <span> Admin: 
                 <c:choose>
                     <c:when test="${not empty sessionScope.account.username}">
                         ${sessionScope.account.username}
@@ -272,7 +272,7 @@
                     </c:otherwise>
                 </c:choose>
             </span>
-            <span>⏰ 
+            <span>
                 <jsp:useBean id="now" class="java.util.Date" />
                 <fmt:formatDate value="${now}" pattern="dd/MM/yyyy HH:mm" />
             </span>
@@ -281,10 +281,10 @@
 
     <div class="content">
         <div class="detail-container">
-            <h2 class="detail-title">👁️ Chi tiết Voucher: ${voucher.code}</h2>
+            <h2 class="detail-title">Chi tiết Voucher: ${voucher.code}</h2>
 
             <div class="detail-section">
-                <h3>📋 Thông tin cơ bản</h3>
+                <h3> Thông tin cơ bản</h3>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Mã Voucher</div>
@@ -308,7 +308,7 @@
             </div>
 
             <div class="detail-section">
-                <h3>💰 Thông tin giảm giá</h3>
+                <h3> Thông tin giảm giá</h3>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Loại giảm giá</div>
@@ -341,7 +341,7 @@
             </div>
 
             <div class="detail-section">
-                <h3>📊 Thống kê sử dụng</h3>
+                <h3> Thống kê sử dụng</h3>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Tổng số lượng</div>
@@ -372,7 +372,7 @@
             </div>
 
             <div class="detail-section">
-                <h3>⏰ Thời gian hiệu lực</h3>
+                <h3> Thời gian hiệu lực</h3>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Ngày bắt đầu</div>
@@ -404,19 +404,35 @@
 
             <c:if test="${not empty voucher.description}">
                 <div class="detail-section">
-                    <h3>📝 Mô tả</h3>
+                    <h3> Mô tả</h3>
                     <div class="detail-item">
                         <div class="detail-value">${voucher.description}</div>
                     </div>
                 </div>
             </c:if>
-
-            <div class="form-actions">
-                <a href="${pageContext.request.contextPath}/admin/vouchers/edit/${voucher.id}" class="btn btn-primary">✏️ Chỉnh sửa</a>
-                <a href="${pageContext.request.contextPath}/admin/vouchers" class="btn btn-secondary">← Quay lại danh sách</a>
-            </div>
+  <div class="detail-section">
+    <h3> Phim áp dụng</h3>
+    <div class="detail-item">
+        <div class="detail-label">Danh sách phim</div>
+        <div class="detail-value">
+            <c:choose>
+                <c:when test="${empty appliedMovies}">
+                    <em>Áp dụng cho tất cả phim</em>
+                </c:when>
+                <c:otherwise>
+                    <c:forEach var="movie" items="${appliedMovies}" varStatus="status">
+                        ${movie.name}<c:if test="${not status.last}">, </c:if>
+                    </c:forEach>
+                </c:otherwise>
+            </c:choose>
         </div>
     </div>
+</div>
+
+            <div class="form-actions">
+                <a href="${pageContext.request.contextPath}/admin/vouchers/edit/${voucher.id}" class="btn btn-primary">Chỉnh sửa</a>
+                <a href="${pageContext.request.contextPath}/admin/vouchers" class="btn btn-secondary">← Quay lại danh sách</a>
+            </div>
 
 </body>
 </html>

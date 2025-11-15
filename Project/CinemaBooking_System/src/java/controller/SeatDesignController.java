@@ -167,8 +167,8 @@ public class SeatDesignController extends HttpServlet {
             // Lấy danh sách ghế hiện tại
             List<Seat> seats = seatDesignDAO.getSeatsByRoomId(roomId);
 
-            // Lấy danh sách loại ghế
-            List<SeatType> seatTypes = seatTypeDAO.getAllSeatTypes();
+            // Lấy danh sách loại ghế (chỉ lấy các loại ghế đang hoạt động)
+            List<SeatType> seatTypes = seatTypeDAO.getActiveSeatTypes();
 
             request.setAttribute("roomId", roomId);
             request.setAttribute("roomLayout", roomLayout);

@@ -417,26 +417,27 @@
 
         <div class="sidebar">
             <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
+                <h2>CINEMA PRO</h2>
                 <p>Admin Panel</p>
             </div>
             <nav>
-                <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-                <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-                <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-                <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-                <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-                <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">💺 Quản lý loại ghế</a>
-                <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+                <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+                <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+                <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+                <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+                <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+                <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">Quản lý loại ghế</a>
+                <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+                <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
             </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
         </div>
 
         <header>
-            <h1>💺 Quản lý Loại Ghế</h1>
+            <h1>Quản lý Loại Ghế</h1>
             <div class="header-right">
-                <span>👤 Admin: Nguyễn Văn A</span>
-                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+                <span>Admin: Nguyễn Văn A</span>
+                <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
             </div>
         </header>
 
@@ -447,13 +448,13 @@
                 <%
                     switch(success) {
                         case "create":
-                            out.print("✅ Thêm loại ghế thành công!");
+                            out.print("Thêm loại ghế thành công!");
                             break;
                         case "update":
-                            out.print("✅ Cập nhật loại ghế thành công!");
+                            out.print("Cập nhật loại ghế thành công!");
                             break;
                         case "delete":
-                            out.print("✅ Xóa loại ghế thành công!");
+                            out.print("Xóa loại ghế thành công!");
                             break;
                     }
                 %>
@@ -462,19 +463,19 @@
 
             <% if (error != null) { %>
             <div class="alert alert-error">
-                ❌ Có lỗi xảy ra khi xử lý! <%= error %> <%-- Display specific error if available --%>
+                Có lỗi xảy ra khi xử lý! <%= error %> <%-- Display specific error if available --%>
             </div>
             <% } %>
 
             <div class="toolbar">
                 <form method="GET" action="${pageContext.request.contextPath}/admin/seat-types" class="search-box">
                     <input type="text" name="search"
-                           placeholder="🔍 Tìm kiếm theo mã, tên loại ghế..."
+                           placeholder="Tìm kiếm theo mã, tên loại ghế..."
                            value="<%= searchKeyword != null ? searchKeyword : "" %>">
                     <button type="submit" class="btn btn-primary" style="padding: 12px 20px;">Tìm kiếm</button>
-                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">🔄 Reset</a>
+                    <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">Reset</a>
                 </form>
-                <a href="${pageContext.request.contextPath}/admin/seat-types?action=add" class="btn">➕ Thêm loại ghế</a>
+                <a href="${pageContext.request.contextPath}/admin/seat-types?action=add" class="btn">Thêm loại ghế</a>
             </div>
 
             <div class="table-container">
@@ -527,10 +528,10 @@
                             <td>
                                 <div class="action-buttons">
                                     <a href="${pageContext.request.contextPath}/admin/seat-types?action=edit&id=<%= seatType.getId() %>"
-                                       class="btn-small btn-edit" title="Sửa">✏️ Sửa</a>
+                                       class="btn-small btn-edit" title="Sửa">Sửa</a>
                                     <a href="${pageContext.request.contextPath}/admin/seat-types?action=delete&id=<%= seatType.getId() %>"
                                        class="btn-small btn-delete" title="Xóa"
-                                       onclick="return confirm('Bạn có chắc chắn muốn xóa loại ghế \'<%= seatType.getName() %>\'?')">🗑️ Xóa</a>
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa loại ghế \'<%= seatType.getName() %>\'?')">Xóa</a>
                                 </div>
                             </td>
                         </tr>
@@ -538,7 +539,7 @@
                            } else { %>
                         <tr>
                             <td colspan="10" style="text-align: center; color: #6b7280; padding: 40px;">
-                                📝 Chưa có loại ghế nào. Hãy thêm loại ghế đầu tiên!
+                                Chưa có loại ghế nào. Hãy thêm loại ghế đầu tiên!
                             </td>
                         </tr>
                         <% } %>

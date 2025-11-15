@@ -7,168 +7,24 @@
     List<SeatType> seatTypes = (List<SeatType>) request.getAttribute("seatTypes");
     String error = (String) request.getAttribute("error");
     String success = request.getParameter("success");
+    
+    // Set active page for sidebar highlighting
+    request.setAttribute("activePage", "seat-design");
+    request.setAttribute("pageTitle", "Thiết kế Ghế - " + roomLayout.get("name"));
 %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Thiết kế Ghế - <%= roomLayout.get("name") %> | Cinema Booking</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <jsp:include page="../layout/StaffStyles.jsp"/>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
+            /* ===== Content-specific styles ===== */
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                 background: #f4f7fa;
                 color: #2d3748;
                 min-height: 100vh;
-            }
-
-            /* ===== Sidebar ===== */
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 280px;
-                height: 100vh;
-                background: #ffffff;
-                border-right: 1px solid #e2e8f0;
-                display: flex;
-                flex-direction: column;
-                padding: 30px 0;
-                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
-                z-index: 1000;
-            }
-
-            .sidebar-logo {
-                text-align: center;
-                margin-bottom: 50px;
-                padding: 0 25px;
-            }
-
-            .sidebar-logo h2 {
-                font-size: 26px;
-                font-weight: 700;
-                color: #1a202c;
-                letter-spacing: 1px;
-            }
-
-            .sidebar-logo p {
-                font-size: 11px;
-                color: #6b7280;
-                margin-top: 5px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }
-
-            .sidebar nav {
-                flex: 1;
-                overflow-y: auto;
-            }
-
-            .sidebar a {
-                color: #4a5568;
-                text-decoration: none;
-                padding: 16px 30px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                font-size: 15px;
-                font-weight: 500;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                position: relative;
-            }
-
-            .sidebar a::before {
-                content: '';
-                position: absolute;
-                left: 0;
-                top: 0;
-                height: 100%;
-                width: 4px;
-                background: linear-gradient(180deg, #00d4ff 0%, #0099ff 100%);
-                transform: scaleY(0);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar a:hover {
-                background: #e6f7ff;
-                color: #007bff;
-                padding-left: 35px;
-            }
-
-            .sidebar a:hover::before {
-                transform: scaleY(1);
-            }
-
-            .sidebar a.active {
-                background: #e6f7ff;
-                color: #007bff;
-                padding-left: 35px;
-            }
-
-            .sidebar a.active::before {
-                transform: scaleY(1);
-            }
-
-            .sidebar a.logout {
-                margin-top: auto;
-                background: rgba(239, 68, 68, 0.1);
-                color: #ef4444;
-                margin: 20px 20px 0;
-                border-radius: 12px;
-                justify-content: center;
-            }
-
-            .sidebar a.logout:hover {
-                background: rgba(239, 68, 68, 0.2);
-                padding-left: 30px;
-            }
-
-            /* ===== Header ===== */
-            header {
-                margin-left: 280px;
-                background: rgba(255, 255, 255, 0.8);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid #e2e8f0;
-                padding: 20px 40px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-            }
-
-            header h1 {
-                font-size: 28px;
-                font-weight: 700;
-                color: #1a202c;
-            }
-
-            .header-right {
-                display: flex;
-                align-items: center;
-                gap: 35px;
-            }
-
-            .header-right span {
-                font-weight: 500;
-                color: #4a5568;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            /* ===== Content ===== */
-            .content {
-                margin-left: 280px;
-                padding: 40px;
             }
 
             /* ===== Designer Container ===== */
@@ -608,18 +464,6 @@
                 border: 1px solid rgba(239, 68, 68, 0.3);
             }
 
-            /* ===== Footer ===== */
-            footer {
-                background: #ffffff;
-                border-top: 1px solid #e2e8f0;
-                color: #6b7280;
-                text-align: center;
-                padding: 25px;
-                margin-left: 280px;
-                margin-top: 40px;
-                font-size: 14px;
-            }
-
             /* ===== Drag and Drop ===== */
             .seat-type-item[draggable="true"] {
                 cursor: grab;
@@ -640,14 +484,6 @@
             }
 
             @media (max-width: 768px) {
-                .sidebar {
-                    width: 100%;
-                    height: auto;
-                    position: relative;
-                }
-                header, .content, footer {
-                    margin-left: 0;
-                }
                 .room-info {
                     flex-direction: column;
                     gap: 15px;
@@ -661,29 +497,8 @@
     </head>
     <body>
 
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
-                <p>Staff Panel</p>
-            </div>
-            <nav>
-                <a href="${pageContext.request.contextPath}/staffdashboard">🏢 Thông tin rạp của tôi</a>
-                <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/seat-design?roomId=<%= roomId %>" class="active">💺 Thiết kế ghế trong phòng</a>
-               <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/views/staff/bookingManager.jsp">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/views/staff/cinemaReports.jsp">📈 Báo cáo rạp của tôi</a>
-            </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
-        </div>
-
-        <header>
-            <h1>💺 Thiết kế Ghế - <%= roomLayout.get("name") %></h1>
-            <div class="header-right">
-                <span>👤 Staff: <%= session.getAttribute("staffName") != null ? session.getAttribute("staffName") : "Nhân viên" %></span>
-                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
-            </div>
-        </header>
+        <jsp:include page="../layout/StaffSidebar.jsp"/>
+        <jsp:include page="../layout/StaffHeader.jsp"/>
 
         <div class="content">
 
@@ -692,10 +507,10 @@
                 <% 
                     switch(success) {
                         case "generate": 
-                            out.print("✅ Tạo layout ghế mặc định thành công!");
+                            out.print("Tạo layout ghế mặc định thành công!");
                             break;
                         case "save":
-                            out.print("✅ Lưu thiết kế ghế thành công!");
+                            out.print("Lưu thiết kế ghế thành công!");
                             break;
                     }
                 %>
@@ -704,7 +519,7 @@
 
             <% if (error != null) { %>
             <div class="alert alert-error">
-                ❌ <%= error %>
+                <%= error %>
             </div>
             <% } %>
 
@@ -712,7 +527,7 @@
                 <!-- Tool Panel -->
                 <div class="tool-panel">
                     <div class="panel-section">
-                        <h3>🎨 Loại Ghế</h3>
+                        <h3>Loại Ghế</h3>
                         <div class="seat-type-list" id="seatTypeList">
                             <% for (SeatType seatType : seatTypes) { %>
                             <div class="seat-type-item" data-type-id="<%= seatType.getId() %>" 
@@ -729,22 +544,22 @@
                     </div>
 
                     <div class="panel-section">
-                        <h3>🛠️ Công cụ</h3>
+                        <h3>Công cụ</h3>
                         <div class="tool-actions">
                             <button type="button" class="btn btn-warning" id="btnGenerateDefault">
-                                🔄 Tạo Layout Mặc định
+                                Tạo Layout Mặc định
                             </button>
                             <button type="button" class="btn btn-secondary" id="btnClearAll">
-                                🗑️ Xóa Tất cả
+                                Xóa Tất cả
                             </button>
                             <button type="button" class="btn btn-success" id="btnSaveDesign">
-                                💾 Lưu Thiết kế
+                                Lưu Thiết kế
                             </button>
                         </div>
                     </div>
 
                     <div class="panel-section">
-                        <h3>ℹ️ Hướng dẫn</h3>
+                        <h3>Hướng dẫn</h3>
                         <div style="font-size: 13px; color: #6b7280; line-height: 1.5;">
                             <p>• <strong>Kéo thả</strong> ghế từ danh sách vào lưới</p>
                             <p>• <strong>Di chuyển</strong> ghế bằng cách kéo</p>
@@ -780,7 +595,7 @@
 
                     <!-- Cinema Screen -->
                     <div class="cinema-screen">
-                        🎬 MÀN HÌNH CHÍNH 🎬
+                        MÀN HÌNH CHÍNH
                     </div>
 
                     <!-- Seat Grid -->
@@ -793,9 +608,7 @@
             </div>
         </div>
 
-        <footer>
-            © 2025 Cinema Booking System - Staff Panel | Powered by Modern Technology
-        </footer>
+        <jsp:include page="../layout/StaffFooter.jsp"/>
         <script>
             console.log('=== STARTING SEAT DESIGNER ===');
             // Basic configuration
@@ -817,35 +630,35 @@
            s.getCustomColor() != null ? s.getCustomColor() : s.getTypeColor(), 
            s.getPositionX(), s.getPositionY(), s.getWidthUnits(), s.getHeightUnits()))
        .reduce((a, b) -> a + "," + b).orElse("") + "]" : "[]" %>;
-                console.log('🔵 Seats loaded from server:', seats);
-                console.log('🔵 First seat sample:', seats.length > 0 ? seats[0] : 'No seats');
+                console.log('Seats loaded from server:', seats);
+                console.log('First seat sample:', seats.length > 0 ? seats[0] : 'No seats');
             } catch (error) {
-                console.error('❌ Error loading seats:', error);
+                console.error('Error loading seats:', error);
                 seats = [];
             }
 
             // Basic initialization
             document.addEventListener('DOMContentLoaded', function () {
-                console.log('🔵 DOM loaded, initializing...');
+                console.log('DOM loaded, initializing...');
                 try {
                     initializeSeatTypes();
                     initializeGrid();
                     initializeDragAndDrop();
                     attachEventListeners();
-                    console.log('✅ Initialization completed');
+                    console.log('Initialization completed');
                 } catch (error) {
-                    console.error('❌ Initialization error:', error);
+                    console.error('Initialization error:', error);
                 }
             });
             function initializeSeatTypes() {
-                console.log('🔵 Initializing seat types...');
+                console.log('Initializing seat types...');
                 const seatTypeItems = document.querySelectorAll('.seat-type-item');
-                console.log('🔵 Found seat types:', seatTypeItems.length);
+                console.log('Found seat types:', seatTypeItems.length);
                 seatTypeItems.forEach((item, index) => {
                     const typeId = parseInt(item.dataset.typeId);
                     const color = item.dataset.color;
                     const width = parseInt(item.dataset.width);
-                    console.log(`🔵 Seat type ${index}:`, {typeId, color, width});
+                    console.log(`Seat type ${index}:`, {typeId, color, width});
                     item.addEventListener('click', function () {
                         seatTypeItems.forEach(i => i.classList.remove('active'));
                         this.classList.add('active');
@@ -854,7 +667,7 @@
                             color: color,
                             width: width
                         };
-                        console.log('🔵 Current seat type set:', currentSeatType);
+                        console.log('Current seat type set:', currentSeatType);
                     });
                 });
                 // Select first seat type by default
@@ -878,16 +691,16 @@
                 return letters;
             }
             function initializeGrid() {
-                console.log('🔵 Initializing grid...');
+                console.log('Initializing grid...');
                 const grid = document.getElementById('seatGrid');
                 if (!grid) {
-                    console.error('❌ Grid element not found!');
+                    console.error('Grid element not found!');
                     return;
                 }
 
                 const rows = config.rows;
                 const columns = config.columns;
-                console.log('🔵 Creating grid:', rows + 'x' + columns);
+                console.log('Creating grid:', rows + 'x' + columns);
 
                 // Clear existing grid
                 grid.innerHTML = '';
@@ -925,23 +738,23 @@
                     grid.appendChild(rowDiv);
                 }
 
-                console.log('✅ Grid created successfully with', seats.length, 'seats');
+                console.log('Grid created successfully with', seats.length, 'seats');
                 initializeDragAndDrop();
                 updateSeatCounter();
             }
             function refreshGrid() {
-                console.log('🔵 Refreshing grid display...');
+                console.log('Refreshing grid display...');
                 initializeGrid(); // Use initializeGrid instead of manual refresh
             }
 
             function findSeatAtPosition(x, y) {
                 const seat = seats.find(seat => seat.x === x && seat.y === y);
-                console.log('🔍 Finding seat at position:', x, y, 'found:', seat);
+                console.log('Finding seat at position:', x, y, 'found:', seat);
                 return seat;
             }
 
             function createSeatElement(seat) {
-                console.log('🎨 Creating seat element for:', seat);
+                console.log('Creating seat element for:', seat);
                 const seatElement = document.createElement('div');
                 seatElement.className = 'seat';
                 // Set color
@@ -954,11 +767,11 @@
                     const rowLetters = generateRowLetters(config.rows);
                     const rowLetter = rowLetters[seat.y] || `R${seat.y+1}`;
                     displayText = `${rowLetter}${seat.x+1}`;
-                    console.log('🔄 Using fallback display text:', displayText);
+                    console.log('Using fallback display text:', displayText);
                 }
 
                 seatElement.textContent = displayText;
-                console.log('🎨 Final seat text:', seatElement.textContent);
+                console.log('Final seat text:', seatElement.textContent);
                 seatElement.draggable = true;
                 seatElement.dataset.seatId = seat.id;
                 if (seat.width > 1) {
@@ -984,17 +797,17 @@
             }
 
             function initializeDragAndDrop() {
-                console.log('🔵 Initializing drag and drop...');
+                console.log('Initializing drag and drop...');
                 const seatTypeItems = document.querySelectorAll('.seat-type-item');
                 const gridCells = document.querySelectorAll('.grid-cell');
-                console.log('🔵 Making seat types draggable:', seatTypeItems.length);
+                console.log('Making seat types draggable:', seatTypeItems.length);
                 // Make seat types draggable
                 seatTypeItems.forEach(item => {
                     item.setAttribute('draggable', 'true');
                     item.addEventListener('dragstart', function (e) {
                         if (!currentSeatType) {
                             e.preventDefault();
-                            console.log('❌ No seat type selected');
+                            console.log('No seat type selected');
                             return;
                         }
 
@@ -1006,15 +819,15 @@
                         };
                         e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
                         e.dataTransfer.effectAllowed = 'copy';
-                        console.log('🔵 Drag started with:', dragData, 'Color:', currentSeatType.color);
+                        console.log('Drag started with:', dragData, 'Color:', currentSeatType.color);
                         this.style.opacity = '0.4';
                     });
                     item.addEventListener('dragend', function (e) {
                         this.style.opacity = '1';
-                        console.log('🔵 Drag ended');
+                        console.log('Drag ended');
                     });
                 });
-                console.log('🔵 Making grid cells drop targets:', gridCells.length);
+                console.log('Making grid cells drop targets:', gridCells.length);
                 // Make grid cells drop targets with better visual feedback
                 gridCells.forEach(cell => {
                     cell.addEventListener('dragover', function (e) {
@@ -1042,7 +855,7 @@
                         this.classList.remove('drop-zone');
                         const x = parseInt(this.dataset.x);
                         const y = parseInt(this.dataset.y);
-                        console.log('🎯 Drop at:', x, y, 'Occupied:', cell.classList.contains('occupied'));
+                        console.log('Drop at:', x, y, 'Occupied:', cell.classList.contains('occupied'));
                         if (cell.classList.contains('occupied')) {
                             alert('Vị trí này đã có ghế!');
                             return;
@@ -1055,12 +868,12 @@
 
                         try {
                             const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-                            console.log('🎯 Drop data:', data, 'Color:', data.color);
+                            console.log('Drop data:', data, 'Color:', data.color);
                             if (data.action === 'create') {
                                 createSeatAtPosition(x, y, data);
                             }
                         } catch (error) {
-                            console.error('❌ Error parsing drop data:', error);
+                            console.error('Error parsing drop data:', error);
                         }
                     });
                 });
@@ -1074,17 +887,17 @@
                 };
                 e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
                 e.dataTransfer.effectAllowed = 'move';
-                console.log('🔵 Seat drag started:', seatId);
+                console.log('Seat drag started:', seatId);
                 e.target.style.opacity = '0.4';
             }
 
             function handleSeatDragEnd(e) {
                 e.target.style.opacity = '1';
-                console.log('🔵 Seat drag ended');
+                console.log('Seat drag ended');
             }
 
             function createSeatAtPosition(x, y, seatData) {
-                console.log('🆕 Creating seat at:', x, y, 'with data:', seatData, 'Color:', seatData.color);
+                console.log('Creating seat at:', x, y, 'with data:', seatData, 'Color:', seatData.color);
 
                 // Kiểm tra vị trí có khả dụng không
                 if (!isPositionAvailable(x, y, seatData.width, 1)) {
@@ -1097,30 +910,30 @@
 
                 // Kiểm tra y có trong range không
                 if (y >= rowLetters.length || y < 0) {
-                    console.error('❌ Invalid row index:', y);
+                    console.error('Invalid row index:', y);
                     alert('Hàng không hợp lệ!');
                     return;
                 }
 
                 const rowLetter = rowLetters[y];
-                console.log('🔤 Row letter for y=' + y + ':', rowLetter);
+                console.log('Row letter for y=' + y + ':', rowLetter);
 
                 if (!rowLetter) {
-                    console.error('❌ Row letter is undefined for y=' + y);
+                    console.error('Row letter is undefined for y=' + y);
                     alert('Lỗi: Không thể xác định tên hàng!');
                     return;
                 }
 
                 // Lấy số thứ tự tiếp theo cho hàng
                 let seatNumber = getNextSeatNumberInRow(y);
-                console.log('🔢 Seat number for row', y, ':', seatNumber);
+                console.log('Seat number for row', y, ':', seatNumber);
 
                 // Đối với ghế đôi, đảm bảo số là lẻ (1, 3, 5,...)
                 if (seatData.width > 1) {
                     if (seatNumber % 2 === 0) {
                         seatNumber += 1;
                     }
-                    console.log('🔢 Adjusted seat number for couple seat:', seatNumber);
+                    console.log('Adjusted seat number for couple seat:', seatNumber);
                 }
 
                 // Tạo mã ghế - THÊM KIỂM TRA CHẶT CHẼ
@@ -1132,17 +945,17 @@
                     seatCode = rowLetter + seatNumber;
                 }
 
-                console.log('🏷️ Final seat code:', seatCode);
-                console.log('🔍 Debug seat code parts:', {rowLetter, seatNumber, seatCode});
+                console.log('Final seat code:', seatCode);
+                console.log('Debug seat code parts:', {rowLetter, seatNumber, seatCode});
 
                 if (!seatCode || seatCode.trim() === '' || seatCode.includes('undefined') || seatCode.includes('null')) {
-                    console.error('❌ INVALID seatCode:', seatCode);
-                    console.log('🔍 Type of rowLetter:', typeof rowLetter, 'value:', rowLetter);
-                    console.log('🔍 Type of seatNumber:', typeof seatNumber, 'value:', seatNumber);
+                    console.error('INVALID seatCode:', seatCode);
+                    console.log('Type of rowLetter:', typeof rowLetter, 'value:', rowLetter);
+                    console.log('Type of seatNumber:', typeof seatNumber, 'value:', seatNumber);
 
                     // Fallback cứng
                     seatCode = 'A' + seatNumber;
-                    console.log('🔄 Using hardcoded fallback seatCode:', seatCode);
+                    console.log('Using hardcoded fallback seatCode:', seatCode);
                 }
 
                 const newSeat = {
@@ -1156,7 +969,7 @@
                     height: 1
                 };
 
-                console.log('🆕 New seat created:', newSeat);
+                console.log('New seat created:', newSeat);
 
                 seats.push(newSeat);
 
@@ -1164,14 +977,14 @@
                 initializeGrid();
                 updateSeatCounter();
 
-                console.log('✅ Seat added successfully:', seatCode);
+                console.log('Seat added successfully:', seatCode);
             }
             function renderSeatOnGrid(seat) {
-                console.log('🎨 Rendering seat:', seat.code, 'at:', seat.x, seat.y, 'color:', seat.color, 'width:', seat.width);
+                console.log('Rendering seat:', seat.code, 'at:', seat.x, seat.y, 'color:', seat.color, 'width:', seat.width);
                 // Chỉ render ở ô đầu tiên cho ghế đôi
                 const cell = document.querySelector(`.grid-cell[data-x="${seat.x}"][data-y="${seat.y}"]`);
                 if (!cell) {
-                    console.error('❌ Cell not found at:', seat.x, seat.y);
+                    console.error('Cell not found at:', seat.x, seat.y);
                     return;
                 }
 
@@ -1213,7 +1026,7 @@
                     removeSeat(seat.id);
                 });
                 cell.appendChild(seatElement);
-                console.log('✅ Seat rendered successfully:', seat.code);
+                console.log('Seat rendered successfully:', seat.code);
             }
 
             function getContrastColor(hexcolor) {
@@ -1230,10 +1043,10 @@
             }
 
             function isPositionAvailable(x, y, width, height) {
-                console.log('🔍 Checking position availability:', x, y, 'size:', width, height);
+                console.log('Checking position availability:', x, y, 'size:', width, height);
                 // Kiểm tra xem có vượt quá biên không (index bắt đầu từ 0)
                 if (x < 0 || y < 0 || x + width > config.columns || y + height > config.rows) {
-                    console.log('❌ Position out of bounds');
+                    console.log('Position out of bounds');
                     return false;
                 }
 
@@ -1245,31 +1058,31 @@
                         // Kiểm tra nếu ô đã bị chiếm
                         const existingSeat = findSeatAtPosition(checkX, checkY);
                         if (existingSeat) {
-                            console.log('❌ Position occupied by seat:', existingSeat.code, 'at', checkX, checkY);
+                            console.log('Position occupied by seat:', existingSeat.code, 'at', checkX, checkY);
                             return false;
                         }
                     }
                 }
 
-                console.log('✅ Position available');
+                console.log('Position available');
                 return true;
             }
 
             function getNextSeatNumberInRow(row) {
-                console.log('🔄 getNextSeatNumberInRow CALLED for row:', row);
+                console.log('getNextSeatNumberInRow CALLED for row:', row);
                 const seatsInRow = seats.filter(s => s.y === row);
 
-                console.log('🔢 Seats in row', row, ':', seatsInRow.map(s => ({code: s.code, x: s.x})));
+                console.log('Seats in row', row, ':', seatsInRow.map(s => ({code: s.code, x: s.x})));
 
                 if (seatsInRow.length === 0) {
-                    console.log('🔢 No seats in row, starting from 1');
+                    console.log('No seats in row, starting from 1');
                     return 1;
                 }
 
                 // Tìm số lớn nhất hiện có
                 let maxNumber = 0;
                 seatsInRow.forEach(seat => {
-                    console.log('🔢 Processing seat code:', seat.code);
+                    console.log('Processing seat code:', seat.code);
 
                     if (seat.code && seat.code.trim() !== '') {
                         // Xử lý đặc biệt cho ghế đôi (A1-2) và ghế đơn (A1)
@@ -1288,7 +1101,7 @@
                                 seatNumbers.push(num);
                         }
 
-                        console.log('🔢 Extracted numbers:', seatNumbers);
+                        console.log('Extracted numbers:', seatNumbers);
 
                         seatNumbers.forEach(num => {
                             if (num > maxNumber) {
@@ -1298,14 +1111,14 @@
                     }
                 });
 
-                console.log('🔢 Max number found:', maxNumber);
+                console.log('Max number found:', maxNumber);
                 const nextNumber = maxNumber + 1;
-                console.log('🔢 Next seat number:', nextNumber, 'type:', typeof nextNumber);
+                console.log('Next seat number:', nextNumber, 'type:', typeof nextNumber);
                 return nextNumber;
             }
 
             function removeSeat(seatId) {
-                console.log('🗑️ Removing seat:', seatId);
+                console.log('Removing seat:', seatId);
                 if (!confirm('Bạn có chắc muốn xóa ghế này?'))
                     return;
                 const seatIndex = seats.findIndex(s => s.id === seatId);
@@ -1327,7 +1140,7 @@
                 // Use refreshGrid to update the entire layout
                 refreshGrid();
                 updateSeatCounter();
-                console.log('✅ Seat removed');
+                console.log('Seat removed');
             }
 
             function updateSeatCounter() {
@@ -1338,7 +1151,7 @@
            <strong>${seatCount}/${capacity} ghế</strong>
            <br>
            <span style="color: ${seatCount > capacity ? '#ef4444' : '#10b981'}; font-size: 12px;">
-            ${seatCount > capacity ? '⚠️ Vượt quá sức chứa!' : '✅ Đạt sức chứa'}
+            ${seatCount > capacity ? 'Vượt quá sức chứa!' : 'Đạt sức chứa'}
            </span>
        `;
             }
@@ -1400,12 +1213,12 @@
 
 // HÀM LƯU THIẾT KẾ GHẾ
             function saveSeatDesign() {
-                console.log('💾 Bắt đầu lưu thiết kế ghế...');
-                console.log('🔢 Tổng số ghế:', seats.length);
+                console.log('Bắt đầu lưu thiết kế ghế...');
+                console.log('Tổng số ghế:', seats.length);
 
                 // Log từng ghế để kiểm tra
                 seats.forEach((seat, index) => {
-                    console.log(`   🪑 Ghế ${index + 1}:`, {
+                    console.log(`   Ghế ${index + 1}:`, {
                         id: seat.id,
                         code: seat.code,
                         typeId: seat.typeId,
@@ -1431,7 +1244,7 @@
                         }))
                 };
 
-                console.log('📦 Dữ liệu gửi đi:', JSON.stringify(seatData, null, 2));
+                console.log('Dữ liệu gửi đi:', JSON.stringify(seatData, null, 2));
 
                 // Hiển thị loading
                 const saveBtn = document.getElementById('btnSaveDesign');
@@ -1455,10 +1268,10 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log('📨 Response từ server:', data);
+                            console.log('Response từ server:', data);
                             if (data.success) {
-                                console.log('✅ Lưu thành công:', data.message);
-                                showSuccessMessage('✅ ' + data.message);
+                                console.log('Lưu thành công:', data.message);
+                                showSuccessMessage(data.message);
 
                                 setTimeout(() => {
                                     window.location.href = '${pageContext.request.contextPath}/staff/seat-design?roomId=' + config.roomId + '&success=save';
@@ -1469,13 +1282,13 @@
                             }
                         })
                         .catch(error => {
-                            console.error('❌ Lỗi khi lưu:', error);
-                            showErrorMessage('❌ Lỗi khi lưu: ' + error.message);
+                            console.error('Lỗi khi lưu:', error);
+                            showErrorMessage('Lỗi khi lưu: ' + error.message);
                         })
                         .finally(() => {
                             // Khôi phục trạng thái nút
                             if (saveBtn) {
-                                saveBtn.innerHTML = '💾 Lưu Thiết kế';
+                                saveBtn.innerHTML = 'Lưu Thiết kế';
                                 saveBtn.disabled = false;
                             }
                         });

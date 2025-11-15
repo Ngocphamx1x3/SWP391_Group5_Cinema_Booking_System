@@ -66,6 +66,18 @@
             padding: 12px 0; display: block; text-decoration: none; font-weight: 500;
              transition: 0.3s;
         }
+        .status-finished {
+    background: rgba(239, 68, 68, 0.15); /* đỏ nhạt */
+    color: #ef4444; /* đỏ đậm */
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-inactive {
+    background: rgba(139, 92, 246, 0.15); /* tím nhạt */
+    color: #8b5cf6; /* tím đậm */
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
          .sidebar a.logout:hover {
               background: rgba(239, 68, 68, 0.2);
          }
@@ -269,33 +281,33 @@
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2>CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies" class="active">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
-            <a href="${pageContext.request.contextPath}/admin/vouchers">🎫 Quản lý Voucher</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/movies" class="active">Quản lý phim</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
         <h1>Quản lý phim</h1>
         <div class="header-right">
-            <span>👤 Admin: Nguyễn Văn A</span>
-            <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+            <span>Admin: Nguyễn Văn A</span>
+            <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
         </div>
     </header>
 
     <div class="content">
         <div class="section-header">
-            <h2 class="section-title">🎞️ Danh sách phim</h2>
+            <h2 class="section-title">Danh sách phim</h2>
             <div class="search-form-container">
                 <!-- Search Form -->
                 <form id="searchForm">
@@ -311,7 +323,7 @@
                                 style="padding: 10px 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff; cursor: pointer; font-size: 14px; color: #4a5568; display: flex; align-items: center; gap: 8px; transition: all 0.3s;"
                                 onmouseover="this.style.borderColor='#00d4ff'; this.style.color='#00d4ff'" 
                                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#4a5568'">
-                            📅 Chọn khoảng thời gian
+                            Chọn khoảng thời gian
                         </button>
                         
                         <!-- Date Picker Dropdown -->
@@ -348,14 +360,14 @@
                             style="padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(16, 185, 129, 0.3)'" 
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                        🔍 Tìm kiếm
+                        Tìm kiếm
                     </button>
                 </form>
                 
                 <!-- Add Movie Button -->
                 <button class="btn btn-primary" id="addMovieBtn"
                         onclick="window.location.href='${pageContext.request.contextPath}/admin/movies?action=addForm'">
-                    ➕ Thêm phim mới
+                    Thêm phim mới
                 </button>
             </div>
         </div>
@@ -363,12 +375,12 @@
         <%-- Display messages --%>
         <c:if test="${not empty successMessage}">
             <div style="padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-weight: 600; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
-                ✅ ${successMessage}
+                ${successMessage}
             </div>
         </c:if>
          <c:if test="${not empty errorMessage}">
             <div style="padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-weight: 600; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
-                ❌ ${errorMessage}
+                ${errorMessage}
             </div>
         </c:if>
 
@@ -405,14 +417,19 @@
                             <td>${m.movieDuration} phút</td>
                             <td><fmt:formatDate value="${m.premiereDate}" pattern="dd/MM/yy"/></td> <%-- Shortened date --%>
                             <td>
-                                <span class="status ${m.status == 'Đang chiếu' ? 'status-showing' : 'status-upcoming'}">
-                                    ${m.status}
-                                </span>
-                            </td>
+    <span class="status 
+        ${m.status == 'Đang chiếu' ? 'status-showing' : 
+          (m.status == 'Sắp chiếu' ? 'status-upcoming' : 
+          (m.status == 'Đã chiếu' ? 'status-finished' : 
+          (m.status == 'Ngưng hoạt động' ? 'status-inactive' : '')))}">
+        ${m.status}
+    </span>
+</td>
+
                             <td>
                                 <div class="action-buttons">
-                                    <a href="${pageContext.request.contextPath}/admin/movies?action=edit&id=${m.id}" title="Chỉnh sửa">✏️</a>
-                                    <a href="${pageContext.request.contextPath}/admin/movies?action=delete&id=${m.id}" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa phim \'${fn:escapeXml(m.name)}\'? Hành động này không thể hoàn tác.')">🗑️</a>
+                                    <a href="${pageContext.request.contextPath}/admin/movies?action=edit&id=${m.id}" title="Chỉnh sửa">Sửa</a>
+                                    <a href="${pageContext.request.contextPath}/admin/movies?action=delete&id=${m.id}" title="Xóa" onclick="return confirm('Bạn có chắc chắn muốn xóa phim \'${fn:escapeXml(m.name)}\'? Hành động này không thể hoàn tác.')">Xóa</a>
                                 </div>
                             </td>
                         </tr>
@@ -485,21 +502,21 @@
             if (startDate && endDate) {
                 const start = new Date(startDate).toLocaleDateString('vi-VN');
                 const end = new Date(endDate).toLocaleDateString('vi-VN');
-                dateRangeBtn.innerHTML = `📅 ${start} - ${end}`;
+                dateRangeBtn.innerHTML = `${start} - ${end}`;
                 dateRangeBtn.style.borderColor = '#10b981';
                 dateRangeBtn.style.color = '#10b981';
             } else if (startDate) {
                 const start = new Date(startDate).toLocaleDateString('vi-VN');
-                dateRangeBtn.innerHTML = `📅 Từ ${start}`;
+                dateRangeBtn.innerHTML = `Từ ${start}`;
                 dateRangeBtn.style.borderColor = '#f59e0b';
                 dateRangeBtn.style.color = '#f59e0b';
             } else if (endDate) {
                 const end = new Date(endDate).toLocaleDateString('vi-VN');
-                dateRangeBtn.innerHTML = `📅 Đến ${end}`;
+                dateRangeBtn.innerHTML = `Đến ${end}`;
                 dateRangeBtn.style.borderColor = '#f59e0b';
                 dateRangeBtn.style.color = '#f59e0b';
             } else {
-                dateRangeBtn.innerHTML = '📅 Chọn khoảng thời gian';
+                dateRangeBtn.innerHTML = 'Chọn khoảng thời gian';
                 dateRangeBtn.style.borderColor = '#e2e8f0';
                 dateRangeBtn.style.color = '#4a5568';
             }
@@ -564,7 +581,7 @@
                 const searchForm = document.getElementById('searchForm');
                 const clearBtn = document.createElement('button');
                 clearBtn.type = 'button';
-                clearBtn.innerHTML = '❌ Xóa tìm kiếm';
+                clearBtn.innerHTML = 'Xóa tìm kiếm';
                 clearBtn.style.cssText = 'padding: 10px 15px; border: 1px solid #ef4444; border-radius: 8px; background: #ffffff; color: #ef4444; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s;';
                 clearBtn.onclick = clearSearch;
                 clearBtn.onmouseover = function() {

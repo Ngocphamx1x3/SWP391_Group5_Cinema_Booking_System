@@ -224,6 +224,16 @@ public class SeatTypeController extends HttpServlet {
                 return;
             }
 
+            // KIỂM TRA: Nếu đang cố gắng ngừng hoạt động (từ true -> false) và seatType đang được sử dụng
+            if (existingSeatType.isStatus() && !status) {
+                // Đang cố gắng ngừng hoạt động
+                if (seatTypeDAO.isSeatTypeInUse(id)) {
+                    request.setAttribute("error", "Không thể ngừng hoạt động loại ghế này vì đang được sử dụng trong thiết kế ghế. Vui lòng xóa hoặc thay đổi loại ghế của các ghế đang sử dụng loại này trước.");
+                    showEditForm(request, response);
+                    return;
+                }
+            }
+
             existingSeatType.setCode(code);
             existingSeatType.setName(name);
             existingSeatType.setSurcharge(surcharge);

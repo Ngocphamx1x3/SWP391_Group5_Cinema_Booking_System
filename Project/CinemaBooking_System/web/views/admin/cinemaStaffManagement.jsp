@@ -454,25 +454,26 @@
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2>CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas" class="active">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas" class="active">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
-        <h1>👥 Quản lý Nhân viên - <%= cinema.getName() %></h1>
+        <h1>Quản lý Nhân viên - <%= cinema.getName() %></h1>
         <div class="header-right">
-            <span>👤 Admin: Nguyễn Văn A</span>
-            <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+            <span>Admin: Nguyễn Văn A</span>
+            <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
         </div>
     </header>
 
@@ -483,13 +484,13 @@
             <% 
                 switch(success) {
                     case "assign": 
-                        out.print("✅ Phân công nhân viên thành công!");
+                        out.print("Phân công nhân viên thành công!");
                         break;
                     case "update-assignment":
-                        out.print("✅ Cập nhật phân công thành công!");
+                        out.print("Cập nhật phân công thành công!");
                         break;
                     case "remove-staff":
-                        out.print("✅ Gỡ phân công nhân viên thành công!");
+                        out.print("Gỡ phân công nhân viên thành công!");
                         break;
                 }
             %>
@@ -498,7 +499,7 @@
 
         <% if (error != null) { %>
         <div class="alert alert-error">
-            ❌ Có lỗi xảy ra khi xử lý!
+            Có lỗi xảy ra khi xử lý!
         </div>
         <% } %>
 
@@ -508,7 +509,7 @@
                     <h2><%= cinema.getName() %></h2>
                     <p><%= cinema.getCode() %> - <%= cinema.getAddress() %></p>
                 </div>
-                <a href="${pageContext.request.contextPath}/admin/cinemas" class="btn btn-secondary">↩️ Quay lại danh sách</a>
+                <a href="${pageContext.request.contextPath}/admin/cinemas" class="btn btn-secondary">Quay lại danh sách</a>
             </div>
             <div class="cinema-details">
                 <div class="detail-item">
@@ -535,7 +536,7 @@
                 <h3 style="margin-bottom: 5px;">Danh sách nhân viên</h3>
                 <p style="color: #6b7280; font-size: 14px;">Quản lý phân công nhân viên cho rạp chiếu</p>
             </div>
-            <a href="${pageContext.request.contextPath}/admin/cinemas?action=assign-staff&cinemaId=<%= cinema.getId() %>" class="btn">➕ Phân công nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas?action=assign-staff&cinemaId=<%= cinema.getId() %>" class="btn">Phân công nhân viên</a>
         </div>
 
         <div class="table-container">
@@ -578,11 +579,11 @@
                         <td>
                             <div class="action-buttons">
                                 <a href="${pageContext.request.contextPath}/admin/cinemas?action=edit-assignment&assignmentId=<%= assignment.getId() %>" 
-                                   class="btn-small btn-edit" title="Chỉnh sửa phân công">✏️</a>
+                                   class="btn-small btn-edit" title="Chỉnh sửa phân công">Sửa</a>
                                 <a href="${pageContext.request.contextPath}/admin/cinemas?action=remove-staff&assignmentId=<%= assignment.getId() %>&cinemaId=<%= cinema.getId() %>" 
                                    class="btn-small btn-delete" 
                                    onclick="return confirm('Bạn có chắc chắn muốn gỡ phân công nhân viên này?')"
-                                   title="Gỡ phân công">🗑️</a>
+                                   title="Gỡ phân công">Xóa</a>
                             </div>
                         </td>
                     </tr>

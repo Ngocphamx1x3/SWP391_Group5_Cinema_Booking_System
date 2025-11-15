@@ -243,14 +243,14 @@
 </head>
 <body>
 <div class="container">
-    <h2>🔐 Đổi mật khẩu</h2>
+    <h2>Đổi mật khẩu</h2>
     
     <c:if test="${not empty error}">
-        <div class="alert alert-danger">❌ ${error}</div>
+        <div class="alert alert-danger">${error}</div>
     </c:if>
     
     <c:if test="${not empty message}">
-        <div class="alert alert-success">✅ ${message}</div>
+        <div class="alert alert-success">${message}</div>
     </c:if>
     
     <form action="${pageContext.request.contextPath}/changePassword" method="post">

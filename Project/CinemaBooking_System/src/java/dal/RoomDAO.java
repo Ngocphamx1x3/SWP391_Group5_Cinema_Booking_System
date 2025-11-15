@@ -73,6 +73,37 @@ public class RoomDAO extends DBContext {
         }
         return list;
     }
+    
+    // ===== Lấy số phòng đang hoạt động / tổng số phòng theo staff =====
+public int[] getRoomUsageByStaff(int staffId) {
+    String sql = """
+        SELECT 
+            SUM(CASE WHEN r.Status = 1 THEN 1 ELSE 0 END) AS ActiveRooms,
+            COUNT(*) AS TotalRooms
+        FROM Room r
+        JOIN Cinema c ON r.CinemaId = c.Id
+        JOIN Cinema_Staff cs ON c.Id = cs.cinema_id
+        WHERE cs.staff_id = ? AND cs.status = 1
+    """;
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, staffId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                int activeRooms = rs.getInt("ActiveRooms");
+                int totalRooms = rs.getInt("TotalRooms");
+                return new int[]{activeRooms, totalRooms};
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return new int[]{0, 0};
+}
+
 
     // GET ROOM BY ID
     public Room getRoomById(int id) {
@@ -275,3 +306,5 @@ public class RoomDAO extends DBContext {
         return room;
     }
 }
+
+

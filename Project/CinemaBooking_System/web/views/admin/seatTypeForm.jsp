@@ -394,26 +394,27 @@
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2>CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types" class="active">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
-        <h1><%= isEdit ? "✏️ Chỉnh sửa Loại Ghế" : "➕ Thêm Loại Ghế Mới" %></h1>
+        <h1><%= isEdit ? "Chỉnh sửa Loại Ghế" : "Thêm Loại Ghế Mới" %></h1>
         <div class="header-right">
-            <span>👤 Admin: Nguyễn Văn A</span>
-            <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+            <span>Admin: Nguyễn Văn A</span>
+            <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
         </div>
     </header>
 
@@ -426,7 +427,7 @@
 
             <% if (error != null) { %>
                 <div class="alert alert-error">
-                    ❌ <%= error %>
+                    <%= error %>
                 </div>
             <% } %>
 
@@ -494,10 +495,10 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
-                        <%= isEdit ? "💾 Cập nhật" : "➕ Thêm mới" %>
+                        <%= isEdit ? "Cập nhật" : "Thêm mới" %>
                     </button>
                     <a href="${pageContext.request.contextPath}/admin/seat-types" class="btn btn-secondary">
-                        ↩️ Quay lại
+                        Quay lại
                     </a>
                 </div>
             </form>

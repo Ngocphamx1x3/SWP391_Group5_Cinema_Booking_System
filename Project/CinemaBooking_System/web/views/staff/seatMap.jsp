@@ -151,7 +151,7 @@
 <body>
     <div class="seat-map-container">
         <div class="screen">
-            🎬 MÀN HÌNH 🎬
+            MÀN HÌNH
         </div>
         
         <div class="seats-grid" id="seatsGrid">

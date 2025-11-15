@@ -10,13 +10,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.Performer;
+import model.VoucherMovie;
 
 public class MovieDAO extends DBContext {
 
-    // ✅ Lấy tất cả phim (trừ phim đã ngưng hoạt động)
+    // lay phim
     public List<Movie> getAllMovies() {
         List<Movie> list = new ArrayList<>();
-        String sql = "SELECT * FROM Movie WHERE Status IS NULL OR Status != N'Ngưng hoạt động'";
+        String sql = "SELECT * FROM Movie";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -36,7 +37,7 @@ public class MovieDAO extends DBContext {
         return list;
     }
 
-    // ✅ Lấy phim theo ID
+    // lay phim theo id
     public Movie getMovieById(int id) {
         String sql = "SELECT * FROM Movie WHERE Id = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -44,26 +45,24 @@ public class MovieDAO extends DBContext {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Movie m = new Movie();
-                    // Lấy các trường cơ bản từ bảng Movie
                     m.setId(rs.getInt("Id"));
-                    m.setCode(rs.getString("Code")); 
+                    m.setCode(rs.getString("Code"));
                     m.setName(rs.getString("Name"));
-                    m.setDescription(rs.getString("Description")); 
+                    m.setDescription(rs.getString("Description"));
                     m.setImage(rs.getString("Image"));
-                    m.setTrailer(rs.getString("Trailer")); 
+                    m.setTrailer(rs.getString("Trailer"));
                     m.setMovieDuration(rs.getInt("MovieDuration"));
                     m.setPremiereDate(rs.getDate("PremiereDate"));
-                    m.setEndDate(rs.getDate("EndDate")); 
+                    m.setEndDate(rs.getDate("EndDate"));
                     m.setStatus(rs.getString("Status"));
-                    m.setRatedId(rs.getInt("RatedId")); 
-                    
-                    // Lấy các danh sách từ bảng quan hệ
+                    m.setRatedId(rs.getInt("RatedId"));
+
                     int movieId = m.getId();
-                    m.setDirectors(getDirectorsByMovieId(movieId)); 
-                    m.setPerformers(getPerformersByMovieId(movieId)); 
-                    m.setMovieTypes(getMovieTypesByMovieId(movieId)); 
-                    m.setLanguages(getLanguagesByMovieId(movieId)); 
-                    
+                    m.setDirectors(getDirectorsByMovieId(movieId));
+                    m.setPerformers(getPerformersByMovieId(movieId));
+                    m.setMovieTypes(getMovieTypesByMovieId(movieId));
+                    m.setLanguages(getLanguagesByMovieId(movieId));
+
                     return m;
                 }
             }
@@ -73,23 +72,32 @@ public class MovieDAO extends DBContext {
         return null;
     }
 
-    // ✅ Thêm phim mới (đơn giản)
     public void addMovie(Movie m) {
-        String sql = "INSERT INTO Movie (Name, MovieDuration, PremiereDate, Status, Image, Description) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Movie (Code, Name, Description, Image, Trailer, MovieDuration, PremiereDate, EndDate, Status, RatedId) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, m.getName());
-            ps.setInt(2, m.getMovieDuration());
-            ps.setDate(3, new java.sql.Date(m.getPremiereDate().getTime()));
-            ps.setString(4, m.getStatus());
-            ps.setString(5, m.getImage());
-            ps.setString(6, m.getDescription());
+            ps.setString(1, m.getCode());
+            ps.setString(2, m.getName());
+            ps.setString(3, m.getDescription());
+            ps.setString(4, m.getImage());
+            ps.setString(5, m.getTrailer());
+            ps.setInt(6, m.getMovieDuration());
+            ps.setDate(7, new java.sql.Date(m.getPremiereDate().getTime()));
+
+            if (m.getEndDate() != null) {
+                ps.setDate(8, new java.sql.Date(m.getEndDate().getTime()));
+            } else {
+                ps.setNull(8, java.sql.Types.DATE);
+            }
+
+            ps.setString(9, m.getStatus());
+            ps.setInt(10, m.getRatedId());
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // ✅ Cập nhật phim
     public void updateMovie(Movie m) {
         String sql = "UPDATE Movie SET Name=?, MovieDuration=?, PremiereDate=?, Status=?, Image=?, Description=? WHERE Id=?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -106,7 +114,6 @@ public class MovieDAO extends DBContext {
         }
     }
 
-    // ✅ Xóa mềm (soft delete)
     public void deleteMovie(int id) {
         String sql = "UPDATE Movie SET Status = N'Ngưng hoạt động' WHERE Id = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -117,22 +124,18 @@ public class MovieDAO extends DBContext {
         }
     }
 
-    // ✅ Lấy phim đang chiếu
     public List<Movie> getNowShowingMovies() {
         return getMoviesByStatus("Đang chiếu");
     }
 
-    // ✅ Lấy phim sắp chiếu
     public List<Movie> getComingSoonMovies() {
         return getMoviesByStatus("Sắp chiếu");
     }
 
-    // ✅ Lấy phim sắp chiếu (alias for controller compatibility)
     public List<Movie> getUpcomingMovies() {
         return getComingSoonMovies();
     }
 
-    // ✅ Hàm phụ chung để tránh lặp code
     private List<Movie> getMoviesByStatus(String status) {
         List<Movie> list = new ArrayList<>();
         String sql = "SELECT * FROM Movie WHERE Status = N'" + status + "'";
@@ -155,7 +158,6 @@ public class MovieDAO extends DBContext {
         return list;
     }
 
-    // ✅ Lấy danh sách đạo diễn
     public List<Director> getAllDirectors() {
         List<Director> list = new ArrayList<>();
         String sql = "SELECT * FROM Director";
@@ -169,7 +171,6 @@ public class MovieDAO extends DBContext {
         return list;
     }
 
-    // ✅ Lấy danh sách ngôn ngữ
     public List<Language> getAllLanguages() {
         List<Language> list = new ArrayList<>();
         String sql = "SELECT * FROM Language";
@@ -183,7 +184,6 @@ public class MovieDAO extends DBContext {
         return list;
     }
 
-    // ✅ Lấy danh sách thể loại
     public List<MovieType> getAllMovieTypes() {
         List<MovieType> list = new ArrayList<>();
         String sql = "SELECT * FROM MovieType";
@@ -197,7 +197,6 @@ public class MovieDAO extends DBContext {
         return list;
     }
 
-    // ✅ Thêm phim + quan hệ (đạo diễn, ngôn ngữ, thể loại)
     public void addMovieWithRelations(Movie m, String[] directorIds, String[] languageIds, String[] movieTypeIds) {
         String insertMovie = "INSERT INTO Movie (Code, Name, Description, Image, Trailer, MovieDuration, PremiereDate, Status, RatedId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String insertDirector = "INSERT INTO Movie_Director (MovieId, DirectorId) VALUES (?, ?)";
@@ -235,11 +234,12 @@ public class MovieDAO extends DBContext {
             e.printStackTrace();
         }
     }
+
     public List<Director> getDirectorsByMovieId(int movieId) {
         List<Director> list = new ArrayList<>();
-        String sql = "SELECT d.* FROM Director d " +
-                     "JOIN Movie_Director md ON d.Id = md.DirectorId " +
-                     "WHERE md.MovieId = ?";
+        String sql = "SELECT d.* FROM Director d "
+                + "JOIN Movie_Director md ON d.Id = md.DirectorId "
+                + "WHERE md.MovieId = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, movieId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -256,9 +256,9 @@ public class MovieDAO extends DBContext {
     public List<Performer> getPerformersByMovieId(int movieId) {
         List<Performer> list = new ArrayList<>();
         // Giả sử bảng của bạn tên là Performer và Movie_Performer
-        String sql = "SELECT p.* FROM Performer p " +
-                     "JOIN Movie_Performer mp ON p.Id = mp.PerformerId " +
-                     "WHERE mp.MovieId = ?";
+        String sql = "SELECT p.* FROM Performer p "
+                + "JOIN Movie_Performer mp ON p.Id = mp.PerformerId "
+                + "WHERE mp.MovieId = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, movieId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -275,9 +275,9 @@ public class MovieDAO extends DBContext {
 
     public List<MovieType> getMovieTypesByMovieId(int movieId) {
         List<MovieType> list = new ArrayList<>();
-        String sql = "SELECT mt.* FROM MovieType mt " +
-                     "JOIN Movie_MovieType mmt ON mt.Id = mmt.MovieTypeId " +
-                     "WHERE mmt.MovieId = ?";
+        String sql = "SELECT mt.* FROM MovieType mt "
+                + "JOIN Movie_MovieType mmt ON mt.Id = mmt.MovieTypeId "
+                + "WHERE mmt.MovieId = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, movieId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -293,9 +293,9 @@ public class MovieDAO extends DBContext {
 
     public List<Language> getLanguagesByMovieId(int movieId) {
         List<Language> list = new ArrayList<>();
-        String sql = "SELECT l.* FROM Language l " +
-                     "JOIN Movie_Language ml ON l.Id = ml.LanguageId " +
-                     "WHERE ml.MovieId = ?";
+        String sql = "SELECT l.* FROM Language l "
+                + "JOIN Movie_Language ml ON l.Id = ml.LanguageId "
+                + "WHERE ml.MovieId = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, movieId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -308,7 +308,7 @@ public class MovieDAO extends DBContext {
         }
         return list;
     }
-    // ✅ Hàm phụ dùng chung để thêm batch quan hệ
+
     private void insertRelations(Connection con, String sql, int movieId, String[] ids) throws SQLException {
         if (ids == null) {
             return;
@@ -323,7 +323,6 @@ public class MovieDAO extends DBContext {
         }
     }
 
-    // ✅ Thêm đạo diễn mới
     public int addDirector(Director director) {
         String sql = "INSERT INTO Director (Code, Name) VALUES (?, ?)";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -342,7 +341,6 @@ public class MovieDAO extends DBContext {
         return -1;
     }
 
-    // ✅ Kiểm tra đạo diễn đã tồn tại
     public boolean isDirectorExists(String name) {
         String sql = "SELECT COUNT(*) FROM Director WHERE Name = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -358,7 +356,6 @@ public class MovieDAO extends DBContext {
         return false;
     }
 
-    // ✅ Thêm ngôn ngữ mới
     public int addLanguage(Language language) {
         String sql = "INSERT INTO Language (Code, Name) VALUES (?, ?)";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -377,7 +374,6 @@ public class MovieDAO extends DBContext {
         return -1;
     }
 
-    // ✅ Kiểm tra ngôn ngữ đã tồn tại
     public boolean isLanguageExists(String name) {
         String sql = "SELECT COUNT(*) FROM Language WHERE Name = ?";
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -393,19 +389,16 @@ public class MovieDAO extends DBContext {
         return false;
     }
 
-    // ✅ Tìm kiếm phim theo tên và khoảng thời gian
     public List<Movie> searchMovies(String movieName, String startDate, String endDate) {
         List<Movie> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM Movie WHERE (Status IS NULL OR Status != N'Ngưng hoạt động')");
         List<Object> parameters = new ArrayList<>();
 
-        // Thêm điều kiện tìm kiếm theo tên phim
         if (movieName != null && !movieName.trim().isEmpty()) {
             sql.append(" AND Name LIKE ?");
             parameters.add("%" + movieName.trim() + "%");
         }
 
-        // Thêm điều kiện tìm kiếm theo khoảng thời gian
         if (startDate != null && !startDate.trim().isEmpty()) {
             sql.append(" AND PremiereDate >= ?");
             parameters.add(java.sql.Date.valueOf(startDate));
@@ -420,7 +413,6 @@ public class MovieDAO extends DBContext {
 
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
-            // Set parameters
             for (int i = 0; i < parameters.size(); i++) {
                 ps.setObject(i + 1, parameters.get(i));
             }
@@ -443,4 +435,43 @@ public class MovieDAO extends DBContext {
         }
         return list;
     }
+
+    public boolean hasVoucher(int movieId) {
+        String sql = "SELECT COUNT(*) FROM VoucherMovie WHERE MovieId = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, movieId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public List<VoucherMovie> getVouchersByMovieId(int movieId) {
+        List<VoucherMovie> vouchers = new ArrayList<>();
+        String sql = "SELECT * FROM VoucherMovie WHERE MovieId = ?";
+        try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, movieId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    VoucherMovie voucher = new VoucherMovie();
+                    voucher.setId(rs.getInt("Id"));
+                    voucher.setVoucherId(rs.getInt("VoucherId"));
+                    voucher.setMovieId(rs.getInt("MovieId"));
+                    // Thêm các trường khác nếu có
+                    vouchers.add(voucher);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return vouchers;
+    }
 }
+
+
+

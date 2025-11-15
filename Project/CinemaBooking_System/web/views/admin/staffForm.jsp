@@ -391,31 +391,32 @@
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2>CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff" class="active">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff" class="active">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
         <h1>
             <c:choose>
-                <c:when test="${not empty staff && viewMode}">👁️ Thông tin nhân viên</c:when>
-                <c:when test="${not empty staff}">✏️ Chỉnh sửa nhân viên</c:when>
-                <c:otherwise>➕ Thêm nhân viên mới</c:otherwise>
+                <c:when test="${not empty staff && viewMode}">Thông tin nhân viên</c:when>
+                <c:when test="${not empty staff}">Chỉnh sửa nhân viên</c:when>
+                <c:otherwise>Thêm nhân viên mới</c:otherwise>
             </c:choose>
         </h1>
         <div class="header-right">
-            <span>👤 Admin: Nguyễn Văn A</span>
-            <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+            <span>Admin: Nguyễn Văn A</span>
+            <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
         </div>
     </header>
 
@@ -423,12 +424,12 @@
 
         <c:if test="${not empty error}">
             <div class="alert alert-error">
-                ❌ ${error}
+                ${error}
             </div>
         </c:if>
          <c:if test="${not empty success}"> <%-- Assuming success message passed as 'success' --%>
             <div class="alert alert-success">
-                ✅ ${success}
+                ${success}
             </div>
         </c:if>
 
@@ -442,7 +443,7 @@
                 </c:if>
 
                 <div class="form-group">
-                    <label for="email">📧 Email</label>
+                    <label for="email">Email</label>
                     <input type="email" id="email" name="email"
                            value="${staff.email}"
                            <c:if test="${viewMode}">readonly</c:if>
@@ -450,14 +451,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="phoneNumber">📞 Số điện thoại</label>
+                    <label for="phoneNumber">Số điện thoại</label>
                     <input type="tel" id="phoneNumber" name="phoneNumber"
                            value="${staff.phoneNumber}"
                            <c:if test="${viewMode}">readonly</c:if>>
                 </div>
 
                 <div class="form-group">
-                    <label for="username">👤 Tên đăng nhập</label>
+                    <label for="username">Tên đăng nhập</label>
                     <input type="text" id="username" name="username"
                            value="${staff.username}"
                            <c:if test="${viewMode or not empty staff}">readonly</c:if> <%-- Username readonly if editing/viewing --%>
@@ -467,13 +468,13 @@
                  <%-- Password field only for adding new staff --%>
                 <c:if test="${empty staff}">
                     <div class="form-group">
-                        <label for="password">🔑 Mật khẩu</label>
+                        <label for="password">Mật khẩu</label>
                         <input type="password" id="password" name="password" required>
                     </div>
                 </c:if>
 
                 <div class="form-group">
-                    <label for="role">💼 Vị trí</label>
+                    <label for="role">Vị trí</label>
                     <select id="role" name="role" <c:if test="${viewMode}">disabled</c:if>>
                         <option value="staff" <c:if test="${staff.role == 'staff'}">selected</c:if>>Nhân viên</option>
                         <option value="manager" <c:if test="${staff.role == 'manager'}">selected</c:if>>Quản lý rạp</option>
@@ -485,7 +486,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>📊 Trạng thái</label>
+                    <label>Trạng thái</label>
                     <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
                         <label class="switch">
                             <input type="checkbox" name="status" value="true" <%-- Send 'true' when checked --%>
@@ -513,18 +514,18 @@
                     <div class="form-actions">
                         <button type="submit" class="btn">
                             <c:choose>
-                                <c:when test="${not empty staff}">💾 Cập nhật</c:when>
-                                <c:otherwise>➕ Thêm mới</c:otherwise>
+                                <c:when test="${not empty staff}">Cập nhật</c:when>
+                                <c:otherwise>Thêm mới</c:otherwise>
                             </c:choose>
                         </button>
-                        <a href="${pageContext.request.contextPath}/admin/staff" class="btn btn-cancel">↩️ Quay lại</a>
+                        <a href="${pageContext.request.contextPath}/admin/staff" class="btn btn-cancel">Quay lại</a>
                     </div>
                 </c:if>
 
                 <c:if test="${viewMode}">
                     <div class="form-actions">
-                        <a href="${pageContext.request.contextPath}/admin/staff?action=edit&id=${staff.id}" class="btn">✏️ Chỉnh sửa</a>
-                        <a href="${pageContext.request.contextPath}/admin/staff" class="btn btn-cancel">↩️ Quay lại</a>
+                        <a href="${pageContext.request.contextPath}/admin/staff?action=edit&id=${staff.id}" class="btn">Chỉnh sửa</a>
+                        <a href="${pageContext.request.contextPath}/admin/staff" class="btn btn-cancel">Quay lại</a>
                     </div>
                 </c:if>
             </form>

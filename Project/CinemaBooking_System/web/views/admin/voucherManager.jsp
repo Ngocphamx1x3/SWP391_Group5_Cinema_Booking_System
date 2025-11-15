@@ -201,27 +201,27 @@
     <body>
         <div class="sidebar">
             <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
+                <h2>CINEMA PRO</h2>
                 <p>Admin Panel</p>
             </div>
             <nav>
-                <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-                <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-                <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-                <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-                <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-                <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-                <a href="${pageContext.request.contextPath}/admin/vouchers" class="active">🎫 Quản lý Voucher</a>
-                <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+                <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+                <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+                <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+                <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+                <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+                <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+                <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+                <a href="${pageContext.request.contextPath}/admin/vouchers" class="active">Quản lý Voucher</a>
             </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
         </div>
 
         <header>
             <h1>Quản lý Voucher</h1>
             <%-- Trong cả voucherForm.jsp và voucherManager.jsp --%>
             <div class="header-right">
-                <span>👤 Admin: 
+                <span>Admin: 
                     <c:choose>
                         <%-- Ưu tiên username, nếu không có thì dùng email --%>
                         <c:when test="${not empty sessionScope.account.username}">
@@ -235,7 +235,7 @@
                         </c:otherwise>
                     </c:choose>
                 </span>
-                <span>⏰ 
+                <span>
                     <jsp:useBean id="now" class="java.util.Date" />
                     <fmt:formatDate value="${now}" pattern="dd/MM/yyyy HH:mm" />
                 </span>
@@ -244,9 +244,9 @@
 
         <div class="content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h1 style="margin: 0;">🎫 Quản lý Voucher</h1>
+                <h1 style="margin: 0;">Quản lý Voucher</h1>
                 <a href="${pageContext.request.contextPath}/admin/vouchers/create" class="btn btn-primary">
-                    ➕ Tạo Voucher Mới
+                    Tạo Voucher Mới
                 </a>
             </div>
 
@@ -303,11 +303,11 @@
                                     <div style="display: flex; gap: 8px;">
                                         <a href="${pageContext.request.contextPath}/admin/vouchers/detail/${voucher.id}" 
                                            style="background: #17a2b8; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px;">
-                                            👁️
+                                            Chi tiết
                                         </a>
                                         <a href="${pageContext.request.contextPath}/admin/vouchers/edit/${voucher.id}" 
                                            style="background: #007bff; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px;">
-                                            ✏️
+                                            Sửa
                                         </a>
                                     </div>
                                 </td>

@@ -579,27 +579,27 @@
 
         <div class="sidebar">
             <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
+                <h2>CINEMA PRO</h2>
                 <p>Admin Panel</p>
             </div>
             <nav>
-                 <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-                 <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp" class="active">👥 Quản lý người dùng</a> <%-- Active link --%>
-                 <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-                 <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-                 <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-                 <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-                 <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
-                 <a href="${pageContext.request.contextPath}/admin/vouchers">🎫 Quản lý Voucher</a>
+                 <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+                 <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp" class="active">Quản lý người dùng</a> <%-- Active link --%>
+                 <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+                 <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+                 <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+                 <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+                 <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+                 <a href="${pageContext.request.contextPath}/admin/vouchers">Quản lý Voucher</a>
             </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+            <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
         </div>
 
         <header>
-            <h1>👥 Quản lý người dùng</h1>
+            <h1>Quản lý người dùng</h1>
             <div class="header-right">
-                <span>👤 Admin: Nguyễn Văn A</span>
-                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
+                <span>Admin: Nguyễn Văn A</span>
+                <span><%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
             </div>
         </header>
 
@@ -607,35 +607,35 @@
 
             <div class="stats-container">
                 <div class="stat-box">
-                    <h3>👥 Tổng người dùng</h3>
+                    <h3>Tổng người dùng</h3>
                     <div class="stat-value">1,247</div> <%-- Placeholder --%>
                 </div>
                 <div class="stat-box">
-                    <h3>✅ Đang hoạt động</h3>
+                    <h3>Đang hoạt động</h3>
                     <div class="stat-value">1,089</div> <%-- Placeholder --%>
                 </div>
                 <div class="stat-box">
-                    <h3>🔒 Bị khóa</h3>
+                    <h3>Bị khóa</h3>
                     <div class="stat-value">15</div> <%-- Placeholder --%>
                 </div>
                 <div class="stat-box">
-                    <h3>🆕 Mới trong tháng</h3>
+                    <h3>Mới trong tháng</h3>
                     <div class="stat-value">143</div> <%-- Placeholder --%>
                 </div>
             </div>
 
             <div class="toolbar">
                 <div class="search-box">
-                    <input type="text" placeholder="🔍 Tìm kiếm theo tên, email, số điện thoại...">
+                    <input type="text" placeholder="Tìm kiếm theo tên, email, số điện thoại...">
                     <select>
                         <option value="">Tất cả trạng thái</option>
                         <option value="active">Đang hoạt động</option>
                         <option value="inactive">Không hoạt động</option>
                         <option value="locked">Bị khóa</option>
                     </select>
-                     <button class="btn" style="padding: 12px 20px;">🔍 Tìm</button> <%-- Search button --%>
+                     <button class="btn" style="padding: 12px 20px;">Tìm</button> <%-- Search button --%>
                 </div>
-                <button class="btn" onclick="openAddUserModal()">➕ Thêm người dùng</button>
+                <button class="btn" onclick="openAddUserModal()">Thêm người dùng</button>
             </div>
 
             <div class="table-container">
@@ -669,9 +669,9 @@
                             <td><span class="status-badge status-active">Hoạt động</span></td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-small btn-edit" onclick="editUser(1)">✏️ Sửa</button>
-                                    <button class="btn-small btn-lock">🔒 Khóa</button>
-                                    <button class="btn-small btn-delete">🗑️ Xóa</button>
+                                    <button class="btn-small btn-edit" onclick="editUser(1)">Sửa</button>
+                                    <button class="btn-small btn-lock">Khóa</button>
+                                    <button class="btn-small btn-delete">Xóa</button>
                                 </div>
                             </td>
                         </tr>
@@ -690,9 +690,9 @@
                             <td><span class="status-badge status-active">Hoạt động</span></td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-small btn-edit" onclick="editUser(2)">✏️ Sửa</button>
-                                    <button class="btn-small btn-lock">🔒 Khóa</button>
-                                    <button class="btn-small btn-delete">🗑️ Xóa</button>
+                                    <button class="btn-small btn-edit" onclick="editUser(2)">Sửa</button>
+                                    <button class="btn-small btn-lock">Khóa</button>
+                                    <button class="btn-small btn-delete">Xóa</button>
                                 </div>
                             </td>
                         </tr>
@@ -711,9 +711,9 @@
                             <td><span class="status-badge status-locked">Bị khóa</span></td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-small btn-edit" onclick="editUser(3)">✏️ Sửa</button>
-                                    <button class="btn-small btn-lock" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">🔓 Mở</button> <%-- Unlock button styled differently --%>
-                                    <button class="btn-small btn-delete">🗑️ Xóa</button>
+                                    <button class="btn-small btn-edit" onclick="editUser(3)">Sửa</button>
+                                    <button class="btn-small btn-lock" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">Mở</button> <%-- Unlock button styled differently --%>
+                                    <button class="btn-small btn-delete">Xóa</button>
                                 </div>
                             </td>
                         </tr>
@@ -732,9 +732,9 @@
                             <td><span class="status-badge status-inactive">Không hoạt động</span></td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-small btn-edit" onclick="editUser(4)">✏️ Sửa</button>
-                                    <button class="btn-small btn-lock">🔒 Khóa</button>
-                                    <button class="btn-small btn-delete">🗑️ Xóa</button>
+                                    <button class="btn-small btn-edit" onclick="editUser(4)">Sửa</button>
+                                    <button class="btn-small btn-lock">Khóa</button>
+                                    <button class="btn-small btn-delete">Xóa</button>
                                 </div>
                             </td>
                         </tr>
@@ -745,7 +745,7 @@
                 <%--
                 <c:if test="${empty userList}">
                     <div style="text-align: center; padding: 40px; color: #6b7280;">
-                        <p>📭 Không có người dùng nào được tìm thấy.</p>
+                        <p>Không có người dùng nào được tìm thấy.</p>
                     </div>
                 </c:if>
                 --%>
@@ -763,29 +763,29 @@
         <div id="userModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="modalTitle">➕ Thêm người dùng mới</h2>
+                    <h2 id="modalTitle">Thêm người dùng mới</h2>
                     <button class="close-modal" onclick="closeModal('userModal')">&times;</button>
                 </div>
                 <form id="userForm"> <%-- Add form for submission later --%>
                     <input type="hidden" id="userId" name="userId">
                      <div class="form-group">
-                         <label for="username">👤 Tên người dùng</label>
+                         <label for="username">Tên người dùng</label>
                          <input type="text" id="username" name="username" required>
                      </div>
                      <div class="form-group">
-                         <label for="email">📧 Email</label>
+                         <label for="email">Email</label>
                          <input type="email" id="email" name="email" required>
                      </div>
                       <div class="form-group" id="passwordGroup"> <%-- Hide for edit --%>
-                         <label for="password">🔑 Mật khẩu</label>
+                         <label for="password">Mật khẩu</label>
                          <input type="password" id="password" name="password" required>
                      </div>
                      <div class="form-group">
-                         <label for="phoneNumber">📞 Số điện thoại</label>
+                         <label for="phoneNumber">Số điện thoại</label>
                          <input type="tel" id="phoneNumber" name="phoneNumber">
                      </div>
                      <div class="form-group">
-                         <label for="role">🎭 Vai trò</label>
+                         <label for="role">Vai trò</label>
                          <select id="role" name="role">
                              <option value="user">Người dùng</option>
                              <option value="staff">Nhân viên</option>
@@ -794,7 +794,7 @@
                          </select>
                      </div>
                      <div class="form-actions">
-                         <button type="submit" class="btn">💾 Lưu</button>
+                         <button type="submit" class="btn">Lưu</button>
                          <button type="button" class="btn btn-cancel" onclick="closeModal('userModal')">Hủy</button>
                      </div>
                  </form>
@@ -808,7 +808,7 @@
 
         <script>
             function openAddUserModal() {
-                document.getElementById('modalTitle').innerText = '➕ Thêm người dùng mới';
+                document.getElementById('modalTitle').innerText = 'Thêm người dùng mới';
                 document.getElementById('userForm').reset(); // Clear form
                 document.getElementById('userId').value = ''; // Ensure ID is empty
                 document.getElementById('passwordGroup').style.display = 'block'; // Show password field
@@ -818,7 +818,7 @@
             function editUser(userId) {
                  // In a real application, you'd fetch user data via AJAX based on userId
                  // For now, let's just populate with dummy data for demonstration
-                 document.getElementById('modalTitle').innerText = '✏️ Chỉnh sửa người dùng';
+                 document.getElementById('modalTitle').innerText = 'Chỉnh sửa người dùng';
                  document.getElementById('userId').value = userId; // Set user ID for update
                  document.getElementById('username').value = 'User ' + userId; // Dummy data
                  document.getElementById('email').value = 'user' + userId + '@example.com'; // Dummy data

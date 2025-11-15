@@ -568,9 +568,9 @@
 
                     // Lấy ngày được chọn
                     const selectedDate = $(this).data('date');
-                    const movieId = ${movie.id};
+                    const movieId = '${movie.id}';
 
-                    // Hiển thị loading
+                    // Hiển thị loading`
                     $('#scheduleContent').html(`
                         <div class="text-center py-4">
                             <div class="spinner-border text-primary" role="status">
@@ -587,7 +587,7 @@
                 // Tự động load lịch chiếu cho ngày đầu tiên
                 const firstDate = $('.date-item.active').data('date');
                 if (firstDate) {
-                    loadSchedule(${movie.id}, firstDate);
+                    loadSchedule('${movie.id}', firstDate);
                 }
 
                 // Smooth scroll khi click nút "Đặt vé ngay"
@@ -605,6 +605,9 @@
                 $.ajax({
                     url: '${pageContext.request.contextPath}/schedule-ajax',
                     type: 'GET',
+                    xhrFields: {
+                        withCredentials: true  // QUAN TRỌNG: Gửi kèm session cookie
+                    },
                     data: {
                         movieId: movieId,
                         date: selectedDate
@@ -614,7 +617,14 @@
                         $('#scheduleContent').html(response);
                     },
                     error: function (xhr, status, error) {
-                        console.log("AJAX Error:", error);
+                        console.log("AJAX Error:", error, "Status:", xhr.status);
+                        // Nếu lỗi 401 hoặc redirect về login
+                        if (xhr.status === 401 || xhr.responseURL && xhr.responseURL.includes('/login')) {
+                            if (confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại không?')) {
+                                window.location.href = '${pageContext.request.contextPath}/login';
+                            }
+                            return;
+                        }
                         $('#scheduleContent').html(`
                 <div class="no-schedule">
                     <i class="fas fa-exclamation-triangle fa-2x mb-3 text-danger"></i>
@@ -625,6 +635,22 @@
                     }
                 });
             }
+            // FORCE OVERRIDE - Thêm vào CUỐI detail.jsp, SAU khi load seat-modal.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Đợi 2 giây để modal được load xong
+    setTimeout(() => {
+        console.log('FORCING button override after modal load');
+        
+        // Tìm và clone button để xóa tất cả event listeners cũ
+        const oldBtn = document.querySelector('#confirmBtn');
+        if (oldBtn) {
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+            console.log('Button replaced, old handlers removed');
+        }
+    }, 2000);
+});
+
         </script>
     </body>
 </html>

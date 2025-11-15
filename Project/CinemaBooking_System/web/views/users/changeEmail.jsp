@@ -349,7 +349,7 @@
 
     <div class="change-email-container">
         <div class="movie-box">
-            <h1>🔐 Đổi Email</h1>
+            <h1> Đổi Email</h1>
 
             <!-- Error Message -->
             <c:if test="${not empty error}">
@@ -389,7 +389,7 @@
             <!-- Form xác thực mã code -->
             <c:if test="${not empty verificationSent}">
                 <div class="verification-section">
-                    <h3>📧 Xác thực Email mới</h3>
+                    <h3> Xác thực Email mới</h3>
                     <p>Chúng tôi đã gửi mã xác thực 6 số đến: <strong>${fn:escapeXml(newEmail)}</strong></p>
                     
                     <form method="post" action="${pageContext.request.contextPath}/verifyEmailChange">

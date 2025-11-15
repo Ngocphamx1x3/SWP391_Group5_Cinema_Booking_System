@@ -2,6 +2,10 @@ package dal;
 
 import util.DBContext;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import model.Order;
+import model.OrderCombo;
 
 public class OrderDAO extends DBContext {
 
@@ -20,6 +24,26 @@ public class OrderDAO extends DBContext {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Create pending order using existing connection (for transaction)
+     */
+    public int createPendingOrder(Connection conn, int userId, long totalMoney, String orderCode, Timestamp expiredAt) throws SQLException {
+        String sql = "INSERT INTO Orders (UserId, OrderDate, Status, TotalMoney, OrderCode, ExpiredAt) "
+                + "VALUES (?, GETDATE(), N'PENDING', ?, ?, ?); SELECT SCOPE_IDENTITY();";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setLong(2, totalMoney);
+            ps.setString(3, orderCode);
+            ps.setTimestamp(4, expiredAt);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
         }
         return 0;
     }
@@ -161,4 +185,226 @@ public class OrderDAO extends DBContext {
             }
         }
     }
+
+    // Thêm vào OrderDAO
+    public Integer getVoucherIdByOrder(int orderId) {
+        String sql = "SELECT VoucherId FROM VoucherUsage WHERE OrderId = ?";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("VoucherId");
+            }
+            return null;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+   public List<Order> getOrderHistoryByUserId(int userId) {
+    List<Order> orders = new ArrayList<>();
+    String sql = "SELECT Id, UserId, OrderDate, Status, TotalMoney, OrderCode, " +
+                 "ExpiredAt, PaidAt, ProviderRef " +
+                 "FROM Orders " +
+                 "WHERE UserId = ? " +
+                 "ORDER BY OrderDate DESC";
+
+    try (Connection conn = getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, userId);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Order order = mapResultSetToOrder(rs);
+                
+                // Load combos và tickets cho MỌI đơn hàng
+                order.setOrderCombos(getOrderCombosByOrderId(order.getId()));
+                order.setTickets(getTicketInfoByOrderId(order.getId()));
+                
+                orders.add(order);
+            }
+        }
+        
+        System.out.println("Found " + orders.size() + " orders for userId: " + userId);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("Error in getOrderHistoryByUserId: " + e.getMessage());
+    }
+    return orders;
+}
+
+/**
+ * Get order combos for a specific order
+ */
+public List<OrderCombo> getOrderCombosByOrderId(int orderId) {
+    List<OrderCombo> orderCombos = new ArrayList<>();
+    String sql = "SELECT oc.Id, oc.OrderId, oc.ComboId, oc.Quantity, oc.Price, oc.CreatedAt, " +
+                 "fc.Name as ComboName, fc.Image as ComboImage " +
+                 "FROM OrderCombo oc " +
+                 "JOIN FoodCombo fc ON oc.ComboId = fc.ComboID " +
+                 "WHERE oc.OrderId = ?";
+
+    try (Connection conn = getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, orderId);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                OrderCombo orderCombo = mapResultSetToOrderCombo(rs);
+                orderCombos.add(orderCombo);
+            }
+        }
+        
+        System.out.println("Found " + orderCombos.size() + " combos for orderId: " + orderId);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("Error in getOrderCombosByOrderId: " + e.getMessage());
+    }
+    return orderCombos;
+}
+
+// Helper method to map ResultSet to Order
+private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
+    Order order = new Order();
+    order.setId(rs.getInt("Id"));
+    order.setUserId(rs.getInt("UserId"));
+    order.setOrderDate(rs.getTimestamp("OrderDate"));
+    order.setStatus(rs.getString("Status"));
+    order.setTotalMoney(rs.getLong("TotalMoney"));
+    order.setOrderCode(rs.getString("OrderCode"));
+    
+    // Handle nullable fields
+    Timestamp expiredAt = rs.getTimestamp("ExpiredAt");
+    order.setExpiresAt(expiredAt);
+    
+    Timestamp paidAt = rs.getTimestamp("PaidAt");
+    order.setPaidAt(paidAt);
+    
+    String providerRef = rs.getString("ProviderRef");
+    order.setProviderRef(providerRef);
+    
+    return order;
+}
+
+// Helper method to map ResultSet to OrderCombo
+private OrderCombo mapResultSetToOrderCombo(ResultSet rs) throws SQLException {
+    OrderCombo orderCombo = new OrderCombo();
+    orderCombo.setId(rs.getInt("Id"));
+    orderCombo.setOrderId(rs.getInt("OrderId"));
+    orderCombo.setComboId(rs.getInt("ComboId"));
+    orderCombo.setQuantity(rs.getInt("Quantity"));
+    orderCombo.setPrice(rs.getLong("Price"));
+    
+    Timestamp createdAt = rs.getTimestamp("CreatedAt");
+    orderCombo.setCreatedAt(createdAt);
+
+    // Additional combo info
+    orderCombo.setComboName(rs.getString("ComboName"));
+    orderCombo.setComboImage(rs.getString("ComboImage"));
+
+    return orderCombo;
+}
+
+public List<TicketInfo> getTicketInfoByOrderId(int orderId) {
+    List<TicketInfo> tickets = new ArrayList<>();
+    String sql = "SELECT t.Id as TicketId, m.Name as MovieName, c.Name as CinemaName, " +
+                 "r.Name as RoomName, s.StartAt, se.Code as SeatCode, t.Price as TicketPrice, t.Status as TicketStatus " +
+                 "FROM Ticket t " +
+                 "JOIN Schedule s ON t.ScheduleId = s.Id " +
+                 "JOIN Movie m ON s.MovieId = m.Id " +
+                 "JOIN Room r ON s.RoomId = r.Id " +
+                 "JOIN Cinema c ON r.CinemaId = c.Id " +
+                 "JOIN Seat se ON t.SeatId = se.Id " +
+                 "WHERE t.OrderId = ?"; // Bỏ điều kiện AND t.Status = 'CONFIRMED'
+    
+    try (Connection conn = getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        
+        ps.setInt(1, orderId);
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                TicketInfo ticket = new TicketInfo();
+                ticket.setTicketId(rs.getInt("TicketId"));
+                ticket.setMovieName(rs.getString("MovieName"));
+                ticket.setCinemaName(rs.getString("CinemaName"));
+                ticket.setRoomName(rs.getString("RoomName"));
+                ticket.setStartAt(rs.getTimestamp("StartAt"));
+                ticket.setSeatCode(rs.getString("SeatCode"));
+                ticket.setTicketPrice(rs.getLong("TicketPrice"));
+                ticket.setTicketStatus(rs.getString("TicketStatus")); // Thêm trạng thái vé
+                tickets.add(ticket);
+            }
+        }
+        
+        System.out.println("Found " + tickets.size() + " tickets for orderId: " + orderId);
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("Error in getTicketInfoByOrderId: " + e.getMessage());
+    }
+    return tickets;
+}
+
+// Inner class for ticket information
+// Inner class for ticket information
+public static class TicketInfo {
+    private int ticketId;
+    private String movieName;
+    private String cinemaName;
+    private String roomName;
+    private Timestamp startAt;
+    private String seatCode;
+    private long ticketPrice;
+    private String ticketStatus; // Thêm trường này
+    
+    // Getters and Setters
+    public int getTicketId() { return ticketId; }
+    public void setTicketId(int ticketId) { this.ticketId = ticketId; }
+    
+    public String getMovieName() { return movieName; }
+    public void setMovieName(String movieName) { this.movieName = movieName; }
+    
+    public String getCinemaName() { return cinemaName; }
+    public void setCinemaName(String cinemaName) { this.cinemaName = cinemaName; }
+    
+    public String getRoomName() { return roomName; }
+    public void setRoomName(String roomName) { this.roomName = roomName; }
+    
+    public Timestamp getStartAt() { return startAt; }
+    public void setStartAt(Timestamp startAt) { this.startAt = startAt; }
+    
+    public String getSeatCode() { return seatCode; }
+    public void setSeatCode(String seatCode) { this.seatCode = seatCode; }
+    
+    public long getTicketPrice() { return ticketPrice; }
+    public void setTicketPrice(long ticketPrice) { this.ticketPrice = ticketPrice; }
+    
+    public String getTicketStatus() { return ticketStatus; }
+    public void setTicketStatus(String ticketStatus) { this.ticketStatus = ticketStatus; }
+    
+    public String getFormattedStartAt() {
+        if (startAt != null) {
+            return new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(startAt);
+        }
+        return "N/A";
+    }
+    
+    public String getFormattedTicketPrice() {
+        return String.format("%,d", this.ticketPrice) + " đ";
+    }
+    
+    // Helper method để kiểm tra vé có hợp lệ không
+    public boolean isValidTicket() {
+        return "CONFIRMED".equals(ticketStatus);
+    }
+}
 }

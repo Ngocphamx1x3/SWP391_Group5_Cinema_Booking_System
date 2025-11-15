@@ -208,4 +208,22 @@ public class SeatTypeDAO extends DBContext {
         }
         return list;
     }
+
+    // KIỂM TRA XEM SEAT TYPE CÓ ĐANG ĐƯỢC SỬ DỤNG TRONG BẢNG SEAT KHÔNG
+    public boolean isSeatTypeInUse(int seatTypeId) {
+        String sql = "SELECT COUNT(*) FROM Seat WHERE SeatTypeId = ?";
+        
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, seatTypeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    return count > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -13,10 +13,11 @@ public class User {
     private int status;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-    private boolean emailConfirmed;
+    private boolean emailConfirmed; 
     private String verificationCode;
     private Timestamp verificationExpiresAt;
-
+    private Integer currentCinemaId;
+    
     // getters / setters
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
@@ -48,7 +49,10 @@ public class User {
     public Timestamp getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
+    // GETTER đúng cho boolean - sử dụng "is" thay vì "get"
     public boolean isEmailConfirmed() { return emailConfirmed; }
+    
+    // SETTER đúng cho boolean
     public void setEmailConfirmed(boolean emailConfirmed) { this.emailConfirmed = emailConfirmed; }
 
     public String getVerificationCode() { return verificationCode; }
@@ -56,4 +60,7 @@ public class User {
 
     public Timestamp getVerificationExpiresAt() { return verificationExpiresAt; }
     public void setVerificationExpiresAt(Timestamp verificationExpiresAt) { this.verificationExpiresAt = verificationExpiresAt; }
+    
+    public Integer getCurrentCinemaId() { return currentCinemaId; }
+    public void setCurrentCinemaId(Integer currentCinemaId) { this.currentCinemaId = currentCinemaId; }
 }

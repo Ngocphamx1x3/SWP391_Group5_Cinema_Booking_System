@@ -102,12 +102,12 @@
         }
 
         .btn-change-password::before {
-            content: "🔒";
+            content: "";
             font-size: 16px;
         }
 
         .btn-change-email::before {
-            content: "📧";
+            content: "";
             font-size: 16px;
         }
 

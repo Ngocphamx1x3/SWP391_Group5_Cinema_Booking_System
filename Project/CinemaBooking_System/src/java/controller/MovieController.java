@@ -6,13 +6,20 @@ import model.Director;
 import model.Language;
 
 import jakarta.servlet.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(urlPatterns = {"/admin/movies"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50)
 public class MovieController extends HttpServlet {
 
     private MovieDAO movieDAO;
@@ -60,7 +67,7 @@ public class MovieController extends HttpServlet {
         }
     }
 
-    // =============== HIỂN THỊ FORM THÊM PHIM ===============
+    // form them phim
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -110,9 +117,11 @@ public class MovieController extends HttpServlet {
         }
     }
 
-    // ======================= Helper: Chuẩn hóa movieStatus =======================
+    // chuan hoa
     private String normalizeMovieStatus(String status) {
-        if (status == null) return Movie.STATUS_SHOWING;
+        if (status == null) {
+            return Movie.STATUS_SHOWING;
+        }
 
         switch (status.trim().toLowerCase()) {
             case "đang chiếu":
@@ -136,30 +145,61 @@ public class MovieController extends HttpServlet {
         }
     }
 
-    // ======================= Helper: Build Movie from Request =======================
+    // gui du lieu phim
     private Movie buildMovieFromRequest(HttpServletRequest request, boolean isUpdate) throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Movie m = new Movie();
 
         if (isUpdate) {
-            m.setId(Integer.parseInt(request.getParameter("id")));
+            String idStr = getValueFromPart(request, "id");
+            m.setId(Integer.parseInt(idStr));
         } else {
             m.setCode("mv" + (int) (Math.random() * 100000));
-            m.setTrailer(null);
             m.setRatedId(1);
         }
 
-        m.setName(request.getParameter("movieTitle"));
-        m.setDescription(request.getParameter("movieDescription"));
-        m.setImage(request.getParameter("posterUrl"));
-        m.setMovieDuration(Integer.parseInt(request.getParameter("movieDuration")));
-        m.setPremiereDate(sdf.parse(request.getParameter("releaseDate")));
-        m.setStatus(normalizeMovieStatus(request.getParameter("movieStatus")));
+        m.setName(getValueFromPart(request, "movieTitle"));
+        m.setDescription(getValueFromPart(request, "movieDescription"));
+
+        String trailer = getValueFromPart(request, "trailerUrl");
+        m.setTrailer(trailer != null ? trailer : null);
+
+        String imageUrl = getValueFromPart(request, "posterUrl");
+        m.setImage(imageUrl);
+
+        String endDateStr = request.getParameter("endDate");
+        if (endDateStr != null && !endDateStr.isEmpty()) {
+            m.setEndDate(sdf.parse(endDateStr));
+        }
+
+        String durationStr = getValueFromPart(request, "movieDuration");
+        if (durationStr == null || durationStr.isEmpty()) {
+            throw new IllegalArgumentException("Thời lượng phim không được để trống");
+        }
+        m.setMovieDuration(Integer.parseInt(durationStr));
+
+        String releaseDateStr = getValueFromPart(request, "releaseDate");
+        if (releaseDateStr == null || releaseDateStr.isEmpty()) {
+            throw new IllegalArgumentException("Ngày khởi chiếu không được để trống");
+        }
+        m.setPremiereDate(sdf.parse(releaseDateStr));
+
+        m.setStatus(normalizeMovieStatus(getValueFromPart(request, "movieStatus")));
 
         return m;
     }
 
-    // ======================= DANH SÁCH PHIM =======================
+    private String getValueFromPart(HttpServletRequest request, String fieldName) throws IOException, ServletException {
+        Part part = request.getPart(fieldName);
+        if (part == null) {
+            return null;
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(part.getInputStream(), "UTF-8"))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
+    // danh sach phim
     private void listMovies(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -169,7 +209,7 @@ public class MovieController extends HttpServlet {
         rd.forward(request, response);
     }
 
-    // ======================= TÌM KIẾM PHIM =======================
+    // tim kiem phim
     private void searchMovies(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -180,7 +220,6 @@ public class MovieController extends HttpServlet {
         List<Movie> list = movieDAO.searchMovies(movieName, startDate, endDate);
         request.setAttribute("movieList", list);
 
-        // Truyền lại các tham số tìm kiếm để hiển thị trong form
         request.setAttribute("searchName", movieName);
         request.setAttribute("startDate", startDate);
         request.setAttribute("endDate", endDate);
@@ -189,7 +228,7 @@ public class MovieController extends HttpServlet {
         rd.forward(request, response);
     }
 
-    // ======================= THÊM PHIM =======================
+    // them
     private void insertMovie(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
@@ -198,7 +237,6 @@ public class MovieController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
-    // ======================= CẬP NHẬT PHIM =======================
     private void updateMovie(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
@@ -207,7 +245,6 @@ public class MovieController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
-    // ======================= XÓA PHIM (chuyển sang “Ngưng hoạt động”) =======================
     private void deleteMovie(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
@@ -216,7 +253,7 @@ public class MovieController extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/admin/movies");
     }
 
-    // ======================= FORM CHỈNH SỬA =======================
+    // form sua phim
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -234,7 +271,6 @@ public class MovieController extends HttpServlet {
         rd.forward(request, response);
     }
 
-    // ======================= THÊM ĐẠO DIỄN MỚI =======================
     private void addDirector(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -242,7 +278,6 @@ public class MovieController extends HttpServlet {
             String directorName = request.getParameter("directorName");
             String directorCode = request.getParameter("directorCode");
 
-            // Validation
             if (directorName == null || directorName.trim().isEmpty()) {
                 request.setAttribute("error", "Tên đạo diễn không được để trống");
                 showAddForm(request, response);
@@ -255,14 +290,12 @@ public class MovieController extends HttpServlet {
                 return;
             }
 
-            // Kiểm tra đạo diễn đã tồn tại
             if (movieDAO.isDirectorExists(directorName)) {
                 request.setAttribute("error", "Đạo diễn '" + directorName + "' đã tồn tại");
                 showAddForm(request, response);
                 return;
             }
 
-            // Tạo đạo diễn mới
             Director director = new Director();
             director.setCode(directorCode);
             director.setName(directorName);
@@ -284,7 +317,6 @@ public class MovieController extends HttpServlet {
         }
     }
 
-    // ======================= THÊM NGÔN NGỮ MỚI =======================
     private void addLanguage(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -292,7 +324,6 @@ public class MovieController extends HttpServlet {
             String languageName = request.getParameter("languageName");
             String languageCode = request.getParameter("languageCode");
 
-            // Validation
             if (languageName == null || languageName.trim().isEmpty()) {
                 request.setAttribute("error", "Tên ngôn ngữ không được để trống");
                 showAddForm(request, response);
@@ -305,14 +336,12 @@ public class MovieController extends HttpServlet {
                 return;
             }
 
-            // Kiểm tra ngôn ngữ đã tồn tại
             if (movieDAO.isLanguageExists(languageName)) {
                 request.setAttribute("error", "Ngôn ngữ '" + languageName + "' đã tồn tại");
                 showAddForm(request, response);
                 return;
             }
 
-            // Tạo ngôn ngữ mới
             Language language = new Language();
             language.setCode(languageCode);
             language.setName(languageName);
@@ -334,3 +363,6 @@ public class MovieController extends HttpServlet {
         }
     }
 }
+
+
+

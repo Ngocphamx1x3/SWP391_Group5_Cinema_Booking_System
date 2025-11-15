@@ -15,7 +15,6 @@
     <title>Chỉnh sửa Voucher | Cinema Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Copy toàn bộ CSS từ voucherForm.jsp vào đây */
         * {
             margin: 0;
             padding: 0;
@@ -187,6 +186,14 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
+        /* Style cho các trường bị khóa */
+        input:disabled, select:disabled {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+
         textarea {
             resize: vertical;
             min-height: 80px;
@@ -271,32 +278,90 @@
         .checkbox-group input[type="checkbox"] {
             width: auto;
         }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .form-check-input {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 0;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .movies-container {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        .movie-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .movie-item:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .movie-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Badge cho trường không thể chỉnh sửa */
+        .locked-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <div class="sidebar-logo">
-            <h2>🎬 CINEMA PRO</h2>
+            <h2>CINEMA PRO</h2>
             <p>Admin Panel</p>
         </div>
         <nav>
-            <a href="${pageContext.request.contextPath}/admindashboard">📊 Bảng điều khiển</a>
-            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">👥 Quản lý người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin/staff">🧑‍💼 Quản lý nhân viên</a>
-            <a href="${pageContext.request.contextPath}/admin/cinemas">🏢 Quản lý rạp</a>
-            <a href="${pageContext.request.contextPath}/admin/movies">🎞️ Quản lý phim</a>
-            <a href="${pageContext.request.contextPath}/admin/seat-types">💺 Quản lý loại ghế</a>
-            <a href="${pageContext.request.contextPath}/admin/vouchers" class="active">🎫 Quản lý Voucher</a>
-            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">💳 Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admindashboard">Bảng điều khiển</a>
+            <a href="${pageContext.request.contextPath}/views/admin/userManager.jsp">Quản lý người dùng</a>
+            <a href="${pageContext.request.contextPath}/admin/staff">Quản lý nhân viên</a>
+            <a href="${pageContext.request.contextPath}/admin/cinemas">Quản lý rạp</a>
+            <a href="${pageContext.request.contextPath}/admin/movies">Quản lý phim</a>
+            <a href="${pageContext.request.contextPath}/admin/seat-types">Quản lý loại ghế</a>
+            <a href="${pageContext.request.contextPath}/views/admin/paymentManager.jsp">Quản lý thanh toán</a>
+            <a href="${pageContext.request.contextPath}/admin/vouchers" class="active">Quản lý Voucher</a>
         </nav>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </div>
 
     <header>
         <h1>Chỉnh sửa Voucher</h1>
         <div class="header-right">
-            <span>👤 Admin: 
+            <span>Admin: 
                 <c:choose>
                     <c:when test="${not empty sessionScope.account.username}">
                         ${sessionScope.account.username}
@@ -309,7 +374,7 @@
                     </c:otherwise>
                 </c:choose>
             </span>
-            <span>⏰ 
+            <span>
                 <jsp:useBean id="now" class="java.util.Date" />
                 <fmt:formatDate value="${now}" pattern="dd/MM/yyyy HH:mm" />
             </span>
@@ -318,7 +383,7 @@
 
     <div class="content">
         <div class="form-container">
-            <h2 class="form-title">✏️ Chỉnh sửa Voucher: ${voucher.code}</h2>
+            <h2 class="form-title">Chỉnh sửa Voucher: ${voucher.code}</h2>
 
             <c:if test="${not empty error}">
                 <div class="alert alert-error">${error}</div>
@@ -327,19 +392,30 @@
             <form action="${pageContext.request.contextPath}/admin/vouchers/update" method="POST">
                 <input type="hidden" name="id" value="${voucher.id}">
                 
+                <!-- Mã Voucher - KHÓA -->
                 <div class="form-group">
-                    <label for="code" class="required">Mã Voucher</label>
-                    <input type="text" id="code" name="code" required 
+                    <label for="code" class="required">
+                        Mã Voucher
+                       
+                    </label>
+                    <input type="text" id="code" name="code" 
                            value="${voucher.code}" 
-                           placeholder="VD: SUMMER2024, MOVIE50K" 
-                           maxlength="50">
+                           disabled>
+                    <!-- Hidden input để gửi giá trị khi submit -->
+                    <input type="hidden" name="code" value="${voucher.code}">
                 </div>
 
+                <!-- Tên Voucher - KHÓA -->
                 <div class="form-group">
-                    <label for="name" class="required">Tên Voucher</label>
-                    <input type="text" id="name" name="name" required 
+                    <label for="name" class="required">
+                        Tên Voucher
+                       
+                    </label>
+                    <input type="text" id="name" name="name" 
                            value="${voucher.name}"
-                           placeholder="VD: Giảm 50K mùa hè, Khuyến mãi 20%">
+                           disabled>
+                    <!-- Hidden input để gửi giá trị khi submit -->
+                    <input type="hidden" name="name" value="${voucher.name}">
                 </div>
 
                 <div class="form-group">
@@ -349,22 +425,33 @@
                 </div>
 
                 <div class="form-row">
+                    <!-- Loại giảm giá - KHÓA -->
                     <div class="form-group">
-                        <label for="discountType" class="required">Loại giảm giá</label>
-                        <select id="discountType" name="discountType" required onchange="toggleDiscountFields()">
+                        <label for="discountType" class="required">
+                            Loại giảm giá
+                            
+                        </label>
+                        <select id="discountType" name="discountType" disabled>
                             <option value="1" ${voucher.discountType == 1 ? 'selected' : ''}>Phần trăm (%)</option>
                             <option value="2" ${voucher.discountType == 2 ? 'selected' : ''}>Số tiền cố định (VND)</option>
                         </select>
+                        <!-- Hidden input để gửi giá trị khi submit -->
+                        <input type="hidden" name="discountType" value="${voucher.discountType}">
                     </div>
 
+                    <!-- Giá trị giảm giá - KHÓA -->
                     <div class="form-group">
-                        <label for="discountValue" class="required">Giá trị giảm giá</label>
+                        <label for="discountValue" class="required">
+                            Giá trị giảm giá
+                            
+                        </label>
                         <input type="number" id="discountValue" name="discountValue" 
-                               step="0.01" min="0.01" required 
                                value="${voucher.discountValue}"
-                               placeholder="VD: 10 hoặc 50000">
+                               disabled>
+                        <!-- Hidden input để gửi giá trị khi submit -->
+                        <input type="hidden" name="discountValue" value="${voucher.discountValue}">
                         <div class="discount-type-info" id="discountInfo">
-                            ${voucher.discountType == 1 ? 'Nhập phần trăm giảm giá (VD: 10 cho 10%)' : 'Nhập số tiền giảm giá (VD: 50000 cho 50,000 VND)'}
+                            ${voucher.discountType == 1 ? 'Phần trăm giảm giá' : 'Số tiền giảm giá (VND)'}
                         </div>
                     </div>
                 </div>
@@ -377,13 +464,29 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="maxDiscountAmount">Giảm tối đa (VND)</label>
+                        <label for="maxDiscountAmount">
+                            Giảm tối đa (VND)
+                            <c:if test="${voucher.discountType == 2}">
+                                
+                            </c:if>
+                        </label>
                         <input type="number" id="maxDiscountAmount" name="maxDiscountAmount" 
                                step="1000" min="0" 
                                value="${voucher.maxDiscountAmount > 0 ? voucher.maxDiscountAmount : ''}"
-                               placeholder="Chỉ áp dụng cho giảm %">
+                               placeholder="Chỉ áp dụng cho giảm %"
+                               ${voucher.discountType == 2 ? 'disabled' : ''}>
+                        <c:if test="${voucher.discountType == 2}">
+                            <input type="hidden" name="maxDiscountAmount" value="${voucher.maxDiscountAmount}">
+                        </c:if>
                         <div class="discount-type-info">
-                            Chỉ cần thiết cho giảm giá phần trăm
+                            <c:choose>
+                                <c:when test="${voucher.discountType == 1}">
+                                    Chỉ cần thiết cho giảm giá phần trăm
+                                </c:when>
+                                <c:otherwise>
+                                    Không áp dụng cho giảm giá số tiền cố định
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
                 </div>
@@ -403,11 +506,53 @@
                         <input type="datetime-local" id="startDate" name="startDate" 
                                value="<fmt:formatDate value="${voucher.startDate}" pattern="yyyy-MM-dd'T'HH:mm" />" required>
                     </div>
+                </div>
 
+                <div class="form-row">
                     <div class="form-group">
                         <label for="endDate" class="required">Ngày kết thúc</label>
                         <input type="datetime-local" id="endDate" name="endDate" 
                                value="<fmt:formatDate value="${voucher.endDate}" pattern="yyyy-MM-dd'T'HH:mm" />" required>
+                    </div>
+                </div>
+
+                <!-- Phần áp dụng cho phim -->
+                <div class="form-group">
+                    <label for="movies">Áp dụng cho phim</label>
+                    <div class="movies-container">
+                        <div class="form-check" style="margin-bottom: 15px; padding: 8px; background: #f3f4f6; border-radius: 6px;">
+                            <input class="form-check-input" type="checkbox" id="selectAllMovies" onchange="toggleAllMovies()" style="width: auto; margin-right: 10px;">
+                            <label class="form-check-label" for="selectAllMovies" style="font-weight: 600; color: #374151;">
+                                Chọn tất cả phim
+                            </label>
+                        </div>
+                        <div class="movies-list">
+                            <c:choose>
+                                <c:when test="${not empty movies}">
+                                    <c:forEach var="movie" items="${movies}">
+                                        <div class="movie-item">
+                                            <input class="form-check-input movie-checkbox" type="checkbox" 
+                                                   name="selectedMovies" value="${movie.id}" id="movie_${movie.id}"
+                                                   <c:if test="${selectedMovieIds.contains(movie.id)}">checked</c:if>>
+                                            <label class="form-check-label" for="movie_${movie.id}">
+                                                <strong>${movie.name}</strong> 
+                                                <c:if test="${not empty movie.code}">
+                                                    <span style="color: #6b7280; font-size: 12px;">(${movie.code})</span>
+                                                </c:if>
+                                            </label>
+                                        </div>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    <div style="text-align: center; padding: 20px; color: #6b7280;">
+                                        <p>Không có phim nào khả dụng</p>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+                    <div class="discount-type-info">
+                        Để trống nếu áp dụng cho tất cả phim
                     </div>
                 </div>
 
@@ -419,43 +564,131 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="${pageContext.request.contextPath}/admin/vouchers/detail/${voucher.id}" class="btn btn-info">👁️ Xem chi tiết</a>
+                    <a href="${pageContext.request.contextPath}/admin/vouchers/detail/${voucher.id}" class="btn btn-info">Xem chi tiết</a>
                     <a href="${pageContext.request.contextPath}/admin/vouchers" class="btn btn-secondary">← Quay lại</a>
-                    <button type="submit" class="btn btn-primary">💾 Cập nhật Voucher</button>
+                    <button type="submit" class="btn btn-primary">Cập nhật Voucher</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function toggleDiscountFields() {
-            const discountType = document.getElementById('discountType').value;
-            const discountInfo = document.getElementById('discountInfo');
-            const maxDiscountField = document.getElementById('maxDiscountAmount');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tự động check/uncheck "Chọn tất cả" khi thay đổi các checkbox con
+            const movieCheckboxes = document.querySelectorAll('.movie-checkbox');
+            const selectAllCheckbox = document.getElementById('selectAllMovies');
+            
+            // Kiểm tra xem tất cả phim đã được chọn chưa
+            const allChecked = Array.from(movieCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(movieCheckboxes).some(cb => cb.checked);
+            
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = someChecked && !allChecked;
+            
+            movieCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const allChecked = Array.from(movieCheckboxes).every(cb => cb.checked);
+                    const someChecked = Array.from(movieCheckboxes).some(cb => cb.checked);
+                    
+                    selectAllCheckbox.checked = allChecked;
+                    selectAllCheckbox.indeterminate = someChecked && !allChecked;
+                });
+            });
+        });
 
-            if (discountType === '1') {
-                discountInfo.textContent = 'Nhập phần trăm giảm giá (VD: 10 cho 10%)';
-                maxDiscountField.required = false;
-            } else {
-                discountInfo.textContent = 'Nhập số tiền giảm giá (VD: 50000 cho 50,000 VND)';
-                maxDiscountField.required = false;
-                if (maxDiscountField.value > 0) {
-                    maxDiscountField.value = '';
-                }
-            }
+        function toggleAllMovies() {
+            const selectAll = document.getElementById('selectAllMovies');
+            const movieCheckboxes = document.querySelectorAll('.movie-checkbox');
+            
+            movieCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
         }
 
         // Validate form
         document.querySelector('form').addEventListener('submit', function(e) {
-            const startDate = new Date(document.getElementById('startDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
+            const errors = validateDates();
             
-            if (endDate <= startDate) {
+            if (errors.length > 0) {
                 e.preventDefault();
-                alert('Ngày kết thúc phải sau ngày bắt đầu!');
+                alert('Lỗi validation:\n' + errors.join('\n'));
                 return false;
             }
         });
+        
+        function validateDates() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const now = new Date();
+            
+            // Reset thời gian để so sánh chỉ ngày
+            now.setHours(0, 0, 0, 0);
+            startDate.setHours(0, 0, 0, 0);
+            
+            let errors = [];
+            
+            // Kiểm tra ngày bắt đầu không được trước ngày hiện tại
+            if (startDate < now) {
+                errors.push('Ngày bắt đầu không được trong quá khứ');
+            }
+            
+            // Kiểm tra ngày kết thúc phải sau ngày bắt đầu
+            if (endDate <= startDate) {
+                errors.push('Ngày kết thúc phải sau ngày bắt đầu');
+            }
+            
+            // Kiểm tra ngày kết thúc không được trong quá khứ
+            if (endDate < now) {
+                errors.push('Ngày kết thúc không được trong quá khứ');
+            }
+            
+            return errors;
+        }
+
+        // Real-time validation khi người dùng thay đổi ngày
+        document.getElementById('startDate').addEventListener('change', function() {
+            highlightDateErrors();
+        });
+
+        document.getElementById('endDate').addEventListener('change', function() {
+            highlightDateErrors();
+        });
+
+        function highlightDateErrors() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const now = new Date();
+            
+            // Reset styles
+            startDateInput.style.borderColor = '#d1d5db';
+            endDateInput.style.borderColor = '#d1d5db';
+            
+            if (startDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                startDate.setHours(0, 0, 0, 0);
+                now.setHours(0, 0, 0, 0);
+                
+                if (startDate < now) {
+                    startDateInput.style.borderColor = '#ef4444';
+                }
+            }
+            
+            if (endDateInput.value && startDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(endDateInput.value);
+                
+                if (endDate <= startDate) {
+                    endDateInput.style.borderColor = '#ef4444';
+                }
+                
+                now.setHours(0, 0, 0, 0);
+                endDate.setHours(0, 0, 0, 0);
+                
+                if (endDate < now) {
+                    endDateInput.style.borderColor = '#ef4444';
+                }
+            }
+        }
     </script>
 
 </body>

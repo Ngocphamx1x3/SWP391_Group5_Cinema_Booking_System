@@ -2,56 +2,19 @@
 <%@page import="model.Room, java.util.List"%>
 <%
     List<Room> rooms = (List<Room>) request.getAttribute("rooms");
+    
+    // Set active page for sidebar highlighting
+    request.setAttribute("activePage", "seat-design");
+    request.setAttribute("pageTitle", "Chọn Phòng Để Thiết Kế Ghế");
 %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Chọn Phòng Thiết Kế Ghế | Cinema Booking</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <jsp:include page="../layout/StaffStyles.jsp"/>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: #f4f7fa;
-                color: #2d3748;
-                min-height: 100vh;
-            }
-
-            /* ===== Sidebar ===== */
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 280px;
-                height: 100vh;
-                background: #ffffff;
-                border-right: 1px solid #e2e8f0;
-                display: flex;
-                flex-direction: column;
-                padding: 30px 0;
-                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05);
-                z-index: 1000;
-            }
-
-            .sidebar-logo {
-                text-align: center;
-                margin-bottom: 50px;
-                padding: 0 25px;
-            }
-
-            .sidebar-logo h2 {
-                font-size: 26px;
-                font-weight: 700;
-                color: #1a202c;
-                letter-spacing: 1px;
-            }
-
+            /* ===== Content-specific styles ===== */
             .sidebar-logo p {
                 font-size: 11px;
                 color: #6b7280;
@@ -373,14 +336,6 @@
 
             /* ===== Responsive ===== */
             @media (max-width: 768px) {
-                .sidebar {
-                    width: 100%;
-                    height: auto;
-                    position: relative;
-                }
-                header, .content, footer {
-                    margin-left: 0;
-                }
                 .room-grid {
                     grid-template-columns: 1fr;
                 }
@@ -392,34 +347,13 @@
     </head>
     <body>
 
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <h2>🎬 CINEMA PRO</h2>
-                <p>Staff Panel</p>
-            </div>
-            <nav>
-                <a href="${pageContext.request.contextPath}/staffdashboard">🏢 Thông tin rạp của tôi</a>
-                <a href="${pageContext.request.contextPath}/staff/rooms">🎭 Quản lý phòng chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/seat-design" class="active">💺 Thiết kế ghế trong phòng</a>
-                <a href="${pageContext.request.contextPath}/staff/schedules">📅 Quản lý lịch chiếu</a>
-                <a href="${pageContext.request.contextPath}/staff/bookings">🎫 Quản lý đặt vé</a>
-                <a href="${pageContext.request.contextPath}/staff/reports">📈 Báo cáo rạp của tôi</a>
-            </nav>
-            <a href="${pageContext.request.contextPath}/logout" class="logout">🚪 Đăng xuất</a>
-        </div>
-
-        <header>
-            <h1>🎯 Chọn Phòng Để Thiết Kế Ghế</h1>
-            <div class="header-right">
-                <span>👤 Staff: <%= session.getAttribute("staffName") != null ? session.getAttribute("staffName") : "Nhân viên" %></span>
-                <span>⏰ <%= new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()) %></span>
-            </div>
-        </header>
+        <jsp:include page="../layout/StaffSidebar.jsp"/>
+        <jsp:include page="../layout/StaffHeader.jsp"/>
 
         <div class="content">
             <div class="form-container">
                 <div class="form-header">
-                    <h2>💺 Thiết Kế Ghế Trong Phòng</h2>
+                    <h2>Thiết Kế Ghế Trong Phòng</h2>
                     <p>Chọn phòng chiếu để bắt đầu thiết kế layout ghế. Bạn có thể kéo thả ghế, thay đổi loại ghế và lưu thiết kế.</p>
                 </div>
 
@@ -444,45 +378,43 @@
                         <div class="room-details">
                             <div class="detail-item">
                                 <span class="detail-label">Loại phòng</span>
-                                <span class="detail-value">🎭 <%= room.getScreenType() %></span>
+                                <span class="detail-value"><%= room.getScreenType() %></span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Âm thanh</span>
-                                <span class="detail-value">🔊 <%= room.getSoundSystem() %></span>
+                                <span class="detail-value"><%= room.getSoundSystem() %></span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Sức chứa</span>
-                                <span class="detail-value">💺 <%= room.getCapacity() %> ghế</span>
+                                <span class="detail-value"><%= room.getCapacity() %> ghế</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Layout</span>
-                                <span class="detail-value">📐 <%= room.getSeatRows() %>x<%= room.getSeatColumns() %></span>
+                                <span class="detail-value"><%= room.getSeatRows() %>x<%= room.getSeatColumns() %></span>
                             </div>
                         </div>
 
                         <a href="${pageContext.request.contextPath}/staff/seat-design?roomId=<%= room.getId() %>" 
                            class="btn btn-primary <%= !room.isStatus() ? "disabled" : "" %>"
                            <%= !room.isStatus() ? "onclick=\"alert('Phòng này đang ngừng hoạt động. Không thể thiết kế ghế.'); return false;\"" : "" %>>
-                            🎨 Thiết kế ghế
+                            Thiết kế ghế
                         </a>
                     </div>
                     <% } %>
                 </div>
                 <% } else { %>
                 <div class="no-rooms">
-                    <h3>📝 Chưa có phòng chiếu nào</h3>
+                    <h3>Chưa có phòng chiếu nào</h3>
                     <p>Bạn cần tạo phòng chiếu trước khi có thể thiết kế ghế.</p>
                     <a href="${pageContext.request.contextPath}/staff/rooms?action=add" class="btn btn-primary" style="margin-top: 20px;">
-                        ➕ Thêm phòng chiếu mới
+                        Thêm phòng chiếu mới
                     </a>
                 </div>
                 <% } %>
             </div>
         </div>
 
-        <footer>
-            © 2025 Cinema Booking System - Staff Panel | Powered by Modern Technology
-        </footer>
+        <jsp:include page="../layout/StaffFooter.jsp"/>
 
         <script>
             // Thêm hiệu ứng hover cho thẻ phòng
